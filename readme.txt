@@ -27,7 +27,7 @@ What's under the hood? Let's see:
 * Multiple customizable ticket views 
 * Private notes on tickets
 * Simple ticket re-assignment 
-* Ticket severity supported a test to see what happens
+* Ticket severity supported 
 * Translation-ready 
 
 This isn't a feature but it is worth mentioning that a great support desk plugin ought to have an awesome support team behind it. This one does,
@@ -57,16 +57,31 @@ if we can say so ourselves :-)
 3. Upload the `kanzu-support-desk` directory to the `/wp-content/plugins/` directory
 4. Activate the plugin in the Plugin dashboard
 
+= After activation =
+You'll be redirected to 'Kanzu Support Desk' > Dashboard. This'll display your performance statistics when you receive new tickets. Navigate to 'Kanzu Support Desk' > 'Settings' to change your settings.
+Please check [our documentation] (http://kanzucode.com/work/kanzu-support-desk/) for a more detailed walk-through should you need it
+
 == Frequently Asked Questions ==
 
 = Can I run KSD on my .wordpress.com site? =
 
-The short answer? No. 
-The long answer? No, you cannot unfortunately
+No, you cannot unfortunately
 
-= Does KSD support email piping? =
+= Can my customers log tickets by sending me an email? =
 
-With an optional add-on, yes it does.
+With an optional add-on activated, yes they can. By default though, they can use a form on your website
+
+= Where can I find KSD documentation and user guides? =
+
+For help setting-up and configuring KSD, please refer to our [user guide] (http://kanzucode.com/work/kanzu-support-desk/)
+
+= Where can I get support? =
+
+If you get stuck, please ask for help on the [KSD Support Forum] (http://kanzucode.com/forums/forum/wp-kanzu-support-desk/)
+
+= Will KSD work with my theme? =
+
+Yes; KSD will work with any theme
 
 == Screenshots ==
 
@@ -81,7 +96,7 @@ With an optional add-on, yes it does.
 == Changelog ==
 
 = 1.0.0 =
-* 11 Nov 14 Launched.
+* 21 Nov 14 Launched.
 
 == Upgrade Notice ==
 = 1.0.0 =
