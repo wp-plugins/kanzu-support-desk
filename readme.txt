@@ -19,6 +19,7 @@ We do the heavy-lifting for you so you can focus on your customers. KSD was buil
 You'll love how simple and powerful it is. Ok ok, enough already! So...
 
 What's under the hood? Let's see:
+
 * Multiple channels for ticket-creation: Front-end via a support tab, backend via a pretty form, via Email as an optional add-on
 * Unlimited number of agents supported
 * Beautiful graphs to let you in on your performance
@@ -26,7 +27,7 @@ What's under the hood? Let's see:
 * Multiple customizable ticket views 
 * Private notes on tickets
 * Simple ticket re-assignment 
-* Ticket severity supported
+* Ticket severity supported a test to see what happens
 * Translation-ready 
 
 This isn't a feature but it is worth mentioning that a great support desk plugin ought to have an awesome support team behind it. This one does,
