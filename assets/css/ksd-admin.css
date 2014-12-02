@@ -92,6 +92,9 @@
 #admin-kanzu-support-desk  .ui-tabs .ui-tabs-nav .ui-tabs-anchor{
 	padding: 0.5em 0;
 }
+#ksd-feedback textarea{
+    width: 99%;
+}
 ul.ksd-top-nav{
     margin: 0;
     padding: 0;
@@ -264,6 +267,7 @@ a.new-ticket:hover {
     float: left;
     margin-top: 20px;
     padding-left: 0;
+    width: 100%;
 }
 #update_private_note textarea{
     background-color: #EFEFEF;
@@ -335,6 +339,11 @@ ul.dashboard-statistics-summary li {
   float: left;
   line-height: 70px;
   width: 25%;
+}
+/*Pointers*/
+.wp-pointer-buttons a.ksd-next {
+  margin-right: 22px;
+  margin-top: -6px;
 }
 
 /**Style a ticket item*/
@@ -469,10 +478,59 @@ ul.edit-ticket-options li.selected{
         box-shadow:1px 1px 3px rgba(0,0,0,.1);
         text-align:center;
 } 
- 
+.ksd-blue{
+    color: #2ea2cc;
+} 
 .help_tip{
     cursor: help;
 }
+span.feedback_note{
+    font-size: 0.7em;
+    padding-left: 10px;
+}
+/*Newsletter forms*/ 
+.admin-ksd-content #mc_embed_signup form {display:block; position:relative; text-align:left; padding:10px; border: 1px solid #e5e5e5;background-color: #FFF;}
+.admin-ksd-content #mc_embed_signup h2 {font-weight:bold; padding:0; margin:15px 0; font-size:1.4em;}
+.admin-ksd-content #mc_embed_signup input {border:1px solid #999; -webkit-appearance:none;}
+.admin-ksd-content #mc_embed_signup input[type=checkbox]{-webkit-appearance:checkbox;margin-top: 4px;}
+.admin-ksd-content #mc_embed_signup input[type=radio]{-webkit-appearance:radio;}
+.admin-ksd-content #mc_embed_signup input:focus {border-color:#333;}
+.admin-ksd-content #mc_embed_signup .button {clear:both; background-color: #aaa; border: 0 none; border-radius:4px; color: #FFFFFF; cursor: pointer; display: inline-block; font-size:15px; font-weight: bold; height: 32px; line-height: 32px; margin: 0 5px 10px 0; padding: 0 22px; text-align: center; text-decoration: none; vertical-align: top; white-space: nowrap; width: auto;}
+.admin-ksd-content #mc_embed_signup .button:hover {background-color:#777;}
+.admin-ksd-content #mc_embed_signup .small-meta {font-size: 11px;}
+.admin-ksd-content #mc_embed_signup .nowrap {white-space:nowrap;}
+.admin-ksd-content #mc_embed_signup .mc-field-group {clear:none; position:relative; width:30%; float: left;padding-bottom:10px; min-height:50px;font-size: 0.9em;}
+.admin-ksd-content #mc_embed_signup .size1of2 {clear:none; float:left; display:inline-block; width:46%; margin-right:4%;}
+* html .admin-ksd-content #mc_embed_signup .size1of2 {margin-right:2%; /* Fix for IE6 double margins. */}
+.admin-ksd-content #mc_embed_signup .mc-field-group label {display:block; margin-bottom:3px;}
+.admin-ksd-content #mc_embed_signup .mc-field-group input {display:block; width:95%; padding:8px 0; text-indent:2%;}
+.admin-ksd-content #mc_embed_signup .mc-field-group select {display:inline-block; width:99%; padding:5px 0; margin-bottom:2px;}
+
+.admin-ksd-content #mc_embed_signup .datefield, .admin-ksd-content #mc_embed_signup .phonefield-us{padding:5px 0;}
+.admin-ksd-content #mc_embed_signup .datefield input, .admin-ksd-content #mc_embed_signup .phonefield-us input{display:inline; width:60px; margin:0 2px; letter-spacing:1px; text-align:center; padding:5px 0 2px 0;}
+.admin-ksd-content #mc_embed_signup .phonefield-us .phonearea input, .admin-ksd-content #mc_embed_signup .phonefield-us .phonedetail1 input{width:40px;}
+.admin-ksd-content #mc_embed_signup .datefield .monthfield input, .admin-ksd-content #mc_embed_signup .datefield .dayfield input{width:30px;}
+.admin-ksd-content #mc_embed_signup .datefield label, .admin-ksd-content #mc_embed_signup .phonefield-us label{display:none;}
+
+.admin-ksd-content #mc_embed_signup .indicates-required {text-align:right; font-size:11px; margin-right:4%;}
+.admin-ksd-content #mc_embed_signup .asterisk {color:#c60; font-size:200%;}
+.admin-ksd-content #mc_embed_signup .mc-field-group .asterisk {position:absolute; top:25px; right:10px;}        
+.admin-ksd-content #mc_embed_signup .clear {clear:both;}
+
+.admin-ksd-content #mc_embed_signup .mc-field-group.input-group ul {margin:0; padding:5px 0; list-style:none;}
+.admin-ksd-content #mc_embed_signup .mc-field-group.input-group ul li {display:block; padding:3px 0; margin:0;}
+.admin-ksd-content #mc_embed_signup .mc-field-group.input-group label {display:inline;}
+.admin-ksd-content #mc_embed_signup .mc-field-group.input-group input {display:inline; width:auto; border:none;}
+
+.admin-ksd-content #mc_embed_signup div#mce-responses {float:left; top:-1.4em; padding:0em .5em 0em .5em; overflow:hidden; width:90%;margin: 0 5%; clear: both;}
+.admin-ksd-content #mc_embed_signup div.response {margin:1em 0; padding:1em .5em .5em 0; font-weight:bold; float:left; top:-1.5em; z-index:1; width:80%;}
+.admin-ksd-content #mc_embed_signup #mce-error-response {display:none;}
+.admin-ksd-content #mc_embed_signup #mce-success-response {color:#529214; display:none;}
+.admin-ksd-content #mc_embed_signup label.error {display:block; float:none; width:auto; margin-left:1.05em; text-align:left; padding:.5em 0;}
+
+#mc-embedded-subscribe {clear:both; width:auto; display:block; margin:1em 0 1em 5%;}
+.admin-ksd-content #mc_embed_signup #num-subscribers {font-size:1.1em;}
+.admin-ksd-content #mc_embed_signup #num-subscribers span {padding:.5em; border:1px solid #ccc; margin-right:.5em; font-weight:bold;}
 
 /*Style our navigation*/
 .ksd-main-nav .ui-tabs-vertical { width: 55em; }

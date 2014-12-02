@@ -3,7 +3,7 @@
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
  * Description:       All-in-one support desk (ticketing) solution for your WordPress site
- * Version:           1.0.0
+ * Version:           1.1.0
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '1.0.0';
+	public $version = '1.1.0';
 	
 	
 	/**
@@ -200,7 +200,22 @@ final class Kanzu_Support_Desk {
                 
                 //Share the plugin's settings with add-ons
                 add_filter( 'ksd_get_settings', array( $this, 'get_settings') );
-	}		
+                
+               //Handle logging of new tickets & replies initiated by add-ons.   
+                add_action( 'ksd_log_new_ticket', array( $this, 'do_log_new_ticket' ) );
+	}
+        
+        /**
+         * Log new tickets & replies initiated by add-ons
+         * We hand this over to the admin-end logic which has
+         * all the functions needed to do this smoothly
+         * @param Object $new_ticket The new ticket or reply object
+         */
+        public function do_log_new_ticket( $new_ticket ){
+            require_once( KSD_PLUGIN_DIR .  'includes/admin/class-ksd-admin.php' );
+            $ksd_admin =  KSD_Admin::get_instance();
+            $ksd_admin->do_log_new_ticket( $new_ticket );
+        }
 
 	/**
 	* Added to write custom debug messages to the debug log (wp-content/debug.log). You

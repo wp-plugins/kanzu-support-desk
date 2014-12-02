@@ -4,7 +4,7 @@ Donate link: http://kanzucode.com/
 Tags: ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.0
-Stable tag: 4.3
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -95,10 +95,20 @@ Yes; KSD will work with any theme
 
 == Changelog ==
 
+= 1.1.0 =
+* Introductory tour on activation
+* 1/12/14 Tickets logged by an action
+* Feedback form added to help tab
+* Newsletter opt-in added
+* Add-on list retrieved from KSD add-on feed
+
 = 1.0.0 =
 * 21 Nov 14 Launched.
 
 == Upgrade Notice ==
+= 1.1.0 =
+* Feedback options added, optional add-ons updated, intro tour on activation
+
 = 1.0.0 =
 * Join the Kanzu Support club
 

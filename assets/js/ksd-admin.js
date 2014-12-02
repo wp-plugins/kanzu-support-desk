@@ -5,7 +5,7 @@ jQuery( document ).ready(function() {
     
         /**For the general navigation tabs**/
 	jQuery( "#tabs").tabs().addClass( "ui-tabs-vertical ui-helper-clearfix" );
-	jQuery( "#tabs > ul > li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" );
+	jQuery( "#tabs > ul > li" ).removeClass( "ui-corner-top" ).addClass( "ui-corner-left" ); 
  
         /*Get URL parameters*/
         jQuery.urlParam = function(name){
@@ -51,7 +51,7 @@ jQuery( document ).ready(function() {
         };
 
         KSDUtils.isNumber = function(){
-            return typeof n== "number" && isFinite(n) && n%1===0;
+            return typeof n === "number" && isFinite(n) && n%1===0;
         };
 
         /*---------------------------------------------------------------*/
@@ -136,7 +136,7 @@ jQuery( document ).ready(function() {
         }//eof:KSDSettings
         
         /*---------------------------------------------------------------*/
-        /***************************DASHBOARD*****************************/
+        /*-------------------DASHBOARD----------------------------------*/
         /*---------------------------------------------------------------*/
         KSDDashboard = function(){
         _this = this;
@@ -144,7 +144,7 @@ jQuery( document ).ready(function() {
         this.init = function(){
                 this.statistics();
                 this.charts();
-        }
+        };
 	
     /*
      * Show statistics summary.
@@ -212,7 +212,82 @@ jQuery( document ).ready(function() {
                   jQuery('#ksd_dashboard_chart').html( err );
               }
 	}//eof:charts
-        }//eof:Dashboard
+        };//eof:Dashboard
+        
+        /*---------------------------------------------------------------*/
+        /*---------------------------HELP-------------------------------*/
+        /*-------------------------------------------------------------*/
+        KSDHelp = function(){ 
+        _this = this;
+        this.init = function(){
+            //Submit feedback
+            this.submitFeedbackForm();
+            this.generateTourContent();
+        };
+
+            /*
+             * Submit Feedback form.
+             */
+            this.submitFeedbackForm = function(){
+             /**AJAX: Send Feedback**/
+            jQuery('form#ksd-feedback').submit( function(e){
+                e.preventDefault(); 
+                KSDUtils.showDialog( "loading",ksd_admin.ksd_labels.msg_sending );  
+                jQuery.post(ksd_admin.ajax_url, 
+                            jQuery(this).serialize(),//The action and nonce are hidden fields in the form, 
+                            function( response ) {     
+                                if ( KSDUtils.ajaxResponseErrorCheck( response )) {
+                                    return;
+                                }
+                                KSDUtils.showDialog("success",JSON.parse( response ));       
+                            });
+            });            
+            };
+            this.generateTourContent = function(){
+                var pointerContentIndex = 0;
+                if( ksd_admin.ksd_tour_pointers.ksd_intro_tour ){//If pointers are set, show them off 
+                    var pointer = ksd_admin.ksd_tour_pointers.ksd_intro_tour;
+                     options = jQuery.extend( pointer[pointerContentIndex].options, {
+                        close: function() {
+                           /* jQuery.post( ksd_admin.ajax_url, {
+                                pointer: 'ksd_intro_tour',
+                                action: 'dismiss-wp-pointer'
+                            });*/
+                            //Disable tour mode
+                            jQuery.post( ksd_admin.ajax_url, {
+                                action: 'ksd_disable_tour_mode'
+                            });
+                        }
+                    }); 
+                jQuery( pointer[pointerContentIndex].target ).pointer( options ).pointer('open');
+                //Inject a 'Next' button into the pointer
+                jQuery( 'a.close' ).after('<a href="#" class="ksd-next button-primary">'+ksd_admin.ksd_labels.pointer_next+'</a>');
+  
+                //Move to the next tab when 'Next' is clicked
+                jQuery( 'a.ksd-next' ).click( function(){                     
+                    if( pointerContentIndex < 5 ){
+                        ++pointerContentIndex;
+                    }
+                    else{//End of the tour
+                        //Dismiss the pointer in the WP db
+                        /*jQuery.post( ksd_admin.ajax_url, {
+                                pointer: 'ksd_intro_tour',
+                                action: 'dismiss-wp-pointer'
+                        });*/
+                        //Disable tour mode
+                        jQuery.post( ksd_admin.ajax_url, {
+                                action: 'ksd_disable_tour_mode'
+                        });
+                        //Close the pointer
+                        jQuery( pointer[pointerContentIndex].target ).pointer('close');
+                        return;
+                    }
+                   jQuery('.wp-pointer-content span').html(pointer[pointerContentIndex].options.content);
+                   jQuery( "#tabs" ).tabs( "option", "active", pointerContentIndex );
+                });
+                }
+            };
+        };
         
         /*---------------------------------------------------------------*/
         /*************************************TICKETS*********************/
@@ -483,7 +558,7 @@ jQuery( document ).ready(function() {
                     
                     
 		});	
-        }
+        };
         
        //--------------------------------------------------------------------------------------
        /**AJAX: Send a single ticket response when it's been typed and 'Reply' is hit**/
@@ -631,12 +706,16 @@ jQuery( document ).ready(function() {
                             activeTab=5;
                     break;
             }
+            //If we are in tour mode, activate the dashboard
+            if ( ksd_admin.ksd_tour_pointers.ksd_intro_tour ){
+                activeTab=0;       
+            }
             jQuery( "#tabs" ).tabs( "option", "active", activeTab );
             //Set the title
             jQuery('.admin-ksd-title h2').html(ksd_admin.admin_tab.replace("ksd-","").replace("-"," "));
 
             /**Hide/Show the assign to options on click of a ticket's 'Assign To' item**/
-            jQuery("#ticket-tabs").on('click','.ticket-actions a.assign_to',function(event) {
+            jQuery("#ticket-tabs").on('click','.ticket-actions a.assign_to',function( event ) {
                     event.preventDefault();//Important otherwise the page skips around
                     var tkt_id= jQuery(this).attr('id').replace("tkt_",""); //Get the ticket ID
                     jQuery(".ticket_"+tkt_id+" ul.assign_to").toggleClass("hidden");
@@ -695,7 +774,7 @@ jQuery( document ).ready(function() {
             });
         
         
-        }
+        };
         
         /*
          * Change ticket status
@@ -740,7 +819,7 @@ jQuery( document ).ready(function() {
             });
 
         
-        }
+        };
         
         
         this.uiSingleTicketView = function(){
@@ -808,7 +887,7 @@ jQuery( document ).ready(function() {
                                  });
                          });	
          }
-        }//eof:this.uiSingleTicketView
+        };//eof:this.uiSingleTicketView
         
         
         
@@ -839,7 +918,7 @@ jQuery( document ).ready(function() {
                                                             new_value: form_value
                                                          }, toggle_form_field_input);
             });
-        }
+        };
         
         this.TicketPagination = function(){
             
@@ -861,7 +940,7 @@ jQuery( document ).ready(function() {
             
             
             jQuery(".ksd-pagination-limit").bind("keypress", function(e){
-                if(e.keyCode==13){ //Enter key
+                if( e.keyCode===13 ){ //Enter key
                  var limit = jQuery(this).val();
                 
                 var tab_id = jQuery(this).attr("id").replace("ksd_pagination_limit_","");
@@ -877,7 +956,7 @@ jQuery( document ).ready(function() {
             });
             //End:Limit
             
-        }
+        };
         
         /*
          * Show loading image.
@@ -887,13 +966,13 @@ jQuery( document ).ready(function() {
         _ShowLoadingImage = function(show){
              if (typeof(show) === 'undefined') show=false;
                          
-             if ( show == true){
+             if ( show === true){
                 jQuery("div.ksd-pending2").removeClass('ksd-hide-pending');
             }
              else{
                 jQuery("div.ksd-pending2").addClass('ksd-hide-pending');
             }
-        }
+        };
         
         //AJAX:: When the refresh button is hit
         this.ksdRefreshTicketsPage = function() {           
@@ -907,7 +986,7 @@ jQuery( document ).ready(function() {
                 var curPage = _getCurrentPage( tab_id);
                  _this.getTickets( currentTabID,search_text,limit, curPage-1);                   
                 });
-        }
+        };
         
         this.TicketSearch = function(){
 
@@ -926,7 +1005,7 @@ jQuery( document ).ready(function() {
             });
             
             jQuery(".ksd_tkt_search_input").bind("keypress",function(e){
-                if(e.keyCode==13){ //Enter key
+                if( e.keyCode===13 ){ //Enter key
                     var tab_id = jQuery(this).attr("name").replace("ksd_tkt_search_input_","");
                     var search_text = jQuery("input[name=ksd_tkt_search_input_"+tab_id+"]").val();
                     var tab_id_name="#tickets-tab-"+tab_id;
@@ -939,13 +1018,13 @@ jQuery( document ).ready(function() {
                 }
             });
             
-        }
+        };
         
         
         _getTabId = function(tab_id){
             var tab_id_name="#tickets-tab-"+tab_id;
             return tab_id_name;
-        }
+        };
         /*Add effects to ticket row
          * Add border to the ksd-row-ctrl table row
          * */
@@ -989,7 +1068,7 @@ jQuery( document ).ready(function() {
 
             });
 
-        }
+        };
 
         
         /*
@@ -1001,13 +1080,13 @@ jQuery( document ).ready(function() {
             var curpage = jQuery("#ksd_pagination_"+ tab_id + " ul li .current-nav").html();
             //return (KSDUtils.isNumber(curpage)) ? curpage : 1;
             return parseInt(curpage);
-        }
+        };
         
         
         _getPagLimt = function(tab_id){
             var limit = jQuery("#ksd_pagination_limit_" + tab_id).val();
             return limit;
-        }
+        };
         
         /**
          * Renders the table pagination
@@ -1021,7 +1100,7 @@ jQuery( document ).ready(function() {
         _loadTicketPagination = function( tab_id, current_page, total_results, limit){
                     
                     //@TODO: Why is this coming as o instead of 0.
-                    if( total_results == "o" || total_results == "0"  ) return; 
+                    if( total_results === "o" || total_results === "0"  ) return; 
                     var pages = (total_results/limit);
                     jQuery("#ksd_pagination_"+ tab_id + " ul li").remove();
                     jQuery("#ksd_pagination_"+ tab_id + " ul").append('\
@@ -1029,7 +1108,7 @@ jQuery( document ).ready(function() {
                         <li><a rel="external" href="#"><</a></li>');    
             
                     for (i =0; i < pages; i++){
-                        currentclass=(i== current_page-1)?"current-nav" : "";
+                        currentclass=( i=== current_page-1 )?"current-nav" : "";
                         ii=i+1;
                         jQuery("#ksd_pagination_"+ tab_id + " ul").append(' \
                             <li><a rel="external" href="#" class="'+currentclass+'">'+ ii +'</a></li> \
@@ -1049,20 +1128,20 @@ jQuery( document ).ready(function() {
                         var pages = Math.ceil(total_results/limit);
 
                         //Prev, Next
-                        if(cpage == ">" || cpage == "&gt;"){
+                        if(cpage === ">" || cpage === "&gt;"){
                             cpage = current_page + 1;
                         }
-                        if(cpage == ">>" || cpage=='&gt;&gt;'){
+                        if(cpage === ">>" || cpage==='&gt;&gt;'){
                             cpage = Math.ceil(total_results/limit);
                         }
-                        if(cpage == "<" || cpage == '&lt;'){
+                        if(cpage === "<" || cpage === '&lt;'){
                             cpage = current_page - 1;
                         }
-                        if(cpage == "<<" || cpage == '&lt;&lt;'){
+                        if(cpage === "<<" || cpage === '&lt;&lt;'){
                             cpage = 1;
                         }
                         
-                        if( cpage <  1 || cpage > pages || cpage == current_page ){
+                        if( cpage <  1 || cpage > pages || cpage === current_page ){
                             return;
                         }
 
@@ -1077,8 +1156,9 @@ jQuery( document ).ready(function() {
                           _this.getTickets( _getTabId(tab_id), search_text, limit, cpage-1);
                         
                     });
-        }
-}
+        };
+};
+
         //Settings
         Settings = new KSDSettings();
         Settings.init();
@@ -1087,8 +1167,12 @@ jQuery( document ).ready(function() {
         Dashboard = new KSDDashboard();
         Dashboard.init();
         
+        //Help
+        KSDHelpObj = new KSDHelp();
+        KSDHelpObj.init();
+        
         //Tickets
         Tickets = new KSDTickets();
         Tickets.init();
- 
+         
 });

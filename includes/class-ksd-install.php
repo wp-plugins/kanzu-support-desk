@@ -33,10 +33,11 @@ class KSD_Install {
 	 *
 	 * @since     1.0.0
 	 */
-	public function __construct() {
- 
+	public function __construct() { 
 		//Re-direct on plugin activation
 		add_action( 'admin_init', array( $this, 'redirect_to_dashboard'    ) );
+                //Upgrade settings
+                add_filter( 'ksd_upgrade_settings',  array( $this, 'upgrade_settings' ) );
 	}
  
 
@@ -64,15 +65,28 @@ class KSD_Install {
 	 *
 	 */
 	public static function activate() { 
-            //Check for re-activation. Will later be used to check for upgrades
+            // Bail if activating from network, or bulk. @since 1.1.0
+            if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
+		return;
+            }
+            //Check for re-activation.  
             $settings   =   Kanzu_Support_Desk::get_settings();
             if ( $settings['kanzu_support_version'] == KSD_VERSION ) {//Bail out if it's a re-activation
                 return;
-            }
-               self::create_tables();
-               self::set_default_options(); 	
-               // Redirect to welcome screen
-               set_transient( '_ksd_activation_redirect', 1, 60 * 60 );
+            }          
+            //Check if it's an upgrade. If it is, run the updates. @since 1.1.0
+            if ( $settings['kanzu_support_version'] != KSD_VERSION ) {                
+                $settings['kanzu_support_version'] =  KSD_VERSION;   //Update the version
+                $upgraded_settings = apply_filters( 'ksd_upgrade_settings', $settings );
+                do_action ( 'ksd_upgrade_plugin' );//Mainly holds changes to the tables. (and all other changes really)               
+                Kanzu_Support_Desk::update_settings( $upgraded_settings );                            
+                set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
+                return;
+             }
+            //This is a new installation. Yippee! 
+            self::create_tables();
+            self::set_default_options(); 	            
+            set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
 	}
         
        /**
@@ -96,9 +110,25 @@ class KSD_Install {
 		wp_redirect( admin_url( 'admin.php?page='.KSD_SLUG ) );
 		exit;		
 	}
+        
+        /**
+         * Upgrade the plugin's settings
+         * @param Array $settings The current plugin settings
+         * @return Array $settings The upgraded settings array
+         * @since 1.1.0
+         */
+        public function upgrade_settings( $settings ){
+            switch ( KSD_VERSION ){
+                case '1.1.0':
+                    $settings['tour_mode']   = "yes";
+                    break;
+            }
+            return $settings;
+        }
  
        /**
 	* Create KSD tables
+        * @since 1.0.0
 	*/
         private static function create_tables() {
             global $wpdb;        
@@ -194,7 +224,8 @@ class KSD_Install {
                         'ticket_mail_message'               => __("Thank you for getting in touch with us. Your support request has been opened. Please allow at least 24 hours for a reply.","kanzu-support-desk"),
                         'recency_definition'                => __("1","kanzu-support-desk"),
                         'show_support_tab'                  => "yes",
-                        'tab_message_on_submit'             => __("Thank you. Your support request has been opened. Please allow at least 24 hours for a reply.","kanzu-support-desk")
+                        'tab_message_on_submit'             => __("Thank you. Your support request has been opened. Please allow at least 24 hours for a reply.","kanzu-support-desk"),
+                        'tour_mode'                         => "yes" //@since 1.1.0
 
                     );
             }
