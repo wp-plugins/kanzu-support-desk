@@ -1,0 +1,454 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: BUG-EMAIL-ADDR <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: yyyy-mm-dd hh:mm+0000\n"
+"PO-Revision-Date: 2014-11-12 20:52+0300\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Eazy Po 0.9.5.2\n"
+
+#: kanzu-support-desk.php:64 kanzu-support-desk.php:73
+msgid "Cheatin&#8217; huh?"
+msgstr ""
+
+#: includes/class-ksd-install.php:199
+msgid "Your support ticket has been received"
+msgstr ""
+
+#: includes/class-ksd-install.php:200
+msgid ""
+"Thank you for getting in touch with us. Your support request has been "
+"opened. Please allow at least 24 hours for a reply."
+msgstr ""
+
+#: includes/class-ksd-install.php:201
+msgid "1"
+msgstr ""
+
+#: includes/class-ksd-install.php:203
+msgid ""
+"Thank you. Your support request has been opened. Please allow at least 24 "
+"hours for a reply."
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:116
+msgid "Incoming Tickets"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:117
+msgid "Total Open Tickets"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:118
+msgid "Unassigned Tickets"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:119
+msgid "Avg. Response Time"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:120
+msgid "Trash"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:121
+#: includes/admin/views/html-admin-new-ticket.php:21
+msgid "Assign To"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:122
+msgid "Change Status"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:123
+#: includes/admin/views/html-admin-new-ticket.php:6
+#: includes/admin/views/html-admin-tickets-list.php:4
+#: includes/admin/views/html-admin-tickets-list.php:33
+#: includes/frontend/views/html-frontend-new-ticket.php:13
+msgid "Subject"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:124
+#: includes/admin/views/html-admin-new-ticket.php:4
+msgid "Customer Name"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:125
+#: includes/admin/views/html-admin-new-ticket.php:5
+msgid "Customer Email"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:126
+#: includes/admin/views/html-admin-single-ticket.php:17
+#: includes/admin/views/html-admin-single-ticket.php:30
+msgid "Reply"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:127
+msgid "Forward"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:128
+msgid "Update Note"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:129
+msgid "Still Loading..."
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:130
+#: includes/admin/views/html-admin-single-ticket.php:6
+#: includes/admin/views/html-admin-single-ticket.php:8
+#: includes/admin/views/html-admin-single-ticket.php:11
+msgid "Loading..."
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:159
+#: includes/admin/class-ksd-admin.php:188
+#: includes/admin/views/html-admin-wrapper.php:10
+msgid "Settings"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:172
+#: includes/admin/class-ksd-admin.php:173
+msgid "Kanzu Support Desk"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:185
+#: includes/admin/views/html-admin-wrapper.php:3
+msgid "Dashboard"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:186
+msgid "Tickets"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:187
+#: includes/admin/views/html-admin-single-ticket.php:3
+#: includes/admin/views/html-admin-wrapper.php:9
+msgid "New Ticket"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:189
+#: includes/admin/views/html-admin-wrapper.php:11
+msgid "Add-ons"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:190
+#: includes/admin/views/html-admin-wrapper.php:12
+msgid "Help"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:225
+#: includes/admin/class-ksd-admin.php:325
+#: includes/admin/class-ksd-admin.php:350
+#: includes/admin/class-ksd-admin.php:375
+#: includes/admin/class-ksd-admin.php:400
+#: includes/admin/class-ksd-admin.php:431
+#: includes/admin/class-ksd-admin.php:464
+#: includes/admin/class-ksd-admin.php:505
+#: includes/admin/class-ksd-admin.php:637
+#: includes/admin/class-ksd-admin.php:680
+#: includes/admin/class-ksd-admin.php:713
+#: includes/admin/class-ksd-admin.php:743
+#: includes/admin/class-ksd-admin.php:768
+msgid "Busted!"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:282
+msgid "Nothing to see here. Great work!"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:381
+msgid "Deleted"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:383
+#: includes/admin/class-ksd-admin.php:414
+#: includes/admin/class-ksd-admin.php:446
+#: includes/admin/class-ksd-admin.php:780
+msgid "Failed"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:412
+msgid "Updated"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:444
+msgid "Re-assigned"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:473
+msgid "Error | Reply too short"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:486
+#: includes/admin/class-ksd-admin.php:586
+msgid "Error"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:534
+msgid "Error | Your subject and message should be at least 2 characters"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:550
+msgid "Ticket Logged"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:557
+msgid "Error | Invalid email address specified"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:646
+msgid "No logged tickets. Graphing isn't possible"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:653
+msgid "Day"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:654
+msgid "Ticket Volume"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:724
+msgid "Settings Updated"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:726
+msgid "Update failed. Please retry"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:749
+msgid "Settings Reset"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:751
+msgid "Reset failed. Please retry"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:778
+msgid "Noted"
+msgstr ""
+
+#: includes/admin/views/html-admin-addons.php:1
+msgid ""
+"Take your Kanzu Support Desk experience to the next level by activating this "
+"add-on"
+msgstr ""
+
+#: includes/admin/views/html-admin-addons.php:5
+#: includes/frontend/views/html-frontend-new-ticket.php:10
+msgid "Email"
+msgstr ""
+
+#: includes/admin/views/html-admin-addons.php:7
+msgid ""
+"Allow your customers to create tickets by sending emails to "
+"support@yourdomain.com"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:1
+msgid "Initial Configuration"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:2
+msgid ""
+"To set-up your installation and start an awesome ticketing experience, go to "
+"'Kanzu Support Desk' in your side navigation and select 'Settings'"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:3
+msgid "Documentation"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:4
+msgid ""
+"Kindly go through readme.txt. If the instructions there aren't sufficient, "
+"please visit: <a href='http://kanzucode.com/kanzu-support-desk' "
+"target='_blank'>Kanzu Support Documentation</a>"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:5
+#: includes/frontend/views/html-frontend-new-ticket.php:1
+msgid "Support"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:6
+msgid ""
+"If you have any trouble, please get in touch with us: <a href='http://"
+"kanzucode.com/support' target='_blank'>Kanzu Support</a>"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:7
+msgid "Show some love"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:8
+msgid ""
+"Has Kanzu Support been helpful? If so, please give us a rating in the "
+"WordPress plugin store"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:12
+msgid "Severity"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:14
+msgid "LOW"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:15
+msgid "MEDIUM"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:16
+msgid "HIGH"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:17
+msgid "URGENT"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:32
+msgid "Send Email"
+msgstr ""
+
+#: includes/admin/views/html-admin-new-ticket.php:39
+msgid "Submit"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:5
+msgid ""
+"If this is enabled, an email is sent to the customer's email address for all "
+"new tickets logged from the front-end"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:11
+msgid "Defaults to the primary administrator's display name"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:16
+msgid "Defaults to the primary administrator's email address"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:30
+msgid ""
+"In the ticket view, the 'Recently Updated' & 'Recently resolved' tabs, show "
+"tickets updated in last X hours"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:43
+msgid "Update"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:44
+msgid "Reset to Defaults"
+msgstr ""
+
+#: includes/admin/views/html-admin-single-ticket.php:2
+msgid "Back"
+msgstr ""
+
+#: includes/admin/views/html-admin-single-ticket.php:18
+msgid "Private Note"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list-template.php:4
+msgid "Refresh"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list-template.php:7
+msgid "Show:"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list-template.php:11
+msgid "Search Tickets"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list.php:5
+#: includes/admin/views/html-admin-tickets-list.php:34
+msgid "Requester"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list.php:6
+#: includes/admin/views/html-admin-tickets-list.php:35
+msgid "Requested"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list.php:7
+#: includes/admin/views/html-admin-tickets-list.php:36
+msgid "Type"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets-list.php:8
+#: includes/admin/views/html-admin-tickets-list.php:37
+msgid "Priority"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:8
+msgid "My unresolved"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:9
+msgid "All"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:10
+msgid "Unassigned"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:11
+msgid "Recently updated"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:12
+msgid "Recently resolved"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:13
+msgid "Resolved"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:33
+msgid "Delete ticket"
+msgstr ""
+
+#: includes/admin/views/html-admin-tickets.php:34
+msgid "Are you sure you want to delete this ticket and all data related to it?"
+msgstr ""
+
+#: includes/admin/views/html-admin-wrapper.php:7
+msgid "Home"
+msgstr ""
+
+#: includes/admin/views/html-admin-wrapper.php:8
+msgid "Inbox"
+msgstr ""
+
+#: includes/frontend/views/html-frontend-new-ticket.php:3
+msgid "Close"
+msgstr ""
+
+#: includes/frontend/views/html-frontend-new-ticket.php:7
+msgid "Name"
+msgstr ""
+
+#: includes/frontend/views/html-frontend-new-ticket.php:16
+msgid "Message"
+msgstr ""
+
+#: includes/frontend/views/html-frontend-new-ticket.php:24
+msgid "Send Message"
+msgstr ""
