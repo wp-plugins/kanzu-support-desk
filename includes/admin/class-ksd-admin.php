@@ -137,6 +137,7 @@ class KSD_Admin {
                 $admin_labels_array['msg_still_loading']            = __('Still Loading...','kanzu-support-desk');
                 $admin_labels_array['msg_loading']                  = __('Loading...','kanzu-support-desk');
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
+                $admin_labels_array['msg_error']                    = __('An unexpected error occured. Kindly retry','kanzu-support-desk');
                 $admin_labels_array['pointer_next']                 = __('Next','kanzu-support-desk');
                         
                 

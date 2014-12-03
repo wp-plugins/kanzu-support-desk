@@ -4,7 +4,7 @@ Donate link: http://kanzucode.com/
 Tags: ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.0
-Stable tag: 1.1.0
+Stable tag: 1.1.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,10 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.1.1 =
+* BUG FIX | MySQL <=5.5 tables weren't being created
+* Proper styling for the settings view
+* Gracefully handle errors in dashboard AJAX response 
 
 = 1.1.0 =
 * Introductory tour on activation
@@ -106,6 +110,9 @@ Yes; KSD will work with any theme
 * 21 Nov 14 Launched.
 
 == Upgrade Notice ==
+= 1.1.1 =
+* Create KSD tables, gracefully handle errors in dashboard AJAX response & better styling for settings
+
 = 1.1.0 =
 * Feedback options added, optional add-ons updated, intro tour on activation
 

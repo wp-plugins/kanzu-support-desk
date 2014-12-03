@@ -1,5 +1,7 @@
 /*Load google chart first. */
+if ( 'undefined' !== typeof(google) ) {
 google.load("visualization", "1", {packages:["corechart"]});
+}
 
 jQuery( document ).ready(function() {
     
@@ -158,7 +160,16 @@ jQuery( document ).ready(function() {
                         }, 
                             function(response) {
                       jQuery("ul.dashboard-statistics-summary").removeClass("pending");
-                       var raw_response = JSON.parse(response);
+                       try{ 
+                              var raw_response = JSON.parse(response); 
+                            }catch( err ){
+                                jQuery( 'ul.dashboard-statistics-summary').html( ksd_admin.ksd_labels.msg_error );
+                                return;
+                            }
+                       if ( 'undefined' !== typeof(raw_response.error) ){
+                            jQuery('ul.dashboard-statistics-summary').html( raw_response.error.message );
+                            return ;
+                        }
                        var unassignedTickets = ( 'undefined' !== typeof raw_response.unassigned_tickets[0] ? raw_response.unassigned_tickets[0].unassigned_tickets : 0 );
                        var openTickets = ( 'undefined' !== typeof raw_response.open_tickets[0] ? raw_response.open_tickets[0].open_tickets : 0)
                        var averageResponseTime = ( 'undefined' !== typeof raw_response.average_response_time ? raw_response.average_response_time : '00:00' );

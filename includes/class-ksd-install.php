@@ -71,22 +71,26 @@ class KSD_Install {
             }
             //Check for re-activation.  
             $settings   =   Kanzu_Support_Desk::get_settings();
-            if ( $settings['kanzu_support_version'] == KSD_VERSION ) {//Bail out if it's a re-activation
-                return;
-            }          
-            //Check if it's an upgrade. If it is, run the updates. @since 1.1.0
-            if ( $settings['kanzu_support_version'] != KSD_VERSION ) {                
-                $settings['kanzu_support_version'] =  KSD_VERSION;   //Update the version
-                $upgraded_settings = apply_filters( 'ksd_upgrade_settings', $settings );
-                do_action ( 'ksd_upgrade_plugin' );//Mainly holds changes to the tables. (and all other changes really)               
-                Kanzu_Support_Desk::update_settings( $upgraded_settings );                            
+            if ( isset( $settings['kanzu_support_version'] ) ){//Reactivation or upgrade
+                if ( $settings['kanzu_support_version'] == KSD_VERSION ) {//Bail out if it's a re-activation
+                    return;
+                }          
+                //Check if it's an upgrade. If it is, run the updates. @since 1.1.0
+                if ( $settings['kanzu_support_version'] != KSD_VERSION ) {                
+                    $settings['kanzu_support_version'] =  KSD_VERSION;   //Update the version
+                    $upgraded_settings = apply_filters( 'ksd_upgrade_settings', $settings );
+                    do_action ( 'ksd_upgrade_plugin' );//Mainly holds changes to the tables. (and all other changes really)               
+                    Kanzu_Support_Desk::update_settings( $upgraded_settings );                            
+                    set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
+                    return;
+                 }
+            }
+            else{
+                //This is a new installation. Yippee! 
+                self::create_tables();
+                self::set_default_options(); 	            
                 set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
-                return;
-             }
-            //This is a new installation. Yippee! 
-            self::create_tables();
-            self::set_default_options(); 	            
-            set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
+            }
 	}
         
        /**
@@ -148,7 +152,7 @@ class KSD_Install {
 				`cust_account_status` ENUM('ENABLED','DISABLED') DEFAULT 'ENABLED',/*Whether account is enabled or disabled*/
 				`cust_creation_date` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
 				`cust_created_by` BIGINT(20), 
-				`cust_lastmodification_date` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+				`cust_lastmodification_date` TIMESTAMP NULL,
 				`cust_modified_by` BIGINT(20),
                                 UNIQUE ( `cust_email` )
 				);
@@ -164,7 +168,7 @@ class KSD_Install {
                                 `tkt_cust_id` BIGINT(20) NOT NULL, 
                                 `tkt_assigned_by` BIGINT(20) NOT NULL, 
                                 `tkt_assigned_to` BIGINT(20) NULL, 
-				`tkt_time_updated` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP, 
+				`tkt_time_updated` TIMESTAMP NULL, 
 				`tkt_updated_by` BIGINT(20) NOT NULL,                                 
 				`tkt_private_note` TEXT,
                                 KEY (`tkt_assigned_to`,`tkt_assigned_by`,`tkt_cust_id`),
@@ -180,7 +184,7 @@ class KSD_Install {
 				`rep_is_bcc` BOOLEAN DEFAULT FALSE,
 				`rep_date_created` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				`rep_created_by` BIGINT(20) NOT NULL,
-				`rep_date_modified` DATETIME NULL ON UPDATE CURRENT_TIMESTAMP,
+				`rep_date_modified` TIMESTAMP NULL,
 				`rep_message` TEXT NOT NULL,
                                 CONSTRAINT `rep_tktid_fk`
                                 FOREIGN KEY (`rep_tkt_id`) REFERENCES {$wpdb->prefix}kanzusupport_tickets(`tkt_id`)
