@@ -104,7 +104,7 @@ class KSD_Admin {
 	public function enqueue_admin_scripts() { 
 		
 		//Load the script for Google charts. Load this before the next script. 
-                wp_enqueue_script( KSD_SLUG . '-admin-gcharts', '//google.com/jsapi', array(), KSD_VERSION ); 
+                wp_enqueue_script( KSD_SLUG . '-admin-gcharts', '//www.google.com/jsapi', array(), KSD_VERSION ); 
                 wp_enqueue_script( KSD_SLUG . '-admin-js', KSD_PLUGIN_URL.'/assets/js/ksd-admin.js', array( 'jquery','jquery-ui-core','jquery-ui-tabs','json2','jquery-ui-dialog','jquery-ui-tooltip','jquery-ui-accordion' ), KSD_VERSION ); 
 		
                 //Variables to send to the admin JS script
@@ -765,11 +765,9 @@ class KSD_Admin {
                         $output_array[] = array( $y_axis_label,$x_axis_label );
                         
 			foreach ( $tickets_raw as $ticket ) {
-				$output_array[] = array ($ticket->date_logged,$ticket->ticket_volume);			
-			}
-        
-			
-			echo json_encode($output_array, JSON_NUMERIC_CHECK);
+				$output_array[] = array ($ticket->date_logged,(float)$ticket->ticket_volume);//@since 1.1.2 Added casting since JSON_NUMERIC_CHECK was kicked out 			
+			}        
+                        echo json_encode( $output_array );//@since 1.1.2 Removed JSON_NUMERIC_CHECK which is only supported PHP >=5.3
 			die();//Important
                         
                     }catch( Exception $e){
@@ -802,7 +800,7 @@ class KSD_Admin {
                         }else{
                             $summary_stats["average_response_time"] = '00:00:00';
                         }
-                        echo json_encode ( $summary_stats , JSON_NUMERIC_CHECK);                    
+                        echo json_encode ( $summary_stats );                    
                         die();//Important
                     }catch( Exception $e){
                         $response = array(

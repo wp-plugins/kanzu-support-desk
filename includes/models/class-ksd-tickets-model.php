@@ -110,7 +110,7 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
                         FROM {$wpdb->prefix}kanzusupport_tickets AS TICKETS
                         JOIN `{$wpdb->prefix}kanzusupport_replies` AS REPLIES ON TICKETS.tkt_id = REPLIES.rep_tkt_id
                         WHERE TICKETS.tkt_status = 'OPEN'
-                        GROUP BY replies.rep_tkt_id";
+                        GROUP BY rep_tkt_id";
              $summary_statistics["response_times"] = parent::exec_query( $response_time_query );
              
              $open_tickets_query = 'SELECT COUNT(tkt_id) AS open_tickets FROM '.$this->_tablename.' WHERE tkt_status != "RESOLVED" ';
