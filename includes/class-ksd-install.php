@@ -16,8 +16,6 @@ if ( ! class_exists( 'KSD_Install' ) ) :
 
 class KSD_Install {
 
-
-
 	/**
 	 * Instance of this class.
 	 *
@@ -40,7 +38,6 @@ class KSD_Install {
                 add_filter( 'ksd_upgrade_settings',  array( $this, 'upgrade_settings' ) );
 	}
  
-
 	/**
 	 * Return an instance of this class.
 	 *
@@ -65,10 +62,13 @@ class KSD_Install {
 	 *
 	 */
 	public static function activate() { 
+            
+            
             // Bail if activating from network, or bulk. @since 1.1.0
             if ( is_network_admin() || isset( $_GET['activate-multi'] ) ) {
 		return;
             }
+            
             //Check for re-activation.  
             $settings   =   Kanzu_Support_Desk::get_settings();
             if ( isset( $settings['kanzu_support_version'] ) ){//Reactivation or upgrade
@@ -88,10 +88,33 @@ class KSD_Install {
             else{
                 //This is a new installation. Yippee! 
                 self::create_tables();
-                self::set_default_options(); 	            
+                self::set_default_options(); 	
+                self::log_initial_tickets();
                 set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
             }
+            
 	}
+        
+        
+        /**
+         * Do de-activation stuff.
+         */
+        public static function deactivate (){
+            
+            //De-activate in later action because of bug in de-activating at this point.
+            //http://wordpress.stackexchange.com/questions/27850/deactivate-plugin-upon-deactivation-of-another-plugin
+            add_action( 'update_option_active_plugins', array( $this, 'deactivate_addons' ) );
+            
+        }
+        
+        
+        /**
+         * De-activate addons.
+         */
+        public static function deactivate_addons(){
+            $ksd_addons = apply_filters( 'ksd_deactivate', array() );
+            deactivate_plugins ( $ksd_addons );
+        }
         
        /**
 	 * Redirect to a welcome page on activation
@@ -233,7 +256,99 @@ class KSD_Install {
 
                     );
             }
+            
+            /**
+             * Create initial tickets
+             */
+            /**
+             * Log initial tickets so that dashboard line graph shows.
+             */
+            public static function log_initial_tickets ( ){
+                
+                
+                global $current_user;
+                get_currentuserinfo();
+                
+                
+                $email   = $current_user->user_email;
+                $fullname= $current_user->user_firstname .  ', ' . 
+                           $current_user->user_lastname;
+                $firstname = $current_user->user_firstname;
+                
+                $date = date_create( date('Y-m-d') );
+                $date2 = date_sub($date, date_interval_create_from_date_string('1 days'));
+                $date3 = date_sub($date, date_interval_create_from_date_string('3 days'));
+                $date4 = date_sub($date, date_interval_create_from_date_string('4 days'));
+                $date5 = date_sub($date, date_interval_create_from_date_string('5 days'));
+                
+                $tickets = array(    
+                    array(
+                        'subject' => 'Welcome to Kanzu Support Desk.',
+                        'message' => 'Hi '.  $firstname .' <br />,  The KSD Team would like to ',
+                        'channel' => 'STAFF',
+                        'status'  => 'OPEN',
+                        'email'   => $email,
+                        'fullname'=> $fullname,
+                        'time'    => $date
+                    ),
+                    array(
+                        'subject' => 'Quick Intro to Kanzu Support Desk Features.',
+                        'message' => 'Quick Intro to Kanzu Support Desk Features',
+                        'channel' => 'STAFF',
+                        'status'  => 'OPEN',
+                        'email'   => $email,
+                        'fullname'=> $fullname,
+                        'time'    => $date2
+                    ),
+                    array(
+                        'subject' => 'KSD Documentation.',
+                        'message' => 'KSD Documentation',
+                        'channel' => 'STAFF',
+                        'status'  => 'OPEN',
+                        'email'   => $email,
+                        'fullname'=> $fullname,
+                        'time'    => $date3
+                    ),
+                    array(
+                        'subject' => 'KSD Addons and other goodies.',
+                        'message' => 'KSD Addons and other goodies',
+                        'channel' => 'STAFF',
+                        'status'  => 'OPEN',
+                        'email'   => $email,
+                        'fullname'=> $fullname,
+                        'time'    => $date4
+                    ),
+                    array(
+                        'subject' => 'KSD on social networks.',
+                        'message' => 'KSD on social networks',
+                        'channel' => 'STAFF',
+                        'status'  => 'OPEN',
+                        'email'   => $email,
+                        'fullname'=> $fullname,
+                        'time'    => $date5
+                    ),
+                );
+                
+                foreach ( $tickets as $tkt ){
+                    $new_ticket                         = new stdClass(); 
+                    $new_ticket->tkt_subject            = $tkt['subject'];
+                    $new_ticket->tkt_message            = $tkt['message'];
+                    $new_ticket->tkt_channel            = $tkt['channel'];
+                    $new_ticket->tkt_status             = $tkt['status'];
+                    $new_ticket->cust_email             = $tkt['email'];
+                    $new_ticket->cust_fullname          = $tkt['fullname'];
+                    $new_ticket->tkt_time_logged        = $tkt['time'];
+                        
+                    //Log the ticket
+                    do_action( 'ksd_log_new_ticket', $new_ticket );
+                }
+                 
+                 
+                
+            }
  
+
+
 }
 
 endif;

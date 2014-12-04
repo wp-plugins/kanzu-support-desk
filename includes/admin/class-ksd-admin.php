@@ -46,6 +46,9 @@ class KSD_Admin {
 		// Add an action link pointing to the settings page.
 		add_filter( 'plugin_action_links_' . plugin_basename( KSD_PLUGIN_FILE ), array( $this, 'add_action_links' ) );		
    
+                //Add plugin to active addons
+                add_filter( 'ksd_deactivate', array( $this, 'append_to_activelist' ) );
+                
 		//Handle AJAX calls
 		add_action( 'wp_ajax_ksd_filter_tickets', array( $this, 'filter_tickets' ));
                 add_action( 'wp_ajax_ksd_log_new_ticket', array( $this, 'log_new_ticket' ));
@@ -580,14 +583,15 @@ class KSD_Admin {
          *              by an add-on
          */
         public function log_new_ticket( $new_ticket_array=null ){
-                //In add-on mode, this function was called by an add-on
-                $add_on_mode = ( !is_null( $new_ticket_array ) ? true : false );
-                
+                //In add-on mode, this function was called by an add-on                            
+                $add_on_mode = ( is_array( $new_ticket_array ) ? true : false );
+
                 if( ! $add_on_mode ){//Check for NONCE if not in add-on mode
                     if ( ! wp_verify_nonce( $_POST['new-ticket-nonce'], 'ksd-new-ticket' ) ){
                              die ( __('Busted!','kanzu-support-desk') );
                     }
                 }
+                
 		$this->do_admin_includes();
             
                 try{
@@ -597,7 +601,7 @@ class KSD_Admin {
                 if ( $add_on_mode ){
                     $_POST = $new_ticket_array;
                 }
-                
+            
                 //Check what channel the request came from
                 switch ( sanitize_text_field( $_POST['ksd_tkt_channel']) ){
                     case 'support_tab':
@@ -611,17 +615,17 @@ class KSD_Admin {
                 }                       
                            
                 $ksd_excerpt_length = 30;//The excerpt length to use for the message
-                
+
                 //We sanitize each input before storing it in the database
                 $new_ticket = new stdClass(); 
                 $new_ticket->tkt_subject    	    = sanitize_text_field( stripslashes( $_POST[ 'ksd_tkt_subject' ] ) );
                 $new_ticket->tkt_message_excerpt    = wp_trim_words( sanitize_text_field( stripslashes( $_POST[ 'ksd_tkt_message' ] )  ), $ksd_excerpt_length );
                 $new_ticket->tkt_message            = sanitize_text_field( stripslashes( $_POST[ 'ksd_tkt_message' ] ));
                 $new_ticket->tkt_channel            = $tkt_channel;
-                $new_ticket->tkt_status             = $tkt_status;
+                $new_ticket->tkt_status             = $tkt_status;             
                 
                 //Server side validation for the inputs. Only holds if we aren't in add-on mode
-                if ( ( ! $add_on_mode && strlen( $new_ticket->tkt_subject ) < 2 || strlen( $new_ticket->tkt_message ) < 2) ) {
+                if ( ( ! $add_on_mode && strlen( $new_ticket->tkt_subject ) < 2 || strlen( $new_ticket->tkt_message ) < 2 ) ) {
                      throw new Exception( __('Error | Your subject and message should be at least 2 characters','kanzu-support-desk'), -1 );
                 }
                 
@@ -1073,7 +1077,16 @@ class KSD_Admin {
                      $headers = 'From: '.$settings['ticket_mail_from_name'].' <'.$settings['ticket_mail_from_email'].'>' . "\r\n";
              return wp_mail( $to, $subject, $message, $headers ); 
          }
- 
+         
+         /**
+         * Append plugin to active plugin list
+         * @since    1.1.1
+         * 
+         */
+        public static function append_to_activelist ( $active_addons ){
+            $active_addons['ksd-mail'] =  'ksd-mail/ksd-mail.php'; 
+            return $active_addons;
+        }
 }
 endif;
 

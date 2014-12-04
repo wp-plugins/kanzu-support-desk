@@ -4,7 +4,7 @@ Donate link: http://kanzucode.com/
 Tags: ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.0
-Stable tag: 1.1.2
+Stable tag: 1.1.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -94,6 +94,9 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.1.3 =
+* BUG FIX | Eliminated subject/message length error returned for tickets not logged by add-ons  
+
 = 1.1.2 =
 * BUG FIX | Removed JSON_NUMERIC_CHECK which is only supported in PHP >=5.3
 * BUG FIX | Dashboard graph wasn't being generated on sites with SSL (HTTPS)
@@ -114,6 +117,9 @@ Yes; KSD will work with any theme
 * 21 Nov 14 Launched.
 
 == Upgrade Notice ==
+= 1.1.3 =
+* BUG Fix - Eliminated message/subject length error on logging new tickets 
+
 = 1.1.2 =
 * Support for PHP < 5.3 added, support for graphs on sites with SSL (HTTPS)
 

@@ -3,7 +3,7 @@
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
  * Description:       All-in-one support desk (ticketing) solution for your WordPress site
- * Version:           1.1.2
+ * Version:           1.1.3
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '1.1.2';
+	public $version = '1.1.3';
 	
 	
 	/**
@@ -94,6 +94,9 @@ final class Kanzu_Support_Desk {
 	 * When the plugin is deleted, the uninstall.php file is loaded.
 	 */
 	register_activation_hook( __FILE__, array( 'KSD_Install', 'activate' ) );
+        
+        //Register a de-activation hook
+        register_deactivation_hook( __FILE__, array( 'KSD_Install', 'deactivate' ) );
 	
         }
 	
