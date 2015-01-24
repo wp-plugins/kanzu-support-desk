@@ -8,26 +8,28 @@
         <div class="ksd-message">
             <?php wp_editor(  '' , 'ksd_tkt_message', array( "media_buttons" => false, "textarea_rows" => 5 ) ); ?> 
         </div>
-        <div class="ksd-severity">
-            <label for="ksd_tkt_severity"><?php _e('Severity','kanzu-support-desk'); ?></label>
-            <select name="ksd_tkt_severity">
-                <option><?php _e('LOW','kanzu-support-desk'); ?></option>
-                <option><?php _e('MEDIUM','kanzu-support-desk'); ?></option>
-                <option><?php _e('HIGH','kanzu-support-desk'); ?></option>
-                <option><?php _e('URGENT','kanzu-support-desk'); ?></option>
-            </select>
-        </div>
-        <div class="ksd-assign-to">
-            <label for="ksd_tkt_assigned_to"><?php _e('Assign To','kanzu-support-desk'); ?></label>
-            <select name="ksd_tkt_assigned_to">
-                <option>-</option>
-            <?php $agents = get_users();
-                foreach ( $agents as $agent ) {
-                    echo '<option value='.$agent->ID.'>' . esc_html( $agent->display_name ) . '</option>';
-                }
-            ?>
-            </select>
-        </div>
+        <div class="ksd-severity-and-assign">
+            <div class="ksd-severity">
+                <label for="ksd_tkt_severity"><?php _e('Severity','kanzu-support-desk'); ?></label>
+                <select name="ksd_tkt_severity">
+                    <option><?php _e('LOW','kanzu-support-desk'); ?></option>
+                    <option><?php _e('MEDIUM','kanzu-support-desk'); ?></option>
+                    <option><?php _e('HIGH','kanzu-support-desk'); ?></option>
+                    <option><?php _e('URGENT','kanzu-support-desk'); ?></option>
+                </select>
+            </div>
+            <div class="ksd-assign-to">
+                <label for="ksd_tkt_assigned_to"><?php _e('Assign To','kanzu-support-desk'); ?></label>
+                <select name="ksd_tkt_assigned_to">
+                    <option>-</option>
+                <?php $agents = get_users();
+                    foreach ( $agents as $agent ) {
+                        echo '<option value='.$agent->ID.'>' . esc_html( $agent->display_name ) . '</option>';
+                    }
+                ?>
+                </select>
+            </div>
+        </div>    
         <div class="ksd-send-email">
             <label for="ksd_send_email"><?php _e('Send Email','kanzu-support-desk'); ?></label>
             <input name="ksd_send_email"  type="checkbox" value="yes" checked/>
@@ -36,6 +38,6 @@
         <input name="action" type="hidden" value="ksd_log_new_ticket" />
         <input name="ksd_tkt_channel" type="hidden" value="staff" />
          <?php wp_nonce_field( 'ksd-new-ticket', 'new-ticket-nonce' ); ?>
-        <input type="submit" value="<?php _e( "Submit","kanzu-support-desk" ); ?>" name="ksd-submit-admin-new-ticket" class="ksd-submit"/>
+        <input type="submit" value="<?php _e( "Send","kanzu-support-desk" ); ?>" name="ksd-submit-admin-new-ticket" class="ksd-submit"/>
     </form>
 </div>

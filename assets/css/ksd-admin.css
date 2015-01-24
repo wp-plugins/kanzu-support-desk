@@ -61,7 +61,7 @@
 #ticket-tabs ul.ui-tabs-nav {
   position: absolute;
   top: -35px;
-  width: 56%;
+  width: 60%;
 }
 #admin-kanzu-support-desk #ticket-tabs ul.ui-tabs-nav li {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
@@ -195,7 +195,7 @@ ul.ksd-top-nav li{
   position: absolute;
   right: 0;
   top: -35px;
-  width: 45%;
+  width: 40%;
 }
 .ksd-pagination-field {
   float: left;
@@ -228,11 +228,7 @@ ul.ksd-top-nav li{
 }
 #ticket-tabs div.pending{
 }
-
-.ksd-hide-pending{
-    display:none;
-}
-#admin-kanzu-support-desk div.ksd-pending2{
+#admin-kanzu-support-desk div.ksd-loading-tickets{
    	background-image: url("../images/loading.gif");
 	background-repeat: no-repeat;
 	background-position: center;
@@ -278,6 +274,11 @@ a.new-ticket:hover {
 .ksd-subject,.ksd-message,.ksd-tags{
     width: 100%;
 }
+.ksd-severity-and-assign{
+    width: 50%;
+    float: right;
+    text-align: right;
+}
 .ksd-assign-to,.ksd-severity{
     width: 50%;
 }
@@ -304,7 +305,8 @@ a.new-ticket:hover {
     border: 1px solid #fff;
     color: #fff;
     padding: 5px 40px;
-    float: right;
+    float: left;
+    clear: both;
 }
 #ksd-single-ticket{
     padding-left: 15px;
@@ -417,9 +419,26 @@ ul.dashboard-statistics-summary {
 }
 ul.dashboard-statistics-summary li {
   float: left;
-  line-height: 70px;
+  font-size: 24px;
+  line-height: 1.2;
+  padding-top: 12px;
   width: 25%;
+  color: #2ea2cc;
 }
+ul.dashboard-statistics-summary li span {
+  color: #999;
+  float: left;
+  font-size: 13px;
+  font-weight: normal;
+  line-height: 1;
+  width: 100%;
+}
+
+ul.dashboard-statistics-summary li.ksd-dash-click:hover{
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 /*Pointers*/
 .wp-pointer-buttons a.ksd-next {
   margin-right: 22px;
@@ -439,6 +458,7 @@ ul.dashboard-statistics-summary li {
     padding: 10px 0 8px;
     margin: 0;
     line-height: 20px;
+    border-bottom: 2px solid #F1F1F1;
 }
 .ticket-list-item input{
     float: left;
@@ -446,24 +466,64 @@ ul.dashboard-statistics-summary li {
     margin-right: 5px;
     margin-left: 1%;
 }
-.ticket-list-item span.customer_name{
-    width: 25%;
+.ticket-list-item span.ksd-tkt-customer-name{
+    width: 19%;
     float: left; /*This is important otherwise the width element won't work*/
 }
-
+.ticket-list-item span.ksd-tkt-status {
+  border-radius: 50px;
+  float: left;
+  margin: 0 2%;
+  text-align: center;
+  width: 2%;
+}
+ul.tour {
+  list-style-type: none;
+  text-align: center;
+}
+ul.tour li {
+  border-radius: 50px;
+  color: #fff;
+  display: inline;
+  margin: 0 3px;
+  padding: 5px;
+}
+.ticket-list-item span.new,.ticket-list-item span.assigned,ul.tour li.new{    
+    background-color: #2ea2cc;  
+}
+.ticket-list-item span.open,ul.tour li.open{
+  background-color: #008000;  
+}
+.ticket-list-item span.pending,ul.tour li.pending{
+  background-color: #9361d3;  
+}
+.ticket-list-item span.resolved,ul.tour li.resolved{
+  background-color: #bcc1c5;  
+}
+.ticket-list-item span.ksd-tkt-status a{
+    text-decoration: none;
+    color: #fff;
+    text-transform: uppercase;
+}
 .ticket-list-item .subject-and-message-excerpt {
   float: left;
   margin: 0;
   padding: 0;
   width: 63%;
 }
-.ticket-list-item .subject-and-message-excerpt a,.ticket-list-item .customer_name a{
+.ticket-list div.high{
+  border-left: 2px solid red;  
+}
+.ticket-list div.urgent{
+  border-left: 2px solid orange;  
+}
+.ticket-list-item .subject-and-message-excerpt a,.ticket-list-item .ksd-tkt-customer-name a{
     text-decoration: none;
 }
 .ticket-list-item .ticket-time {
   float: right;
   text-align: right;
-  width: 9%;
+  width: 6%; /*width: 9%;*/
   padding-right: 1%;
 }
 .ticket-list-item .description{
@@ -978,6 +1038,14 @@ span.feedback_note{
   cursor: pointer;
 }
 
+/*KSD Ticket OPEN class*/
+.ksd-open-ticket a.ksd-tkt-subject,.ksd-open-ticket .ksd-tkt-customer-name a{
+    font-weight:bold;
+}
+.ksd-open-ticket{
+    background-color: #FFF;
+}
+
 
 /**
  * Jquery UI CSS.  
@@ -1312,3 +1380,33 @@ span.feedback_note{
 	filter:Alpha(Opacity=35); /* support: IE8 - See #6059 */
 }
  
+
+/*Ticket Severity*/
+.ksd-ticket-severity-low{ 
+
+}
+
+.ksd-tkt-severity-low{
+   /* background-image: url("../images/severity-flag-black-icon-16.png");
+    width:16px;
+    height:16px;*/
+   width:3%;
+}
+.ksd-tkt-severity-medium{
+    background-image: url("../images/severity-flag-blue-icon-16.png");
+    width:16px;
+    height:16px;
+    width:3%;
+}
+.ksd-tkt-severity-high{
+    background-image: url("../images/severity-flag-yellow-icon-16.png");
+    width:16px;
+    height:16px;
+    width:3%;
+}
+.ksd-tkt-severity-urgent{
+    background-image: url("../images/severity-flag-red-icon-16.png");
+    width:16px;
+    height:16px;
+    width:3%;
+}

@@ -68,8 +68,25 @@ jQuery( document ).ready(function() {
                 this.toggleViewsToHide();
                 //Use an accordion in case we have multiple setting blocks
                 this.enableAccordion();
+                
+                this.changeSubmitBtnVal();
         }
 
+        /*
+         * 
+         */
+        this.changeSubmitBtnVal = function(){
+            jQuery('.ksd-send-email :checkbox').click(function(){
+                var $this = jQuery(this);
+                var $that = jQuery('[name=ksd-submit-admin-new-ticket]');
+                if ($this.is(':checked')) {
+                    $that.val('Send')
+                } else {
+                    $that.val('Save')
+                }
+            });
+        }
+        
 	/*
 	 * Submit Settings form.
 	 */
@@ -101,6 +118,7 @@ jQuery( document ).ready(function() {
         
          //Add Tooltips for the settings panel
          jQuery( ".help_tip" ).tooltip();
+         jQuery("span.ksd-tkt-status a").tooltip();
          
 	}//eof:submitSettingsForm
  
@@ -147,7 +165,49 @@ jQuery( document ).ready(function() {
                 this.statistics();
                 this.charts();
         };
-	
+        
+        
+        /**
+         * 
+         * Add click events to the dashboard summaries
+         */
+	_addClickEventToSummaries = function(){
+            
+            //Total Open Tickets
+            jQuery("#admin-kanzu-support-desk ul.dashboard-statistics-summary li:eq(0)").click(function(){
+                jQuery("#tabs").tabs("option", "active", 1);
+                jQuery("#ticket-tabs").tabs("option", "active", 0);
+                
+                var tab_id = 1;
+                var currentTabID = "#tickets-tab-1";
+                var limit = jQuery( currentTabID+" .ksd-pagination-limit" ).val();                
+                var search_text = jQuery( currentTabID+" .ksd_tkt_search_input").val();//Get val from the class on the input field, no need for ID
+                jQuery( currentTabID ).addClass("pending");
+                var curPage = _getCurrentPage( tab_id);
+                 _this.getTickets( currentTabID,search_text,limit, curPage-1);  
+                 
+                jQuery('.admin-ksd-title h2').html('Tickets' ); 
+            });
+            
+            //Unassigned Tickets
+            jQuery("#admin-kanzu-support-desk ul.dashboard-statistics-summary li:eq(1)").click(function(){
+                jQuery("#tabs").tabs("option", "active", 1);
+                jQuery("#ticket-tabs").tabs("option", "active", 2);  
+                
+                var tab_id = 3;
+                var currentTabID = "#tickets-tab-3";
+                var limit = jQuery( currentTabID+" .ksd-pagination-limit" ).val();                
+                var search_text = jQuery( currentTabID+" .ksd_tkt_search_input").val();//Get val from the class on the input field, no need for ID
+                jQuery( currentTabID ).addClass("pending");
+                var curPage = _getCurrentPage( tab_id);
+                 _this.getTickets( currentTabID,search_text,limit, curPage-1);  
+                 
+                jQuery('.admin-ksd-title h2').html('Tickets' );
+            });
+            
+            
+            
+        }
     /*
      * Show statistics summary.
      */
@@ -174,10 +234,13 @@ jQuery( document ).ready(function() {
                        var openTickets = ( 'undefined' !== typeof raw_response.open_tickets[0] ? raw_response.open_tickets[0].open_tickets : 0)
                        var averageResponseTime = ( 'undefined' !== typeof raw_response.average_response_time ? raw_response.average_response_time : '00:00' );
                        var the_summary_stats = "";
-                       the_summary_stats+= "<li>"+openTickets+" <span>"+ksd_admin.ksd_labels.dashboard_open_tickets+"</span></li>";
-                       the_summary_stats+= "<li>"+unassignedTickets+" <span>"+ksd_admin.ksd_labels.dashboard_unassigned_tickets+"</span></li>";
-                       the_summary_stats+= "<li>"+averageResponseTime+" <span>"+ksd_admin.ksd_labels.dashboard_avg_response_time+"</span></li>";
-                       jQuery("ul.dashboard-statistics-summary").html(the_summary_stats);                                   
+                       the_summary_stats+= "<li class='ksd-dash-click'><span>"+ksd_admin.ksd_labels.dashboard_open_tickets+"</span>"+openTickets+"</li>";
+                       the_summary_stats+= "<li class='ksd-dash-click'><span>"+ksd_admin.ksd_labels.dashboard_unassigned_tickets+"</span>"+unassignedTickets+"</li>";
+                       the_summary_stats+= "<li><span>"+ksd_admin.ksd_labels.dashboard_avg_response_time+"</span>"+averageResponseTime+"</li>";
+                       jQuery("ul.dashboard-statistics-summary").html(the_summary_stats);  
+                       
+                       //Add click events
+                       _addClickEventToSummaries();
                 });	
         }
     }//eof:statistics
@@ -276,7 +339,7 @@ jQuery( document ).ready(function() {
   
                 //Move to the next tab when 'Next' is clicked
                 jQuery( 'a.ksd-next' ).click( function(){                     
-                    if( pointerContentIndex < 5 ){
+                    if( pointerContentIndex < 6  ){
                         ++pointerContentIndex;
                     }
                     else{//End of the tour
@@ -294,7 +357,15 @@ jQuery( document ).ready(function() {
                         return;
                     }
                    jQuery('.wp-pointer-content span').html(pointer[pointerContentIndex].options.content);
-                   jQuery( "#tabs" ).tabs( "option", "active", pointerContentIndex );
+                   if ( pointerContentIndex >= 2 ){//At pointerContentIndex == 2, we are displaying ticket
+                                                  //instructions. We display two different sets of instructions, one after 
+                                                  //another so we compensate for this by decrementing pointerContentIndex 
+                      displayTabIndex = pointerContentIndex - 1;
+                    }
+                    else{
+                       displayTabIndex = pointerContentIndex;
+                    }
+                    jQuery( "#tabs" ).tabs( "option", "active", displayTabIndex );
                 });
                 }
             };
@@ -326,13 +397,65 @@ jQuery( document ).ready(function() {
         this.ksdRefreshTicketsPage();
         };
 
-    this.getTickets = function( current_tab, search, limit, offset ){
+
+        /*
+         * Total ticket indicator in ticket filters
+         */
         
+        _totalTicketsPerFilter = function(){
+            var data = {
+                action : 'ksd_filter_totals',
+                ksd_admin_nonce : ksd_admin.ksd_admin_nonce
+            };		
+            
+            jQuery.post(ksd_admin.ajax_url, data, function(response) {
+                var respObj = {};
+                
+                //To catch cases when the ajax response is not json
+                try{
+                    //to reduce cost of recalling parse
+                    respObj = JSON.parse(response); 
+                }catch( err){
+                    KSDUtils.showDialog("error", err);  
+                    return;
+                }
+                
+                if(jQuery.isArray(respObj)){
+                    jQuery("#ticket-tabs ul li:eq(0) span").html( "(" + respObj[0].tab1 + ")" );
+                    jQuery("#ticket-tabs ul li:eq(1) span").html( "(" + respObj[0].tab2 + ")" );
+                    jQuery("#ticket-tabs ul li:eq(2) span").html( "(" + respObj[0].tab3 + ")" );
+                    jQuery("#ticket-tabs ul li:eq(3) span").html( "(" + respObj[0].tab4 + ")" );
+                    jQuery("#ticket-tabs ul li:eq(4) span").html( "(" + respObj[0].tab5 + ")" );
+                    jQuery("#ticket-tabs ul li:eq(5) span").html( "(" + respObj[0].tab6 + ")" );
+                }
+                
+            });
+        }
+
+    /**
+     * Get tickets. Show a loading dialog while the tickets are being retrieved
+     * @param string current_tab The ID of the current tickets tab, including the # e.g. #tickets-tab-1
+     * @param string search The search string specified
+     * @param int limit How many tickets to display
+     * @param int offset The offset
+     * @param boolean overlayLoading Whether to overlay the 'Loading' dialog during ticket loading or not.
+     *                  We overlay the loading dialog when we refresh, paginate or search in a ticket view. Otherwise, we don't
+     * @returns N/A. Writes returned tickets to the UI
+     */    
+    this.getTickets = function( current_tab, search, limit, offset, overlayLoading ){
+
         //Default values
         if( typeof(search)=== 'undefined' )  search = "";
         if( typeof(limit) === 'undefined' )  limit = 5;
-        if( typeof(offset)=== 'undefined' )  offset = 0;
-        
+        if( typeof(offset)=== 'undefined' || jQuery.isNumeric(offset) === false )  offset = 0;
+        if( typeof(overlayLoading) === 'undefined' )  overlayLoading = false;
+        //Show a loading dialog
+        if ( overlayLoading ){
+           jQuery('.ksd-loading-tickets-overlay').removeClass('hidden'); 
+        }else{
+            jQuery( current_tab ).addClass('ksd-loading-tickets');
+        }
+
                     if(jQuery(current_tab).hasClass("pending"))//Check if the tab has been loaded before
                     {
                         var data = {
@@ -343,7 +466,6 @@ jQuery( document ).ready(function() {
                                 limit:  limit,
                                 offset: offset
                         };		
-
                         
                         jQuery.post(ksd_admin.ajax_url, data, function(response) {
                             
@@ -378,29 +500,42 @@ jQuery( document ).ready(function() {
                                      jQuery(current_tab+' .ticket-list').html( ticketListData);
                                      
                                     jQuery.each( respObj[0], function( key, value ) {
-                                        
-                                            ticketListData = '<div class="ksd-row-data ticket-list-item" id="ksd_tkt_id_'+value.tkt_id+'">';
+
+                                            open_tkt_class=""; //class to show which tickets open and which have been resolved.
+                                            if (  value.tkt_status === 'OPEN'){
+                                                open_tkt_class="ksd_open_ticket";
+                                            }
+                                            //Number of replies
+                                            kst_tkt_replies = "";
+                                            if(value.rep_count > 0){
+                                               kst_tkt_replies = " (" + value.rep_count+ ") ";
+                                            }
+                                            
+
+                                            ticketListData = '<div class="ksd-row-data ticket-list-item ksd-'+(value.tkt_status).toLowerCase()+'-ticket '+(value.tkt_severity).toLowerCase()+'" id="ksd_tkt_id_'+value.tkt_id+'">';
                                             ticketListData += 	'<div class="ticket-info">';
                                             ticketListData += 	'<input type="checkbox" value="'+value.tkt_id+'" name="ticket_ids[]" id="ticket_checkbox_'+value.tkt_id+'">';
-                                            ticketListData += 	'<span class="customer_name"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_assigned_by+'</a></span>';
-                                            ticketListData +=	'<span class="subject-and-message-excerpt"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_subject;
-                                            ticketListData += 	' - '+value.tkt_message_excerpt+'</span></a>';                                            
+                                            ticketListData +=   '<span class="ksd-tkt-status '+(value.tkt_status).toLowerCase()+'"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit" title="'+(value.tkt_status).toLowerCase()+'">'+(value.tkt_status).charAt(0)+'</a></span>';  
+                                            ticketListData += 	'<span class="ksd-tkt-customer-name"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_assigned_by+ kst_tkt_replies + '</a></span>';
+                                            ticketListData +=	'<span class="subject-and-message-excerpt"><a class="ksd-tkt-subject"href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_subject+'</a>';
+                                            ticketListData += 	'<a class="ksd-message-excerpt" href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit"> - '+value.tkt_message_excerpt+'</a></span>';                                            
                                             ticketListData += 	'<span class="ticket-time">'+value.tkt_time_logged+'</span>';
+
                                             ticketListData += 	'</div>';
                                             ticketListData += 	'<div class="ticket-actions" id="tkt_'+value.tkt_id+'">';
                                             ticketListData += 	'<a href="#" class="trash" id="tkt_'+value.tkt_id+'">'+ksd_admin.ksd_labels.tkt_trash+'</a> | ';
                                             ticketListData += 	'<a href="#" id="tkt_'+value.tkt_id+'" class="change_status">'+ksd_admin.ksd_labels.tkt_change_status+'</a> | ';
                                             ticketListData += 	'<a href="#" id="tkt_'+value.tkt_id+'" class="assign_to">'+ksd_admin.ksd_labels.tkt_assign_to+'</a>';
                                             ticketListData += 	ksd_admin.ksd_agents_list;
-                                            ticketListData += 	'<ul class="status hidden"><li>OPEN</li><li>ASSIGNED</li><li>PENDING</li><li>RESOLVED</li></ul>';
+                                            ticketListData += 	'<ul class="status hidden"><li>OPEN</li><li>PENDING</li><li>RESOLVED</li></ul>';
                                             ticketListData += 	'</div>';
                                             ticketListData +=     '</div>';
                                             
                                             jQuery(current_tab+' .ticket-list').append( ticketListData );
                                     });//eof:jQUery.each
 
-                                    /**Add class .alternate to every other row in the tickets table.*/
-                                    jQuery(".ticket-list .ksd-row-data").filter(':even').addClass("alternate");
+                                    /**Add class .alternate to every ticket that's not OPEN.*/
+                                    jQuery(".ticket-list .ksd-row-data:not(.ksd-open-ticket)").addClass("alternate");                                    
                                     
                                     RowCtrlEffects();
                             }
@@ -410,7 +545,12 @@ jQuery( document ).ready(function() {
                             }//eof:if
 
                             jQuery(current_tab).removeClass("pending");
-                            _ShowLoadingImage(false);
+                            if ( overlayLoading ){
+                                jQuery('.ksd-loading-tickets-overlay').addClass('hidden'); 
+                            }else{
+                                jQuery( current_tab ).removeClass('ksd-loading-tickets');//Remove loading image
+                            }
+                            
                             
                             
                             //Add Navigation
@@ -418,6 +558,10 @@ jQuery( document ).ready(function() {
                             var total_rows = respObj[1];
                             var currentpage = offset+1; 
                             _loadTicketPagination(tab_id, currentpage, total_rows, limit);
+                            
+                            //Refresh Totals
+                            _totalTicketsPerFilter();
+                            
                             
                            });//eof:jQuery.post	
                     }//eof:if                
@@ -527,6 +671,7 @@ jQuery( document ).ready(function() {
 		/**AJAX: Delete a ticket **/
 		jQuery("#ticket-tabs").on('click','.ticket-actions a.trash',function(event) {
 	            event.preventDefault();
+                    console.log("CLiked");
                     
 	             var tkt_id= jQuery(this).attr('id').replace("tkt_",""); //Get the ticket ID
 	             jQuery( "#delete-dialog" ).dialog({
@@ -859,7 +1004,7 @@ jQuery( document ).ready(function() {
                             }                             
                              the_ticket = respObj;
                              jQuery("#ksd-single-ticket .author_and_subject").html(the_ticket.tkt_assigned_by+"-"+the_ticket.tkt_subject);
-                             jQuery("#ksd-single-ticket .description").removeClass("pending").html(the_ticket.tkt_message);
+                             jQuery("#ksd-single-ticket .description").removeClass("pending").html(the_ticket.tkt_message).text();
                              jQuery("#ksd-single-ticket textarea[name=tkt_private_note]").val(the_ticket.tkt_private_note);
                              jQuery("#ticket-replies").html(ksd_admin.ksd_labels.msg_still_loading) ;                          
                              //Make the 'Back' button visible
@@ -944,8 +1089,7 @@ jQuery( document ).ready(function() {
                 var tab_id_name="#tickets-tab-"+tab_id;
                 //alert("limit:" + limit + " search:" + search_text);
                 jQuery(tab_id_name).addClass("pending");
-                _ShowLoadingImage(true);
-                 _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit );
+                 _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit, 0, true );
                 
             });
             
@@ -959,8 +1103,7 @@ jQuery( document ).ready(function() {
                 var tab_id_name="#tickets-tab-"+tab_id;
                 //alert("limit:" + limit + " search:" + search_text);
                 jQuery(tab_id_name).addClass("pending");
-                _ShowLoadingImage(true);
-                 _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit );                   
+                 _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit, 0, true );                   
                 }
 
                 
@@ -969,21 +1112,6 @@ jQuery( document ).ready(function() {
             
         };
         
-        /*
-         * Show loading image.
-         * classes used in css - ksd-pending2,  ksd-hide-pending
-         * 
-         */
-        _ShowLoadingImage = function(show){
-             if (typeof(show) === 'undefined') show=false;
-                         
-             if ( show === true){
-                jQuery("div.ksd-pending2").removeClass('ksd-hide-pending');
-            }
-             else{
-                jQuery("div.ksd-pending2").addClass('ksd-hide-pending');
-            }
-        };
         
         //AJAX:: When the refresh button is hit
         this.ksdRefreshTicketsPage = function() {           
@@ -993,9 +1121,8 @@ jQuery( document ).ready(function() {
                 var limit = jQuery( currentTabID+" .ksd-pagination-limit" ).val();                
                 var search_text = jQuery( currentTabID+" .ksd_tkt_search_input").val();//Get val from the class on the input field, no need for ID
                 jQuery( currentTabID ).addClass("pending");
-                _ShowLoadingImage(true);
                 var curPage = _getCurrentPage( tab_id);
-                 _this.getTickets( currentTabID,search_text,limit, curPage-1);                   
+                 _this.getTickets( currentTabID,search_text,limit, curPage-1, true );                   
                 });
         };
         
@@ -1010,8 +1137,7 @@ jQuery( document ).ready(function() {
                 var limit = jQuery("#ksd_pagination_limit_" + tab_id).val();
                 
                 jQuery(tab_id_name).addClass("pending");
-                _ShowLoadingImage(true);
-                 _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit);
+                 _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit, 0, true );
                  
             });
             
@@ -1024,7 +1150,6 @@ jQuery( document ).ready(function() {
                     var limit = jQuery("#ksd_pagination_limit_" + tab_id).val();
 
                     jQuery(tab_id_name).addClass("pending");
-                    _ShowLoadingImage(true);
                      _this.getTickets( "#tickets-tab-"+tab_id, search_text, limit);
                 }
             });
@@ -1163,7 +1288,6 @@ jQuery( document ).ready(function() {
                         var search_text = jQuery("input[name=ksd_tkt_search_input_"+tab_id+"]").val();
                         
                          jQuery( _getTabId(tab_id) ).addClass("pending");
-                         _ShowLoadingImage(true);
                           _this.getTickets( _getTabId(tab_id), search_text, limit, cpage-1);
                         
                     });

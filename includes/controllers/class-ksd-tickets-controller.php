@@ -60,8 +60,8 @@ class KSD_Tickets_Controller extends KSD_Controller {
 	public function get_ticket($ticket_id){
 		return $this->_model->get_ticket( $ticket_id);
 	}
+       
         
-	
 	/*
 	* Returns all tickets that through query
 	*
@@ -73,6 +73,10 @@ class KSD_Tickets_Controller extends KSD_Controller {
                return $this->_model->get_all( $query, $value_parameters );               		
 	}
 	
+	public function get_tickets_n_reply_cnt($filter, $value_parameters){
+		return $this->_model->get_all_and_reply_cnt( $filter , $value_parameters);
+	}
+        
 	/**
 	 * Delete the ticket with the specified ID
 	 * @param int $ticket_id Ticket ID
@@ -111,6 +115,17 @@ class KSD_Tickets_Controller extends KSD_Controller {
         */
         public function get_pre_limit_count( $filter, $value_parameters ){
            return  $this->_model->get_pre_limit_count( $filter,$value_parameters );
+        }
+        
+        /**
+         * Returns the total number of tickets in each ticket filter category.
+         * 
+         * @param int $user_id
+         * @param int $recency
+         * @return 
+         */
+        public function get_filter_totals( $user_id, $recency){
+             return  $this->_model->get_filter_totals( $user_id,$recency );
         }
 
 

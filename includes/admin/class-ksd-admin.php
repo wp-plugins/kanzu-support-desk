@@ -45,12 +45,10 @@ class KSD_Admin {
                 
 		// Add an action link pointing to the settings page.
 		add_filter( 'plugin_action_links_' . plugin_basename( KSD_PLUGIN_FILE ), array( $this, 'add_action_links' ) );		
-   
-                //Add plugin to active addons
-                add_filter( 'ksd_deactivate', array( $this, 'append_to_activelist' ) );
-                
+                 
 		//Handle AJAX calls
 		add_action( 'wp_ajax_ksd_filter_tickets', array( $this, 'filter_tickets' ));
+                add_action( 'wp_ajax_ksd_filter_totals', array( $this, 'filter_totals' ));
                 add_action( 'wp_ajax_ksd_log_new_ticket', array( $this, 'log_new_ticket' ));
 		add_action( 'wp_ajax_ksd_delete_ticket', array( $this, 'delete_ticket' ));
 		add_action( 'wp_ajax_ksd_change_status', array( $this, 'change_status' ));
@@ -105,7 +103,6 @@ class KSD_Admin {
 	 *
 	 */
 	public function enqueue_admin_scripts() { 
-		
 		//Load the script for Google charts. Load this before the next script. 
                 wp_enqueue_script( KSD_SLUG . '-admin-gcharts', '//www.google.com/jsapi', array(), KSD_VERSION ); 
                 wp_enqueue_script( KSD_SLUG . '-admin-js', KSD_PLUGIN_URL.'/assets/js/ksd-admin.js', array( 'jquery','jquery-ui-core','jquery-ui-tabs','json2','jquery-ui-dialog','jquery-ui-tooltip','jquery-ui-accordion' ), KSD_VERSION ); 
@@ -232,6 +229,38 @@ class KSD_Admin {
                 include_once( KSD_PLUGIN_DIR.  "includes/controllers/class-ksd-replies-controller.php");  
                 include_once( KSD_PLUGIN_DIR.  "includes/controllers/class-ksd-customers-controller.php");  
 	}
+        
+        
+        /**
+         * Returns total tickets in each ticket filter category ie All, Resolved, etc...
+         */
+        public function filter_totals(){
+            if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
+                  die ( __('Busted!','kanzu-support-desk') );                         
+            }
+          
+            try{
+                $this->do_admin_includes();
+                
+                $settings = Kanzu_Support_Desk::get_settings();
+                $recency = $settings['recency_definition'];
+                
+                $tickets = new KSD_Tickets_Controller(); 
+                $response  = $tickets->get_filter_totals( get_current_user_id() ,$recency );
+                
+                echo json_encode($response);
+                die();// IMPORTANT: don't leave this out
+                    
+                    
+            }catch( Exception $e){
+                $response = array(
+                    'error'=> array( 'message' => $e->getMessage() , 'code'=> $e->getCode())
+                );
+                echo json_encode($response);	
+                die();// IMPORTANT: don't leave this out
+            } 
+        }
+        
 	/** 
 	 * Filter tickets in the 'tickets' view 
 	 */
@@ -287,7 +316,7 @@ class KSD_Admin {
                     $filter .= " LIMIT %d , %d " ;
                     $value_parameters[] = $offset;//The order of items in $value_parameters is very important. 
                     $value_parameters[] = $limit;//The order of placeholders should correspond to the order of entries in the array
-
+                
                     //Results count
                     $tickets = new KSD_Tickets_Controller(); 
                     $count   = $tickets->get_pre_limit_count( $count_filter,$count_value_parameters );
@@ -323,7 +352,8 @@ class KSD_Admin {
 	 */
 	public function filter_ticket_view( $filter = "", $value_parameters=array() ) {
 		$tickets = new KSD_Tickets_Controller();                 
-                $tickets_raw = $tickets->get_tickets( $filter,$value_parameters ); 	
+                //$tickets_raw = $tickets->get_tickets( $filter,$value_parameters ); 	
+                $tickets_raw = $tickets->get_tickets_n_reply_cnt( $filter,$value_parameters ); 	
                 //Process the tickets for viewing on the view. Replace the username and the time with cleaner versions
                 foreach ( $tickets_raw as $ksd_ticket ) {
                     $this->format_ticket_for_viewing( $ksd_ticket );
@@ -479,7 +509,8 @@ class KSD_Admin {
         
         public function reply_ticket( $ticket_reply_array=null ){
                 //In add-on mode, this function was called by an add-on
-                $add_on_mode = ( !is_null( $ticket_reply_array ) ? true : false );
+            $add_on_mode = ( is_array( $ticket_reply_array ) ? true : false );
+            
             if ( ! $add_on_mode ){//Check for NONCE if not in add-on mode    
                if ( ! wp_verify_nonce( $_POST['edit-ticket-nonce'], 'ksd-edit-ticket' ) ){
 			 die ( __('Busted!','kanzu-support-desk') );
@@ -494,7 +525,7 @@ class KSD_Admin {
                     }
                     $new_reply = new stdClass(); 
                     $new_reply->rep_tkt_id    	 =  $_POST['tkt_id'] ;
-                    $new_reply->rep_message 	 = sanitize_text_field( stripslashes ( $_POST['ksd_ticket_reply'] ) );
+                    $new_reply->rep_message 	 = wp_kses_post( $_POST['ksd_ticket_reply']  );
                     if ( strlen( $new_reply->rep_message ) < 2 && ! $add_on_mode ){//If the response sent it too short
                        throw new Exception( __("Error | Reply too short", 'kanzu-support-desk'), -1 );
                     }
@@ -507,10 +538,11 @@ class KSD_Admin {
                    $response = $RC->add_reply( $new_reply );
                    
                    if( $add_on_mode ){
-                       die();//End the party if this came from an add-on
+                       return;//End the party if this came from an add-on
                    }
+                   
                    if ( $response > 0 ){
-                      echo json_encode($new_reply->rep_message );
+                      echo json_encode(  esc_html( $new_reply->rep_message )  );
                    }else{
                        throw new Exception( __("Error", 'kanzu-support-desk'), -1 );
                    }
@@ -550,7 +582,8 @@ class KSD_Admin {
                     //Get a $_POST array to send to the reply_ticket function
                     $_POST['tkt_id'] = $the_ticket[0]->tkt_id;//The ticket ID
                     $_POST['ksd_ticket_reply'] = $new_ticket->tkt_message;//Get the reply
-                    $this->reply_ticket( $_POST ); //This function has a die() in it so no risk of proceeding beyond this point
+                    $this->reply_ticket( $_POST ); 
+                    return; //die removed because it was triggering a fatal error in addons
                }               
             }
             //This is a new ticket
@@ -619,8 +652,9 @@ class KSD_Admin {
                 //We sanitize each input before storing it in the database
                 $new_ticket = new stdClass(); 
                 $new_ticket->tkt_subject    	    = sanitize_text_field( stripslashes( $_POST[ 'ksd_tkt_subject' ] ) );
-                $new_ticket->tkt_message_excerpt    = wp_trim_words( sanitize_text_field( stripslashes( $_POST[ 'ksd_tkt_message' ] )  ), $ksd_excerpt_length );
-                $new_ticket->tkt_message            = sanitize_text_field( stripslashes( $_POST[ 'ksd_tkt_message' ] ));
+                $sanitized_message                  = wp_kses_post( $_POST[ 'ksd_tkt_message' ] );
+                $new_ticket->tkt_message_excerpt    = wp_trim_words( $sanitized_message, $ksd_excerpt_length );
+                $new_ticket->tkt_message            = $sanitized_message;
                 $new_ticket->tkt_channel            = $tkt_channel;
                 $new_ticket->tkt_status             = $tkt_status;             
                 
@@ -676,6 +710,12 @@ class KSD_Admin {
                 //Set 'logged by' to the ID of whoever logged it ( admin side tickets ) or to the customer's ID ( for tickets from the front-end )
                $new_ticket->tkt_assigned_by   = ( isset( $_POST[ 'ksd_tkt_assigned_by' ] ) ? sanitize_text_field( $_POST[ 'ksd_tkt_assigned_by' ] ) : $new_ticket->tkt_cust_id );
                 
+               //Log date and time if given
+               if (isset( $_POST[ 'ksd_tkt_time_logged' ] ) ){
+                   $new_ticket->tkt_time_logged = sanitize_text_field( $_POST[ 'ksd_tkt_time_logged' ] );
+               }
+               
+               
                 $TC = new KSD_Tickets_Controller();
                 $new_ticket_id = $TC->log_ticket( $new_ticket );
                 $new_ticket_status = (  $new_ticket_id > 0  ? $output_messages_by_channel[ $tkt_channel ] : __("Error", 'kanzu-support-desk') );
@@ -694,8 +734,10 @@ class KSD_Admin {
                 //If this was initiated by the email add-on, end the party here
                 if ( ( "yes" == $settings['enable_new_tkt_notifxns'] &&  $tkt_channel  ==  "EMAIL") ){
                      $this->send_email( $cust_email );
-                     die();
+                     return;
                 }
+                
+                if( $add_on_mode ) return; //For addon mode to ensure graceful exit from function
                 
                 echo json_encode( $new_ticket_status );
                 die();// IMPORTANT: don't leave this out
@@ -769,7 +811,7 @@ class KSD_Admin {
                         $output_array[] = array( $y_axis_label,$x_axis_label );
                         
 			foreach ( $tickets_raw as $ticket ) {
-				$output_array[] = array ($ticket->date_logged,(float)$ticket->ticket_volume);//@since 1.1.2 Added casting since JSON_NUMERIC_CHECK was kicked out 			
+				$output_array[] = array ( date_format(date_create($ticket->date_logged),'d-m-Y') ,(float)$ticket->ticket_volume);//@since 1.1.2 Added casting since JSON_NUMERIC_CHECK was kicked out 			
 			}        
                         echo json_encode( $output_array );//@since 1.1.2 Removed JSON_NUMERIC_CHECK which is only supported PHP >=5.3
 			die();//Important
@@ -964,15 +1006,16 @@ class KSD_Admin {
              //The content is entered into the array based on which tab it'll show on
              //Content for tab 1 is entered first and for tab n is entered at $p[n]
              $p[] = array(
-                'target' => '#dashboard',
-                'options' => array(
-                    'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
-                    __( 'Kanzu Support Desk Dashboard' ,'kanzu-support-desk'),
-                    __( 'Your dashboard displays your performance statistics','kanzu-support-desk')
+                "target" => "#dashboard",
+                "options" => array(
+                    "content" => sprintf( "<span><h3> %s </h3> <p> %s </p><p> %s </p></span>",
+                    __( "Kanzu Support Desk Dashboard" ,"kanzu-support-desk"),
+                    __( "Welcome to Kanzu Support Desk! Thanks for choosing us. Let's see where everything is. First off...","kanzu-support-desk"),
+                    __( "Your dashboard displays your performance statistics","kanzu-support-desk")
                     ),
-                    'button2'  => __( 'Next', 'kanzu-support-desk' ),
-                    'function' => 'window.location="' . admin_url( 'admin.php?page=wpseo_titles' ) . '";',
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
+                    "button2"  => __( "Next", "kanzu-support-desk" ),
+                    "function" => 'window.location="' . admin_url( 'admin.php?page=wpseo_titles' ) . '";',
+                    "position" => array( 'edge' => 'top', 'align' => 'left' )
                 )
             );
             $p[] = array(
@@ -982,7 +1025,19 @@ class KSD_Admin {
                     __( 'The tickets' ,'kanzu-support-desk'),
                     __( 'All your tickets are displayed here. Filter tickets using the filters at the top left','kanzu-support-desk'),
                     __( 'Search, refresh and paginate the view using the buttons at the top right.' ,'kanzu-support-desk'),
-                    __( 'View ticket details by clicking on a single ticket' ,'kanzu-support-desk')
+                    __( 'View ticket details by clicking on a single ticket' ,'kanzu-support-desk')                    
+                            ),
+                    'position' => array( 'edge' => 'top', 'align' => 'left' )
+                )
+            );
+            $p[] = array(
+                'target' => '#dashboard',
+                'options' => array(
+                    'content' => sprintf( '<span><h3> %s </h3><ul class="tour"><li class="new">N</li><li class="open">O</li><li class="pending">P</li><li class="resolved">R</li></ul></p><p>%s </p><p><img width="157" height="166" src="%s" /></p><p> %s </p></span>',
+                    __( 'Ticket Status & Severity' ,'kanzu-support-desk'),                    
+                    __( 'These labels show New, Open, Pending & Resolved tickets respectively' ,'kanzu-support-desk'),
+                     KSD_PLUGIN_URL.'/assets/images/ksd-severity-indicators.png',
+                    __( 'The Red and Orange borders show tickets with Urgent & High severity respectively' ,'kanzu-support-desk')
                             ),
                     'position' => array( 'edge' => 'top', 'align' => 'left' )
                 )
@@ -1013,7 +1068,7 @@ class KSD_Admin {
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
                     __( 'Add-ons' ,'kanzu-support-desk'),
-                    __( 'Activate an add-on to allow your customers to log tickets using other channels','kanzu-support-desk')
+                    __( 'Activate an add-on to allow your customers to log tickets using other channels such as email','kanzu-support-desk')
                     ),
                     'position' => array( 'edge' => 'top', 'align' => 'left' )
                 )
@@ -1021,9 +1076,10 @@ class KSD_Admin {
             $p[] = array(
                 'target' => '#dashboard',
                 'options' => array(
-                    'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
+                    'content' => sprintf( '<span><h3> %s </h3> <p> %s </p><p> %s </p></span>',
                     __( 'Help' ,'kanzu-support-desk'),
-                    __( 'Resource center to help you make the most of your Kanzu Support Desk experience','kanzu-support-desk')
+                    __( 'Resource center to help you make the most of your Kanzu Support Desk experience','kanzu-support-desk'),
+                    __( "That's it! Dive right in. To take this tour again, click 'Enable Tour Mode' in your settings tab, update your settings then refresh your page","kanzu-support-desk")
                     ),
                     'position' => array( 'edge' => 'top', 'align' => 'left' )
                 )

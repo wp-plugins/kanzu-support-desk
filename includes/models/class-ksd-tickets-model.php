@@ -19,21 +19,21 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
 			
 		$this->_formats = array(
                     'tkt_id' 		 => '%d', 
-                    'tkt_subject' 		 => '%s', 		
-                    'tkt_message'            => '%s', 
-                    'tkt_message_excerpt'	 => '%s',
-                    'tkt_channel' 		 => '%s',
-                    'tkt_status' 		 => '%s',
+                    'tkt_subject'        => '%s', 		
+                    'tkt_message'        => '%s', 
+                    'tkt_message_excerpt'=> '%s',
+                    'tkt_channel' 	 => '%s',
+                    'tkt_status' 	 => '%s',
                     'tkt_assigned_by' 	 => '%s',  
-                    'tkt_cust_id'            => '%s',
+                    'tkt_cust_id'        => '%s',
                     'tkt_assigned_to' 	 => '%s',  
-                    'tkt_severity' 		 => '%s', 
+                    'tkt_severity' 	 => '%s', 
                     'tkt_resolution' 	 => '%s', 
                     'tkt_time_logged' 	 => '%s', 
                     'tkt_time_updated' 	 => '%s', 
-                    'tkt_private_note'  	 => '%s',
+                    'tkt_private_note'   => '%s',
                     'tkt_tags' 		 => '%s',
-                    'tkt_customer_rating'    => '%d'
+                    'tkt_customer_rating'=> '%d'
                 );
 	}
 	
@@ -142,4 +142,68 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
             }           
             return $obj[0]->count;
          }
+        
+        /*
+         * 
+         */
+        public function get_all_and_reply_cnt( $filter, $value_parameters=array() ){
+            global $wpdb;
+            $query = "
+                SELECT T.*, 
+                COALESCE(cnt,0) AS rep_count
+                FROM {$wpdb->prefix}kanzusupport_tickets T
+                LEFT JOIN 
+                ( 
+                SELECT count(*) as cnt, rep_tkt_id 
+                FROM {$wpdb->prefix}kanzusupport_replies
+                GROUP BY rep_tkt_id
+                ) R ON R.rep_tkt_id = T.tkt_id
+                    ";
+            $query = $query . ' WHERE ' . $filter;
+            return $this->exec_prepare_query( $query, $value_parameters );
+        }
+         
+        
+       /* Returns the number of tickets in each ticket filter category
+        * 
+        * My unresolved, All,Unassigned,Recently updated,Recently resolved,Resolved
+        * @param int user_id
+        */ 
+       public function get_filter_totals( $user_id, $recency){
+           global $wpdb;
+           $query = "
+                SELECT * FROM (
+                SELECT COUNT(*) AS tab1 FROM {$wpdb->prefix}kanzusupport_tickets A
+                WHERE A.tkt_assigned_to = %d AND tkt_status != 'RESOLVED'
+                ) T1,
+                (SELECT COUNT(*) AS tab2 FROM {$wpdb->prefix}kanzusupport_tickets B
+                WHERE B.tkt_status != 'RESOLVED'
+                ) T2,
+                (
+                SELECT COUNT(*) AS tab3 FROM {$wpdb->prefix}kanzusupport_tickets C
+                WHERE C.tkt_assigned_to IS NULL 
+                ) T3,
+                (
+                SELECT COUNT(*) AS tab4 FROM {$wpdb->prefix}kanzusupport_tickets D
+                WHERE  D.tkt_time_updated < DATE_SUB(NOW(), INTERVAL %d HOUR)
+                ) T4,
+                (
+                SELECT COUNT(*) AS tab5 FROM {$wpdb->prefix}kanzusupport_tickets E
+                WHERE  E.tkt_time_updated < DATE_SUB(NOW(), INTERVAL %d HOUR) AND tkt_status = 'RESOLVED'
+                ) T5,
+                (
+                SELECT COUNT(*) AS tab6 FROM {$wpdb->prefix}kanzusupport_tickets F
+                WHERE  F.tkt_status = 'RESOLVED'
+                ) T6
+                    ";
+           
+           $value_parameters = array();
+           $value_parameters[] = $user_id;
+           $value_parameters[] = $recency;
+           $value_parameters[] = $recency;
+           
+           return $this->exec_prepare_query( $query, $value_parameters );
+       }
+         
+         
  }
