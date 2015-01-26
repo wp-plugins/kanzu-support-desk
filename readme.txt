@@ -3,8 +3,8 @@ Contributors: kanzucode
 Donate link: http://kanzucode.com/
 Tags: ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
-Tested up to: 4.0
-Stable tag: 1.2.0
+Tested up to: 4.1
+Stable tag: 1.2.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -58,8 +58,8 @@ if we can say so ourselves :-)
 4. Activate the plugin in the Plugin dashboard
 
 = After activation =
-You'll be redirected to 'Kanzu Support Desk' > Dashboard. This'll display your performance statistics when you receive new tickets. Navigate to 'Kanzu Support Desk' > 'Settings' to change your settings.
-Please check [our documentation] (http://kanzucode.com/work/kanzu-support-desk/) for a more detailed walk-through should you need it
+You'll be redirected to **Kanzu Support Desk > Dashboard**. This'll display your performance statistics when you receive new tickets. Navigate to **Kanzu Support Desk > Settings** to change your settings.
+Please check out [our documentation here](http://kanzucode.com/work/kanzu-support-desk-docs/) for a more detailed walk-through should you need it
 
 == Frequently Asked Questions ==
 
@@ -73,11 +73,11 @@ With an optional add-on activated, yes they can. By default though, they can use
 
 = Where can I find KSD documentation and user guides? =
 
-For help setting-up and configuring KSD, please refer to our [user guide] (http://kanzucode.com/work/kanzu-support-desk/)
+For help setting-up and configuring KSD, please refer to our [user guide](http://kanzucode.com/work/kanzu-support-desk-docs/)
 
 = Where can I get support? =
 
-If you get stuck, please ask for help on the [KSD Support Forum] (http://kanzucode.com/forums/forum/wp-kanzu-support-desk/)
+If you get stuck, please ask for help on the [KSD Support Forum](http://kanzucode.com/forums/forum/wp-kanzu-support-desk/)
 
 = Will KSD work with my theme? =
 
@@ -94,7 +94,12 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
-=1.2.0=
+= 1.2.1, January 26, 2015 =
+* BUG FIX | Save messages & replies containing apostrophes properly
+* Style single ticket view, delete dialog
+* Update documentation URLs
+
+= 1.2.0, January 24, 2015 =
 * Default tickets pre-populated on installation
 * In tickets, show total number of tickets in each ticket filter
 * Severity and status indicators added
@@ -126,10 +131,13 @@ Yes; KSD will work with any theme
 * Newsletter opt-in added
 * Add-on list retrieved from KSD add-on feed
 
-= 1.0.0 =
-* 21 Nov 14 Launched.
+= 1.0.0, November 21, 2014 =
+* Launched.
 
 == Upgrade Notice ==
+= 1.2.1 =
+* BUG FIX | Save messages & replies containing apostrophes properly, style single ticket & delete dialog
+
 = 1.2.0 =
 * Ticket grid re-styled to be prettier and more intuitive, dashboard summary statistics bolder & clickable
 

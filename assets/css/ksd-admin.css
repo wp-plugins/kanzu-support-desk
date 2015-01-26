@@ -179,7 +179,7 @@ ul.ksd-top-nav{
     margin: 0;
     padding: 0;
     position: absolute;
-    right: 0;
+    left: 70px;
     top: -35px;
 }
 ul.ksd-top-nav li{
@@ -312,7 +312,7 @@ a.new-ticket:hover {
     padding-left: 15px;
 }
 #ksd-single-ticket .ksd-submit{
-    float: right;
+    float: left;
     clear: both;
 }
 #edit-ticket-tabs{
@@ -342,7 +342,7 @@ a.new-ticket:hover {
   color: #FFF;
 }
 #ksd-single-ticket #edit-ticket-tabs ul li a{
-    padding: 0 15%;
+    padding: 5% 15%;
     color: #FFF;
 }
 #edit-ticket-tabs #reply_ticket,#edit-ticket-tabs #forward_ticket,#edit-ticket-tabs #update_private_note {
@@ -353,6 +353,9 @@ a.new-ticket:hover {
 }
 #update_private_note textarea{
     background-color: #EFEFEF;
+}
+#edit-ticket-tabs textarea{
+    width: 100%;
 }
 #ticket-replies{
     margin-top: 10px;
@@ -1116,6 +1119,10 @@ span.feedback_note{
 	overflow: hidden;
 	background-repeat: no-repeat;
 }
+.ui-dialog-titlebar-close{
+    padding: 10px 20px;
+    line-height: 4px;
+}
 
 
 /* Misc visuals
@@ -1151,13 +1158,27 @@ span.feedback_note{
 	text-overflow: ellipsis;
 }
 .ui-dialog .ui-dialog-titlebar-close {
-	position: absolute;
-	right: .3em;
-	top: 50%;
-	width: 20px;
-	margin: -10px 0 0 0;
-	padding: 1px;
-	height: 20px;
+        background-color: #e6e6e6 !important;
+        background-image: url("../images/icons/close_dialog.png") !important;
+        background-repeat: no-repeat !important;
+        height: 20px;
+        margin: -10px 0 0;
+        padding: 1px;
+        position: absolute;
+        right: 0.3em;
+        top: 50%;
+        width: 20px;
+}
+.ui-button-text-only .ui-button-text {
+        padding: 0.4em 1em;
+}
+.ui-button .ui-button-text {
+        display: block;
+        line-height: normal;
+}
+.ui-button-icon-only {
+        background-image: url("../images/icons/close_dialog.png");
+        background-repeat: no-repeat;
 }
 .ui-dialog .ui-dialog-content {
 	position: relative;
@@ -1179,6 +1200,18 @@ span.feedback_note{
 .ui-dialog .ui-dialog-buttonpane button {
 	margin: .5em .4em .5em 0;
 	cursor: pointer;
+}
+.ui-corner-all, .ui-corner-bottom, .ui-corner-right, .ui-corner-br {
+  border-bottom-right-radius: 4px;
+}
+.ui-corner-all, .ui-corner-bottom, .ui-corner-left, .ui-corner-bl {
+  border-bottom-left-radius: 4px;
+}
+.ui-corner-all, .ui-corner-top, .ui-corner-right, .ui-corner-tr {
+  border-top-right-radius: 4px;
+}
+.ui-corner-all, .ui-corner-top, .ui-corner-left, .ui-corner-tl {
+  border-top-left-radius: 4px;
 }
 .ui-dialog .ui-resizable-se {
 	width: 12px;
@@ -1272,6 +1305,14 @@ span.feedback_note{
 .ui-widget-header a {
 	color: #222222;
 }
+.ui-button-icon-only .ui-button-text, .ui-button-icons-only .ui-button-text {
+  padding: 0.4em;
+  text-indent: -1e+7px;
+}
+.ui-button .ui-button-text {
+  display: block;
+  line-height: normal;
+}
 
 /* Interaction states
 ----------------------------------*/
@@ -1279,9 +1320,10 @@ span.feedback_note{
 .ui-widget-content .ui-state-default,
 .ui-widget-header .ui-state-default {
 	border: 1px solid #d3d3d3;
-	background: #e6e6e6;
+	background: url('../images/delete_dialog_bg.png');
 	font-weight: normal;
 	color: #555555;
+        border-radius: 5px;
 }
 .ui-state-default a,
 .ui-state-default a:link,

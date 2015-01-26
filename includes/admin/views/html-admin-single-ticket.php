@@ -20,7 +20,7 @@
             <div class="edit-ticket-description" id="reply_ticket">
                 <textarea name="ksd_ticket_reply" rows="5" cols="100"></textarea> 
             </div>
-           <div id="update_private_note">
+           <div id="update_private_note" class="single-ticket-textarea">
                 <textarea name="tkt_private_note" rows="5" cols="100"></textarea> 
             </div>
        </div>
