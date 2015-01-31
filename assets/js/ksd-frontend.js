@@ -1,38 +1,52 @@
 jQuery( document ).ready(function() { 
-   /**Toggle display of new ticket form on click of the Support button*/
-   jQuery( "#ksd-new-ticket-frontend-wrap" ).toggle( "slide" ); //Hide it by default
+   /**Toggle display of new ticket form on click of the Support button*/   
+   if( jQuery("button#ksd-new-ticket-frontend").length ){//Check if the button exists.
+   jQuery( ".ksd-form-hidden-tab" ).toggle( "slide" ); //Hide it by default
     jQuery( "button#ksd-new-ticket-frontend" ).click(function(e) {//Toggle on button click
         e.preventDefault();
-        jQuery( "#ksd-new-ticket-frontend-wrap" ).toggle( "slide" );
+        jQuery( ".ksd-form-hidden-tab" ).toggle( "slide" );
     });
-    
+   };
     /**AJAX: Log new ticket on submission of the new ticket form**/
     logNewTicket    = function(form){
-        jQuery( 'img.ksd_loading_button' ).show();//Show the loading button
-        jQuery('form.ksd-new-ticket-frontend :submit').hide(); //Hide the submit button
+        targetFormClass = '.ksd-form-hidden-tab-form';  //The wrapper class for the form being targetted. We use this to
+                                                        //make sure that the proceeding actions are on the correct form
+        if( jQuery(form).hasClass('ksd-form-short-code-form')){
+           targetFormClass = '.ksd-form-short-code-form';
+        }
+        jQuery( targetFormClass+' img.ksd_loading_button' ).show();//Show the loading button
+        jQuery('form'+targetFormClass+' :submit').hide(); //Hide the submit button
         jQuery.post(    ksd_frontend.ajax_url, 
                         jQuery(form).serialize(), //The action and nonce are hidden fields in the form
                         function( response ) { 
-                            jQuery( 'img.ksd_loading_button' ).hide();//Hide the loading button
+                            jQuery( targetFormClass+' img.ksd_loading_button' ).hide();//Hide the loading button
                             var respObj = JSON.parse(response);
                             //Show the response received. Check for errors
                             if ( 'undefined' !== typeof(respObj.error) ){
-                                jQuery ( 'div.ksd-new-ticket-response').show().text(respObj.error.message);
+                                jQuery ( 'div'+targetFormClass+'-response' ).show().text(respObj.error.message);
                                 return ;
                             }
-                            jQuery ( 'div.ksd-new-ticket-response').show().text(respObj);
+                            jQuery ( 'div'+targetFormClass+'-response' ).show().text(respObj);
                             //Remove the form
-                            jQuery( 'form.ksd-new-ticket-frontend' ).remove();
+                            jQuery( 'form'+targetFormClass ).remove();
                 });
             
-        }   
-    
-    //Add validation to the front-end form
-    jQuery("form.ksd-new-ticket-frontend").validate({
+        };   
+     //Add validation to the front-end support form
+    _attachValidateEventToSupportForm   =   function( theForm ){
+    jQuery( theForm ).validate({
         submitHandler: function(form) {
         logNewTicket(form);
         }
         });
+    };    
+    if( jQuery("div.ksd-form-short-code form").length ){//Check if any forms entered using a shortcode exists
+        _attachValidateEventToSupportForm("div.ksd-form-short-code form");
+    };    
+     if( jQuery("div.ksd-form-hidden-tab").length ){//Check if the support tab form is shown
+        _attachValidateEventToSupportForm("div.ksd-form-hidden-tab form");
+    };   
+
     
      /**In the front end forms, we use labels in the input fields to
         indicate what info each input requires. On click though, these labels
@@ -74,7 +88,7 @@ jQuery( document ).ready(function() {
      
     //Close the support tab if the close button is clicked
     jQuery ( '#ksd-new-ticket-frontend-wrap img.ksd_close_button' ).click(function(){
-         jQuery( "#ksd-new-ticket-frontend-wrap" ).toggle( "slide" );
+         jQuery( ".ksd-form-hidden-tab" ).toggle( "slide" );
     });
     
   });

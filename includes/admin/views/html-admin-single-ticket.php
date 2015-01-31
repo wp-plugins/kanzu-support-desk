@@ -1,9 +1,34 @@
 <ul class="ksd-top-nav wrap">
     <li class="back"><a href="<?php echo admin_url('admin.php?page=ksd-tickets'); ?>" class="add-new-h2"><?php _e('Back','kanzu-support-desk'); ?></a></li>
     <li><a href="<?php echo admin_url('admin.php?page=ksd-new-ticket'); ?>" class="add-new-h2"><?php _e('New Ticket','kanzu-support-desk'); ?></a></li>
+    <li>
+        <a href="#" class="add-new-h2 assign_to"><?php _e('Assign To','kanzu-support-desk'); ?></a>
+        <?php echo KSD_Admin::get_agent_list(); ?>
+    </li>
+    <li>
+        <a href="#" class="add-new-h2 change_status"><?php _e('Change Status','kanzu-support-desk'); ?></a>
+        <ul class="status hidden">
+            <li>OPEN</li>
+            <li>PENDING</li>
+            <li>RESOLVED</li>
+        </ul>
+    </li>
+    <li>
+        <a href="#" class="add-new-h2 change_severity"><?php _e('Change Severity','kanzu-support-desk'); ?></a>
+        <ul class="severity hidden">
+            <li>LOW</li>
+            <li>MEDIUM</li>
+            <li>HIGH</li>
+            <li>URGENT</li>
+        </ul>
+    </li>
 </ul>
 <div id="ksd-single-ticket">
-    <div class="author_and_subject"><?php  _e('Loading...','kanzu-support-desk');?></div>
+    <h1 class="ksd-single-ticket-subject"></h1>
+    <div class="author_and_date">
+        <span class="author"><?php  _e('Loading...','kanzu-support-desk');?></span>
+        <span class="date"></span>
+    </div>
     <div class="description pending">
         <?php  _e('Loading...','kanzu-support-desk');?>
     </div>

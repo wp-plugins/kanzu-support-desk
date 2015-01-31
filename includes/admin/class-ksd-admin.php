@@ -52,6 +52,7 @@ class KSD_Admin {
                 add_action( 'wp_ajax_ksd_log_new_ticket', array( $this, 'log_new_ticket' ));
 		add_action( 'wp_ajax_ksd_delete_ticket', array( $this, 'delete_ticket' ));
 		add_action( 'wp_ajax_ksd_change_status', array( $this, 'change_status' ));
+                add_action( 'wp_ajax_ksd_change_severity', array( $this, 'change_severity' ));                
                 add_action( 'wp_ajax_ksd_assign_to', array( $this, 'assign_to' ));
                 add_action( 'wp_ajax_ksd_reply_ticket', array( $this, 'reply_ticket' ));
                 add_action( 'wp_ajax_ksd_get_single_ticket', array( $this, 'get_single_ticket' ));   
@@ -109,12 +110,7 @@ class KSD_Admin {
 		
                 //Variables to send to the admin JS script
                 $ksd_admin_tab = ( isset( $_GET['page'] ) ? $_GET['page'] : "" );//This determines which tab to show as active
-                
-                $agents_list = "<ul class='ksd_agent_list hidden'>";//The available list of agents
-                foreach (  get_users() as $agent ) {
-                    $agents_list .= "<li ID=".$agent->ID.">".esc_html( $agent->display_name )."</li>";
-                }
-                $agents_list .= "</ul>";
+               
                 
                 //Get intro tour messages if we are in tour mode @since 1.1.0
                 $tour_pointer_messages['ksd_intro_tour'] =  $this->load_intro_tour();
@@ -134,7 +130,7 @@ class KSD_Admin {
                 $admin_labels_array['tkt_reply']                    = __('Reply','kanzu-support-desk');
                 $admin_labels_array['tkt_forward']                  = __('Forward','kanzu-support-desk');
                 $admin_labels_array['tkt_update_note']              = __('Update Note','kanzu-support-desk');
-                $admin_labels_array['msg_still_loading']            = __('Still Loading...','kanzu-support-desk');
+                $admin_labels_array['msg_still_loading']            = __('Loading Replies...','kanzu-support-desk');
                 $admin_labels_array['msg_loading']                  = __('Loading...','kanzu-support-desk');
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
                 $admin_labels_array['msg_error']                    = __('An unexpected error occured. Kindly retry','kanzu-support-desk');
@@ -148,7 +144,7 @@ class KSD_Admin {
                                             'ajax_url'              =>  admin_url( 'admin-ajax.php'),
                                             'ksd_admin_nonce'       =>  wp_create_nonce( 'ksd-admin-nonce' ),
                                             'ksd_tickets_url'       =>  admin_url( 'admin.php?page=ksd-tickets'),
-                                            'ksd_agents_list'       =>  $agents_list,
+                                            'ksd_agents_list'       =>  self::get_agent_list(),
                                             'ksd_current_user_id'   =>  get_current_user_id(),
                                             'ksd_labels'            =>  $admin_labels_array,
                                             'ksd_tour_pointers'     =>  $tour_pointer_messages
@@ -157,6 +153,19 @@ class KSD_Admin {
 		
 
 	}
+        
+        /**
+         * Get a list of agents
+         * @return An unordered list of agents
+         */
+        public static function get_agent_list(){
+            $agents_list = "<ul class='ksd_agent_list hidden'>";//The available list of agents
+                foreach (  get_users() as $agent ) {
+                    $agents_list .= "<li ID=".$agent->ID.">".esc_html( $agent->display_name )."</li>";
+                }
+             $agents_list .= "</ul>";
+             return $agents_list;
+        }
 
 	
 	/**
@@ -450,6 +459,37 @@ class KSD_Admin {
                 $updated_ticket = new stdClass();
 		$updated_ticket->tkt_id = $_POST['tkt_id'];
 		$updated_ticket->new_tkt_status = $_POST['tkt_status'];
+                
+		$tickets = new KSD_Tickets_Controller();	
+                
+                if( $tickets->update_ticket( $updated_ticket ) ){
+                    echo json_encode( __("Updated","kanzu-support-desk"));
+                }else {
+                    throw new Exception( __("Failed","kanzu-support-desk") , -1);
+                }
+		die();// IMPORTANT: don't leave this out
+            }catch( Exception $e){ 
+                $response = array( 
+                    'error'=> array( 'message' => $e->getMessage() , 'code'=> $e->getCode())
+                );
+                echo json_encode($response);	
+                die();// IMPORTANT: don't leave this out
+            }  
+	}
+        /**
+         * Change ticket's severity
+         * @throws Exception
+         */
+        public function change_severity(){
+            if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
+                    die ( __('Busted!','kanzu-support-desk') );
+            }
+            
+            try{
+                $this->do_admin_includes();	
+                $updated_ticket = new stdClass();
+		$updated_ticket->tkt_id = $_POST['tkt_id'];
+		$updated_ticket->new_tkt_severity = $_POST['tkt_severity'];
                 
 		$tickets = new KSD_Tickets_Controller();	
                 
@@ -867,9 +907,15 @@ class KSD_Admin {
             try{
                 $updated_settings = Kanzu_Support_Desk::get_settings();//Get current settings
                 //Iterate through the new settings and save them. 
-                foreach ( $updated_settings as $option_name => $default_value ) {
+                foreach ( $updated_settings as $option_name => $current_value ) {
                     $updated_settings[$option_name] = ( isset ( $_POST[$option_name] ) ? sanitize_text_field ( stripslashes ( $_POST[$option_name] ) ) : $updated_settings[$option_name] );
                 }
+                //For a checkbox, if it is unchecked then it won't be set in $_POST
+                $checkbox_names = array("show_support_tab","tour_mode","enable_new_tkt_notifxns");
+                //Iterate through the checkboxes and set the value to "no" for all that aren't set
+                foreach ( $checkbox_names as $checkbox_name ){
+                     $updated_settings[$checkbox_name] = ( !isset ( $_POST[$checkbox_name] ) ? "no" : $updated_settings[$checkbox_name] );
+                }                
                 //Apply the settings filter to get settings from add-ons
                 $updated_settings = apply_filters( 'ksd_settings', $updated_settings, $_POST );
                 
@@ -1143,6 +1189,7 @@ class KSD_Admin {
             $active_addons['ksd-mail'] =  'ksd-mail/ksd-mail.php'; 
             return $active_addons;
         }
+  
 }
 endif;
 

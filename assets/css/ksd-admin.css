@@ -185,6 +185,28 @@ ul.ksd-top-nav{
 ul.ksd-top-nav li{
     display: inline;
     padding: 0 10px;    
+    position: relative;
+}
+ul.ksd-top-nav li ul.status,ul.ksd-top-nav li ul.ksd_agent_list,ul.ksd-top-nav li ul.severity{
+    left: 0;
+    margin-top: 5px;
+    position: absolute; 
+    top: 100%;
+}
+ul.ksd-top-nav li ul.status li,ul.ksd-top-nav li ul.ksd_agent_list li,ul.ksd-top-nav li ul.severity li {
+    background-color: #fff;
+    cursor: pointer;
+    float: left;
+    line-height: 2em;
+    margin: 0;
+    padding: 2px 0 0 10px;
+    width: 100%;
+    border-right: 1px solid #CCC;
+    border-left: 1px solid #CCC;
+}
+ul.ksd-top-nav li ul.status li:hover,ul.ksd-top-nav li ul.ksd_agent_list li:hover,ul.ksd-top-nav li ul.severity li:hover{
+    background-color: #2ea2cc;
+    color: #FFF;
 }
 #ticket-tabs .admin-ksd-tickets-content{
 	width: 100%;
@@ -308,8 +330,28 @@ a.new-ticket:hover {
     float: left;
     clear: both;
 }
-#ksd-single-ticket{
-    padding-left: 15px;
+#ksd-single-ticket {
+  background: none repeat scroll 0 0 #fff;
+  margin-left: 15px;
+}
+h1.ksd-single-ticket-subject {
+  padding-left: 15px;
+  padding-top: 15px;
+  margin-top: 0;
+}
+#ksd-single-ticket .author_and_date {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+#ksd-single-ticket .date {
+  float: right;
+  padding-right: 15px;
+}
+#ksd-single-ticket .description {
+  border-bottom: 1px solid #ccc;
+  border-top: 1px solid #ccc;
+  margin: 0 15px;
+  padding: 20px 0;
 }
 #ksd-single-ticket .ksd-submit{
     float: left;
@@ -323,6 +365,7 @@ a.new-ticket:hover {
   background: none repeat scroll 0 0 rgba(0, 0, 0, 0);
   border: medium none;
   width: 100%;
+  padding-top: 10px;
 }
 #ksd-single-ticket #edit-ticket-tabs ul li {
   clear: none;
@@ -359,7 +402,7 @@ a.new-ticket:hover {
 }
 #ticket-replies{
     margin-top: 10px;
-    border-top: 1px solid #ccc;
+    padding-left: 15px;
 }
 .ticket-reply {
   border-bottom: 1px solid #ccc;
@@ -515,10 +558,10 @@ ul.tour li {
   width: 63%;
 }
 .ticket-list div.high{
-  border-left: 2px solid red;  
+  border-left: 3px solid orange;  
 }
 .ticket-list div.urgent{
-  border-left: 2px solid orange;  
+  border-left: 3px solid red;  
 }
 .ticket-list-item .subject-and-message-excerpt a,.ticket-list-item .ksd-tkt-customer-name a{
     text-decoration: none;

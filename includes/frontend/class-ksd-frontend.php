@@ -24,6 +24,8 @@ class KSD_FrontEnd {
         add_action( 'wp_footer', array( $this , 'generate_new_ticket_form' ));
         //Handle AJAX
         add_action( 'wp_ajax_nopriv_ksd_log_new_ticket', array( $this, 'log_new_ticket' ));
+        //Add a shortcode for the front-end form
+        add_shortcode( 'ksd_support_form', array( $this,'form_short_code' ) );
     }
     
     /**
@@ -32,10 +34,20 @@ class KSD_FrontEnd {
      */
     public function generate_new_ticket_form(){
         $settings = Kanzu_Support_Desk::get_settings();
-        if( "yes" == $settings['show_support_tab'] ) {
-            include_once( KSD_PLUGIN_DIR .  'includes/frontend/views/html-frontend-new-ticket.php' );
+        if( "yes" == $settings['show_support_tab'] ) {?>
+            <button id="ksd-new-ticket-frontend"><?php _e("Support","kanzu-support-desk"); ?></button><?php
+            $form_position_class = "ksd-form-hidden-tab";//Used as a class to style the form
+            include( KSD_PLUGIN_DIR .  'includes/frontend/views/html-frontend-new-ticket.php' );
         }
     }
+   
+    /**
+     * Display a form wherever shortcode [ksd-form] is used
+     */
+   public function form_short_code(){
+       $form_position_class = "ksd-form-short-code";//Used as a class to style the form
+       include( KSD_PLUGIN_DIR .  'includes/frontend/views/html-frontend-new-ticket.php' );
+   }     
     
     	/**
 	 * Register and enqueue front-specific style sheet.
