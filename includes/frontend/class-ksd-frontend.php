@@ -45,6 +45,7 @@ class KSD_FrontEnd {
      * Display a form wherever shortcode [ksd-form] is used
      */
    public function form_short_code(){
+       $settings = Kanzu_Support_Desk::get_settings();
        $form_position_class = "ksd-form-short-code";//Used as a class to style the form
        include( KSD_PLUGIN_DIR .  'includes/frontend/views/html-frontend-new-ticket.php' );
    }     
@@ -66,14 +67,69 @@ class KSD_FrontEnd {
         public function enqueue_frontend_scripts() {	
             wp_enqueue_script( KSD_SLUG . '-frontend-js', KSD_PLUGIN_URL .  'assets/js/ksd-frontend.js' , array( 'jquery', 'jquery-ui-core' ), KSD_VERSION );
             wp_localize_script( KSD_SLUG . '-frontend-js', 'ksd_frontend' , array( 'ajax_url' => admin_url( 'admin-ajax.php') ) );            
+            wp_enqueue_script( KSD_SLUG . '-frontend-grecaptcha', '//www.google.com/recaptcha/api.js', array(), KSD_VERSION ); //@TODO Add check to see if enable_recaptcha is checked
         }
         
         /**
          * Log a new ticket. We use the backend logic
          */
         public function log_new_ticket(){
+            //First check the CAPTCHA to prevent spam
+            $recaptcha_response = $this->verify_recaptcha();
+            if( $recaptcha_response['error'] ){
+                echo json_encode( $recaptcha_response['message'] );
+                die();//This is important for WordPress AJAX
+            }
+            //Use the admin side logic to do the ticket logging
             $ksd_admin =  KSD_Admin::get_instance();
             $ksd_admin->log_new_ticket();
+        }
+        
+        /**
+         * Check, using Google reCAPTCHA, whether the submitted ticket was sent
+         * by a human
+         */
+        private function verify_recaptcha(){
+                $response = array();   
+                $response['error'] = true;//Pre-assume an error is going to occur
+                if( empty( $_POST['g-recaptcha-response'] )){
+                   $response['message'] = __( "ERROR - Sorry, the \"I'm not a robot\" field is required. Please refresh this page & check it.","kanzu-support-desk" );
+                   return $response;
+                }
+                $settings = Kanzu_Support_Desk::get_settings();
+                $recaptcha_args = array(
+                    'secret'    =>  $settings['recaptcha_secret_key'],
+                    'response'  =>  $_POST['g-recaptcha-response']
+                );
+		$google_recaptcha_response = wp_remote_get( add_query_arg( $recaptcha_args, 'https://www.google.com/recaptcha/api/siteverify' ), array( 'sslverify' => false ) );
+		 if ( is_wp_error( $google_recaptcha_response ) ) { 
+                     $response['message'] = __( "Sorry, an error occured. Please retry","kanzu-support-desk" );
+                     return $response;
+                 }
+                $recaptcha_text = json_decode( wp_remote_retrieve_body( $google_recaptcha_response ) );
+                if ( $recaptcha_text->success ){
+                     $response['error'] = false;
+                     return $response;
+                }
+                else{
+                    switch( $recaptcha_text->{'error-codes'}[0] ){
+                        case 'missing-input-secret':
+                            $response['message'] = __( "Sorry, an error occured due to a missing reCAPTCHA secret key. Please refresh the page and retry.","kanzu-support-desk" );
+                            break;
+                        case 'invalid-input-secret':
+                            $response['message'] = __( "Sorry, an error occured due to an invalid or malformed reCAPTCHA secret key. Please refresh the page and retry.","kanzu-support-desk" );
+                            break;
+                        case 'missing-input-response':
+                            $response['message'] = __( "Sorry, an error occured due to a missing reCAPTCHA input response. Please refresh the page and retry.","kanzu-support-desk" );
+                            break;
+                        case 'invalid-input-response':
+                            $response['message'] = __( "Sorry, an error occured due to an invalid or malformed reCAPTCHA input response. Please refresh the page and retry.","kanzu-support-desk" );
+                            break;
+                        default: 
+                            $response['message'] = $settings['recaptcha_error_message'];
+                    }
+                    return $response;
+                }
         }
 }
 endif;

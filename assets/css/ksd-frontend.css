@@ -21,14 +21,19 @@
 #ksd-new-ticket-frontend-wrap input,#ksd-new-ticket-frontend-wrap textarea {
   margin-bottom: 7px;
 }
-.ksd-form-hidden-tab input,.ksd-form-hidden-tab textarea {
-  width: 250px;
+.ksd-form-hidden-tab input,.ksd-form-hidden-tab textarea ,.ksd-form-hidden-tab-form ul li.ksd-g-recaptcha{
+  width: 290px;
+}
+.ksd-form-hidden-tab .ksd-submit{
+   width: 300px;  
+   margin-top: 10px;
 }
 .ksd-form-short-code input,.ksd-form-short-code textarea {
   width: 95%;
 }
 .ksd-form-short-code .ksd-submit,.ksd-form-widget .ksd-submit{
   width: 20%;
+  margin-top: 10px;
 }
 #ksd-new-ticket-frontend-wrap .ksd-close-form-wrapper{
     width: 100%;

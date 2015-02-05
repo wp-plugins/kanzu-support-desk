@@ -1,14 +1,14 @@
 === Kanzu Support Desk ===
 Contributors: kanzucode
-Donate link: http://kanzucode.com/
-Tags: ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
+Donate link: https://kanzucode.com/
+Tags: customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 1.3.0
+Stable tag: 1.3.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Kanzu Support Desk (KSD) is an all-in-one support desk (ticketing) solution that looks and feels like email.
+Kanzu Support Desk (KSD) is an all-in-one WordPress customer service ( support ticket ) solution that looks and feels like email.
 
 == Description ==
 
@@ -60,6 +60,9 @@ if we can say so ourselves :-)
 = After activation =
 You'll be redirected to **Kanzu Support Desk > Dashboard**. This'll display your performance statistics when you receive new tickets. Navigate to **Kanzu Support Desk > Settings** to change your settings.
 Add shortcode **[ksd_support_form]** anywhere you want the support form to be displayed to your customers.
+
+To add CAPTCHA to the form, go [here](https://www.google.com/recaptcha/admin), get Google reCAPTCHA keys and then add them to your KSD settings
+
 Please check out [our documentation here](http://kanzucode.com/work/kanzu-support-desk-docs/) for a more detailed walk-through should you need it
 
 == Frequently Asked Questions ==
@@ -95,6 +98,9 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.3.1, February 05, 2015 =
+ * CAPTCHA added to front-end form
+
 = 1.3.0, January 31, 2015 =
 * BUG FIX | Saving checkbox settings corrected
 * [ksd_support_form] shortcode added!
@@ -141,6 +147,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.3.1 =
+* CAPTCHA form added to front-end form
+
 = 1.3.0 =
 * [ksd_support_tab] short code added,single ticket view ticket edits added
 

@@ -127,7 +127,7 @@ jQuery( document ).ready(function() {
      * setting changes
      */
     this.toggleViewsToHide = function(){            
-        var parentFieldsToToggle = [ 'show_support_tab' , 'enable_new_tkt_notifxns' ];
+        var parentFieldsToToggle = [ 'show_support_tab' , 'enable_new_tkt_notifxns', 'enable_recaptcha' ];
         jQuery.each( parentFieldsToToggle, function ( i, field ){
         //Toggle the view on click    
             jQuery('input[name='+field+']').click( function(){

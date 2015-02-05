@@ -150,6 +150,13 @@ class KSD_Install {
                 case '1.1.0':
                     $settings['tour_mode']   = "yes";
                     break;
+                case '1.3.1':
+                     $user_info = get_userdata(1);//Get the admin user's information. Used to set default email
+                     $settings['enable_recaptcha']          = "no";
+                     $settings['recaptcha_site_key']        = "";
+                     $settings['recaptcha_secret_key']      = "";
+                     $settings['recaptcha_error_message']   = "Sorry, an error occured. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}";
+                    break;
             }
             return $settings;
         }
@@ -275,8 +282,11 @@ class KSD_Install {
                         'recency_definition'                => __("1","kanzu-support-desk"),
                         'show_support_tab'                  => "yes",
                         'tab_message_on_submit'             => __("Thank you. Your support request has been opened. Please allow at least 24 hours for a reply.","kanzu-support-desk"),
-                        'tour_mode'                         => "yes" //@since 1.1.0
-
+                        'tour_mode'                         => "yes", //@since 1.1.0
+                        'enable_recaptcha'                  => "no",//@since 1.3.1 Not on by default since user needs to create & provide reCAPTCHA site & secret keys
+                        'recaptcha_site_key'                => "",
+                        'recaptcha_secret_key'              => "",
+                        'recaptcha_error_message'           => "Sorry, an error occured. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}"
                     );
             }
             

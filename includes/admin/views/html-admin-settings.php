@@ -47,6 +47,26 @@
                 <input name="tour_mode"  type="checkbox" <?php checked( $settings['tour_mode'], "yes" ) ?> value="yes"  />
                 <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("Refresh your page after enabling this and tour mode will start automatically",'kanzu-support-desk')  ;?>"/>
              </div>
+            <div class="setting">
+                <label for="enable_recaptcha"><?php _e( "Enable Google reCAPTCHA","kanzu-support-desk" ); ?></label>                
+                <input name="enable_recaptcha"  type="checkbox" <?php checked( $settings['enable_recaptcha'], "yes" ) ?> value="yes"  />
+                <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("Add Google reCAPTCHA to front-end forms to prevent spam",'kanzu-support-desk')  ;?>"/>
+             </div>
+             <div class="setting enable_recaptcha">
+                <label for="recaptcha_site_key"><?php _e( "Google reCAPTCHA Site Key","kanzu-support-desk" ); ?></label>                
+                <input type="text" value="<?php echo $settings['recaptcha_site_key']; ?>" size="30" name="recaptcha_site_key" />
+                <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("Your Google reCAPTCHA Site Key. Get one at https://www.google.com/recaptcha/admin",'kanzu-support-desk')  ;?>"/>
+             </div>
+             <div class="setting enable_recaptcha">
+                <label for="recaptcha_secret_key"><?php _e( "Google reCAPTCHA Secret Key","kanzu-support-desk" ); ?></label>                
+                <input type="text" value="<?php echo $settings['recaptcha_secret_key']; ?>" size="30" name="recaptcha_secret_key" />
+                <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("Your Google reCAPTCHA Secret Key. Get one at https://www.google.com/recaptcha/admin",'kanzu-support-desk')  ;?>"/>
+             </div>
+             <div class="setting enable_recaptcha">
+                   <label for="recaptcha_error_message"><?php _e( "Message on reCAPTCHA failure","kanzu-support-desk" ); ?></label>
+                   <textarea cols="60" rows="4" name="recaptcha_error_message"><?php echo $settings['recaptcha_error_message']; ?></textarea>
+                   <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("Message to display in case Google reCAPTCHA continuously fails. This is very unlikely but just in case.",'kanzu-support-desk')  ;?>"/>
+             </div>
         </div>   
              <?php 
              //Retrieve extra settings from add-ons. Pass current settings to them

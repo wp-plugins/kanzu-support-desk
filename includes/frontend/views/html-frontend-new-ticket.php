@@ -15,7 +15,13 @@
         </li>
           <li class="ksd-message">     
               <textarea value="<?php _e('Message','kanzu-support-desk'); ?>" rows="7" class="ksd-message" name="ksd_tkt_message" required></textarea>
-          </li>  
+          </li>
+        <!--Add Google reCAPTCHA-->
+        <?php if( "yes" == $settings['enable_recaptcha'] && $settings['recaptcha_site_key'] !== '' ): ?>
+            <li class="ksd-g-recaptcha">
+                <div class="g-recaptcha" data-sitekey="<?php echo $settings['recaptcha_site_key']; ?>"></div>
+            </li>
+        <?php endif; ?>
           <li class="ksd-frontend-submit">
             <img src="<?php echo KSD_PLUGIN_URL.'assets/images/loading_button.gif'; ?>" class="hidden ksd_loading_button" width="45" height="35" />
             <input type="submit" value="<?php _e( "Send Message","kanzu-support-desk" ); ?>" name="ksd-submit-tab-new-ticket" class="ksd-submit"/>
