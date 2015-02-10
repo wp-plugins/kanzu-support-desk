@@ -19,6 +19,7 @@
         <!--Add Google reCAPTCHA-->
         <?php if( "yes" == $settings['enable_recaptcha'] && $settings['recaptcha_site_key'] !== '' ): ?>
             <li class="ksd-g-recaptcha">
+                <span class="ksd-g-recaptcha-error"></span>
                 <div class="g-recaptcha" data-sitekey="<?php echo $settings['recaptcha_site_key']; ?>"></div>
             </li>
         <?php endif; ?>

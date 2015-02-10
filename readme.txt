@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 1.3.1
+Stable tag: 1.4.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -63,7 +63,7 @@ Add shortcode **[ksd_support_form]** anywhere you want the support form to be di
 
 To add CAPTCHA to the form, go [here](https://www.google.com/recaptcha/admin), get Google reCAPTCHA keys and then add them to your KSD settings
 
-Please check out [our documentation here](http://kanzucode.com/work/kanzu-support-desk-docs/) for a more detailed walk-through should you need it
+Please check out [our documentation here](https://kanzucode.com/documentation/wordpress-customer-service-plugin-ksd-getting-started/) for a more detailed walk-through should you need it
 
 == Frequently Asked Questions ==
 
@@ -77,7 +77,7 @@ With an optional add-on activated, yes they can. By default though, they can use
 
 = Where can I find KSD documentation and user guides? =
 
-For help setting-up and configuring KSD, please refer to our [user guide](http://kanzucode.com/work/kanzu-support-desk-docs/)
+For help setting-up and configuring KSD, please refer to our [user guide](https://kanzucode.com/documentation/wordpress-customer-service-plugin-ksd-getting-started/)
 
 = Where can I get support? =
 
@@ -98,6 +98,14 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.4.0, February 10, 2015 =
+ * Added Analytics
+ * Added sweet notifications panel
+ * Added client-side validation for Google reCAPTCHA  
+ * Introductory tour updated to be more user-friendly
+ * Fixed typo. occured updated to occurred 
+ * Documentation links updated
+
 = 1.3.1, February 05, 2015 =
  * CAPTCHA added to front-end form
 
@@ -147,6 +155,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.4.0 =
+* New Notifications panel to keep you updated & client-side validation for Google reCAPTCHA
+
 = 1.3.1 =
 * CAPTCHA form added to front-end form
 

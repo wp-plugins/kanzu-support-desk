@@ -1,6 +1,7 @@
 <div id="admin-kanzu-support-desk">
     <div class="admin-ksd-title">
         <h2><?php _e('Dashboard','kanzu-support-desk'); ?></h2>
+        <span class="more_nav"><img src="<?php echo KSD_PLUGIN_URL. '/assets/images/icons/more_top.png'; ?>" title="<?php _e('Notifications','kanzu-support-desk'); ?>" /></span>
     </div>
 	<div id="tabs" class="admin-ksd-container">
 		<ul class="ksd-main-nav">
@@ -29,9 +30,10 @@
 		<div id="help" class="admin-ksd-content">
 			<?php include_once('html-admin-help.php'); ?>
 		</div>   
-            <div class="ksd-dialog loading hidden">Loading...</div>
-            <div class="ksd-dialog error hidden">Error</div>
-            <div class="ksd-dialog success hidden">Success</div> 
+            <div class="ksd-dialog loading hidden"><?php __("Loading...","kanzu-support-desk"); ?></div>
+            <div class="ksd-dialog error hidden"><?php __("Error...","kanzu-support-desk"); ?></div>
+            <div class="ksd-dialog success hidden"><?php __("Success...","kanzu-support-desk"); ?></div> 
             <div class="ksd-loading-tickets ksd-loading-tickets-overlay hidden"></div> 
+            <div id="ksd-notifications"><?php __("Loading...","kanzu-support-desk"); ?></div>
     </div>
 </div>

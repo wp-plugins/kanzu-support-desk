@@ -64,7 +64,7 @@ class KSD_Admin {
                 add_action( 'wp_ajax_ksd_update_private_note', array( $this, 'update_private_note' ));  
                 add_action( 'wp_ajax_ksd_send_feedback', array( $this, 'send_feedback' ));  
                 add_action( 'wp_ajax_ksd_disable_tour_mode', array( $this, 'disable_tour_mode' ));              
-                
+                add_action( 'wp_ajax_ksd_get_notifications', array( $this, 'get_notifications' ));  
 	}
 	
 
@@ -133,27 +133,29 @@ class KSD_Admin {
                 $admin_labels_array['msg_still_loading']            = __('Loading Replies...','kanzu-support-desk');
                 $admin_labels_array['msg_loading']                  = __('Loading...','kanzu-support-desk');
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
-                $admin_labels_array['msg_error']                    = __('An unexpected error occured. Kindly retry','kanzu-support-desk');
+                $admin_labels_array['msg_error']                    = __('An unexpected error occurred. Kindly retry','kanzu-support-desk');
                 $admin_labels_array['pointer_next']                 = __('Next','kanzu-support-desk');
-                        
+                //Get current settings
+                $settings = Kanzu_Support_Desk::get_settings();
                 
                 //Localization allows us to send variables to the JS script
                 wp_localize_script( KSD_SLUG . '-admin-js',
                                     'ksd_admin',
-                                    array(  'admin_tab'             =>  $ksd_admin_tab,
-                                            'ajax_url'              =>  admin_url( 'admin-ajax.php'),
-                                            'ksd_admin_nonce'       =>  wp_create_nonce( 'ksd-admin-nonce' ),
-                                            'ksd_tickets_url'       =>  admin_url( 'admin.php?page=ksd-tickets'),
-                                            'ksd_agents_list'       =>  self::get_agent_list(),
-                                            'ksd_current_user_id'   =>  get_current_user_id(),
-                                            'ksd_labels'            =>  $admin_labels_array,
-                                            'ksd_tour_pointers'     =>  $tour_pointer_messages
+                                    array(  'admin_tab'                 =>  $ksd_admin_tab,
+                                            'ajax_url'                  =>  admin_url( 'admin-ajax.php'),
+                                            'ksd_admin_nonce'           =>  wp_create_nonce( 'ksd-admin-nonce' ),
+                                            'ksd_tickets_url'           =>  admin_url( 'admin.php?page=ksd-tickets'),
+                                            'ksd_agents_list'           =>  self::get_agent_list(),
+                                            'ksd_current_user_id'       =>  get_current_user_id(),
+                                            'ksd_labels'                =>  $admin_labels_array,
+                                            'ksd_tour_pointers'         =>  $tour_pointer_messages,
+                                            'enable_anonymous_tracking' =>  $settings['enable_anonymous_tracking'],
+                                            'ksd_version'               =>  KSD_VERSION
                                         )
                                     );
-		
 
 	}
-        
+                            
         /**
          * Get a list of agents
          * @return An unordered list of agents
@@ -1052,7 +1054,8 @@ class KSD_Admin {
              //The content is entered into the array based on which tab it'll show on
              //Content for tab 1 is entered first and for tab n is entered at $p[n]
              $p[] = array(
-                "target" => "#dashboard",
+                "target" => "#ksd_dashboard_chart",
+                "tab"  => 0, //Which tab (Dashboard, tickets, new ticket, etc) to show the pointer on
                 "options" => array(
                     "content" => sprintf( "<span><h3> %s </h3> <p> %s </p><p> %s </p></span>",
                     __( "Kanzu Support Desk Dashboard" ,"kanzu-support-desk"),
@@ -1061,11 +1064,23 @@ class KSD_Admin {
                     ),
                     "button2"  => __( "Next", "kanzu-support-desk" ),
                     "function" => 'window.location="' . admin_url( 'admin.php?page=wpseo_titles' ) . '";',
-                    "position" => array( 'edge' => 'top', 'align' => 'left' )
+                    "position" => array( 'edge' => 'right', 'align' => 'top' )
+                    )                
+            );
+            $p[] = array(
+                'target' => '.more_nav',
+                'tab'  => 0,
+                'options' => array(
+                    'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
+                    __( 'Notifications' ,'kanzu-support-desk'),
+                    __( 'Notifications to keep you up-to-date with all things KSD! Get the latest news and tips right here.','kanzu-support-desk')                    
+                    ),
+                    'position' => array( 'edge' => 'right', 'align' => 'right', 'nudgehorizontal' => -2 )
                 )
             );
             $p[] = array(
-                'target' => '#dashboard',
+                'target' => '.ticket-list',
+                'tab'  => 1,
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p><p> %s </p><p> %s </p></span>',
                     __( 'The tickets' ,'kanzu-support-desk'),
@@ -1073,11 +1088,12 @@ class KSD_Admin {
                     __( 'Search, refresh and paginate the view using the buttons at the top right.' ,'kanzu-support-desk'),
                     __( 'View ticket details by clicking on a single ticket' ,'kanzu-support-desk')                    
                             ),
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
-                )
+                    'position' => array( 'edge' => 'left', 'align' => 'top', 'nudgehorizontal' => 50, 'nudgevertical' => 20 )               
+                )                
             );
             $p[] = array(
-                'target' => '#dashboard',
+                'target' => '#tickets',
+                'tab'  => 1,
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3><ul class="tour"><li class="new">N</li><li class="open">O</li><li class="pending">P</li><li class="resolved">R</li></ul></p><p>%s </p><p><img width="157" height="166" src="%s" /></p><p> %s </p></span>',
                     __( 'Ticket Status & Severity' ,'kanzu-support-desk'),                    
@@ -1085,49 +1101,53 @@ class KSD_Admin {
                      KSD_PLUGIN_URL.'/assets/images/ksd-severity-indicators.png',
                     __( 'The Red and Orange borders show tickets with Urgent & High severity respectively' ,'kanzu-support-desk')
                             ),
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
+                    'position' => array( 'edge' => 'left', 'align' => 'top' )                
                 )
             );
             $p[] = array(
-                'target' => '#dashboard',
+                'target' => '#ksd-new-ticket',
+                'tab'  => 2,
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p><p> %s </p></span>',
                     __( 'New Ticket' ,'kanzu-support-desk'),
                     __( 'You or your agent(s) can log new tickets here. If "Send Email" is checked, an email is sent to your customer','kanzu-support-desk'),
                     __( 'New tickets can also be logged by your customers from a form at the front-end of your site.' ,'kanzu-support-desk')
                     ),
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
+                     'position' => array( 'edge' => 'right', 'align' => 'top','nudgehorizontal' => 1 )             
                 )
             );
             $p[] = array(
-                'target' => '#dashboard',
+                'target' => '.enable_new_tkt_notifxns',
+                'tab'  => 3,
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
                     __( 'Settings' ,'kanzu-support-desk'),
                     __( 'Modify your settings','kanzu-support-desk')
                     ),
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
+                     'position' => array( 'edge' => 'bottom', 'align' => 'bottom' )        
                 )
             );
             $p[] = array(
-                'target' => '#dashboard',
+                'target' => '.add-ons',
+                'tab'  => 4,  
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
                     __( 'Add-ons' ,'kanzu-support-desk'),
                     __( 'Activate an add-on to allow your customers to log tickets using other channels such as email','kanzu-support-desk')
                     ),
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
-                )
+                    'position' => array( 'edge' => 'bottom', 'align' => 'left' )     
+                )                 
             );
             $p[] = array(
-                'target' => '#dashboard',
+                'target' => '#help',
+                'tab'  => 5,
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p><p> %s </p></span>',
                     __( 'Help' ,'kanzu-support-desk'),
-                    __( 'Resource center to help you make the most of your Kanzu Support Desk experience','kanzu-support-desk'),
+                    __( 'Resource center to help you make the most of your Kanzu Support Desk experience','kanzu-support-desk'),                   
                     __( "That's it! Dive right in. To take this tour again, click 'Enable Tour Mode' in your settings tab, update your settings then refresh your page","kanzu-support-desk")
                     ),
-                    'position' => array( 'edge' => 'top', 'align' => 'left' )
+                    'position' => array( 'edge' => 'left', 'align' => 'top','nudgehorizontal' => 1 )
                 )
             );
             return $p;
@@ -1178,6 +1198,29 @@ class KSD_Admin {
              endswitch;
                      $headers = 'From: '.$settings['ticket_mail_from_name'].' <'.$settings['ticket_mail_from_email'].'>' . "\r\n";
              return wp_mail( $to, $subject, $message, $headers ); 
+         }
+         
+         /**
+          * Retrieve Kanzu Support Desk notifications. These are currently
+          * retrieved from the KSD blog feed, http://blog.kanzucode.com/feed/
+          * @since 1.3.2
+          */
+         public function get_notifications(){
+            ob_start();  
+            if ( false === ( $cache = get_transient( 'ksd_notifications_feed' ) ) ) {
+		$feed = wp_remote_get( 'http://blog.kanzucode.com/feed/', array( 'sslverify' => false ) );
+		if ( ! is_wp_error( $feed ) ) {                   
+			if ( isset( $feed['body'] ) && strlen( $feed['body'] ) > 0 ) {
+				$cache = wp_remote_retrieve_body( $feed );
+				set_transient( 'ksd_notifications_feed', $cache, 86400 );//Check everyday
+			}
+		} else {
+			$cache = '<div class="error"><p>' . __( 'There was an error retrieving the latest notifications from the server. A re-attempt will be made later.', 'kanzu-support-desk' ) . '</div>';
+		}
+            }
+            echo json_encode( $cache );
+            echo ob_get_clean();    
+            die();
          }
          
          /**

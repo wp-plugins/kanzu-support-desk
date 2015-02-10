@@ -63,7 +63,7 @@ msgid "Busted!"
 msgstr ""
 
 #: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:381
-msgid "An error occured. Please retry"
+msgid "An error occurred. Please retry"
 msgstr ""
 
 #: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:412
@@ -331,7 +331,7 @@ msgid "Sending..."
 msgstr ""
 
 #: includes/admin/class-ksd-admin.php:136
-msgid "An unexpected error occured. Kindly retry"
+msgid "An unexpected error occurred. Kindly retry"
 msgstr ""
 
 #: includes/admin/class-ksd-admin.php:137
@@ -881,30 +881,30 @@ msgid ""
 msgstr ""
 
 #: includes/frontend/class-ksd-frontend.php:106
-msgid "Sorry, an error occured. Please retry"
+msgid "Sorry, an error occurred. Please retry"
 msgstr ""
 
 #: includes/frontend/class-ksd-frontend.php:117
 msgid ""
-"Sorry, an error occured due to a missing reCAPTCHA secret key. Please "
+"Sorry, an error occurred due to a missing reCAPTCHA secret key. Please "
 "refresh the page and retry."
 msgstr ""
 
 #: includes/frontend/class-ksd-frontend.php:120
 msgid ""
-"Sorry, an error occured due to an invalid or malformed reCAPTCHA secret key. "
+"Sorry, an error occurred due to an invalid or malformed reCAPTCHA secret key. "
 "Please refresh the page and retry."
 msgstr ""
 
 #: includes/frontend/class-ksd-frontend.php:123
 msgid ""
-"Sorry, an error occured due to a missing reCAPTCHA input response. Please "
+"Sorry, an error occurred due to a missing reCAPTCHA input response. Please "
 "refresh the page and retry."
 msgstr ""
 
 #: includes/frontend/class-ksd-frontend.php:126
 msgid ""
-"Sorry, an error occured due to an invalid or malformed reCAPTCHA input "
+"Sorry, an error occurred due to an invalid or malformed reCAPTCHA input "
 "response. Please refresh the page and retry."
 msgstr ""
 

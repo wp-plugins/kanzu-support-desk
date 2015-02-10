@@ -67,6 +67,11 @@
                    <textarea cols="60" rows="4" name="recaptcha_error_message"><?php echo $settings['recaptcha_error_message']; ?></textarea>
                    <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("Message to display in case Google reCAPTCHA continuously fails. This is very unlikely but just in case.",'kanzu-support-desk')  ;?>"/>
              </div>
+             <div class="setting">
+                <label for="enable_anonymous_tracking"><?php _e( "Allow tracking?","kanzu-support-desk" ); ?></label>                
+                <input name="enable_anonymous_tracking"  type="checkbox" <?php checked( $settings['enable_anonymous_tracking'], "yes" ) ?> value="yes"  />
+                <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e( "To focus our efforts solely on making KSD serve you better (and NOT waste time on features you don't need), we need some information on how you interact with the plugin. We won't track ANY user details so your security and privacy are safe. Please enable this.",'kanzu-support-desk')  ;?>"/>
+             </div>
         </div>   
              <?php 
              //Retrieve extra settings from add-ons. Pass current settings to them

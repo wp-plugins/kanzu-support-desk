@@ -26,10 +26,52 @@
 .admin-ksd-title h2{
 	text-transform: capitalize;
 }
+.more_nav {
+  height: 38px;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 42px;
+  cursor: pointer;
+}
+.more_nav img:hover,.more_nav img.active{
+    background-color: #FFF;
+}
 #ksd_dashboard_chart{
     width: 100%;
     max-width: 1120px;
     min-width: 600px;
+}
+#ksd-notifications {
+    background: url("../images/notifications_bg.png") repeat-y scroll 0 0 rgba(0, 0, 0, 0);
+    display: none;
+    min-height: 100%;
+    padding: 10px 20px 0;
+    position: absolute;
+    right: 0;
+    width: 228px;
+    z-index: 99;
+}
+#ksd-notifications a.post-title {
+  color: #2ea2cc;
+  font-size: 14px;
+  text-decoration: none;
+  text-transform: capitalize;
+  width: 100%;
+}
+#ksd-notifications a.excerpt{
+    text-decoration: none;
+}
+#ksd-notifications a.excerpt:hover{
+    color: #2ea2cc;
+}
+#ksd-notifications .date-published {
+  border-top: 1px solid #ccc;
+  color: #999;
+  float: left;
+  font-size: 0.8em;
+  margin: 1px 0 5px;
+  width: 100%;
 }
 #admin-kanzu-support-desk div.admin-ksd-container{
 	border-bottom: medium none;
@@ -644,6 +686,16 @@ ul.edit-ticket-options li.selected{
 }
 #update-settings .ksd-reset {
   right: 210px;
+}
+#update-settings .ksd-button {
+  clear: both;
+  float: left;
+  margin-top: 15px;
+  padding: 0 12px;
+}
+#update-settings span#ksd_mail_test_connection {
+  clear: both;
+  float: left;
 }
 #settings-accordion{
   padding-top: 12px;

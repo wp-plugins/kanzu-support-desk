@@ -9,6 +9,11 @@ jQuery( document ).ready(function() {
    };
     /**AJAX: Log new ticket on submission of the new ticket form**/
     logNewTicket    = function(form){
+        //First ensure that the Google reCAPTCHA checkbox was checked 
+        if (!grecaptcha.getResponse()){
+            jQuery("span.ksd-g-recaptcha-error").html( ksd_frontend.msg_gcaptcha_error );
+            return;
+        } 
         targetFormClass = '.ksd-form-hidden-tab-form';  //The wrapper class for the form being targetted. We use this to
                                                         //make sure that the proceeding actions are on the correct form
         if( jQuery(form).hasClass('ksd-form-short-code-form')){
@@ -36,7 +41,7 @@ jQuery( document ).ready(function() {
     _attachValidateEventToSupportForm   =   function( theForm ){
     jQuery( theForm ).validate({
         submitHandler: function(form) {
-        logNewTicket(form);
+            logNewTicket(form);
         }
         });
     };    

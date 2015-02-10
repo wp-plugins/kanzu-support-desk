@@ -21,6 +21,10 @@
 #ksd-new-ticket-frontend-wrap input,#ksd-new-ticket-frontend-wrap textarea {
   margin-bottom: 7px;
 }
+.ksd-g-recaptcha-error{
+    font-size: 0.8em;
+    color: #F00;
+}
 .ksd-form-hidden-tab input,.ksd-form-hidden-tab textarea ,.ksd-form-hidden-tab-form ul li.ksd-g-recaptcha{
   width: 290px;
 }

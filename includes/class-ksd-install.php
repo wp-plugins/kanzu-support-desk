@@ -101,21 +101,12 @@ class KSD_Install {
         
         
         /**
-         * Do de-activation stuff. We call action ksd_deactivated for all 
-         * add-ons to clean-up and then deactivate themselves
+         * Do de-activation stuff. Currently, doesn't do a thing
          */
         public static function deactivate (){
-            
-            add_action('update_option_active_plugins', array( 'KSD_Install' , 'deactivate_addons'));
+            //Currently doesn't do a thing
         }        
         
-        
-        public static function deactivate_addons(){
-            $addons = array();
-            $addons  = apply_filters( 'ksd_active_addons_list', $addons );
-            
-            do_action('ksd_deactivate');
-        }
                 
        /**
 	 * Redirect to a welcome page on activation
@@ -155,7 +146,10 @@ class KSD_Install {
                      $settings['enable_recaptcha']          = "no";
                      $settings['recaptcha_site_key']        = "";
                      $settings['recaptcha_secret_key']      = "";
-                     $settings['recaptcha_error_message']   = "Sorry, an error occured. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}";
+                     $settings['recaptcha_error_message']   = "Sorry, an error occurred. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}";
+                    break;
+                case '1.3.2':
+                    $settings['enable_anonymous_tracking']  = "no";
                     break;
             }
             return $settings;
@@ -286,7 +280,8 @@ class KSD_Install {
                         'enable_recaptcha'                  => "no",//@since 1.3.1 Not on by default since user needs to create & provide reCAPTCHA site & secret keys
                         'recaptcha_site_key'                => "",
                         'recaptcha_secret_key'              => "",
-                        'recaptcha_error_message'           => "Sorry, an error occured. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}"
+                        'recaptcha_error_message'           => "Sorry, an error occurred. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}",
+                        'enable_anonymous_tracking'         => "no" //@since 1.3.2
                     );
             }
             

@@ -55,6 +55,56 @@ jQuery( document ).ready(function() {
         KSDUtils.isNumber = function(){
             return typeof n === "number" && isFinite(n) && n%1===0;
         };
+        
+        /**
+         * Capitalize the first letter in a string
+         * @param {string} theString String to capitalize e.g. hello or HELLO
+         * @returns string capitalizedString e.g. Hello (all other letters are switched to lowercase, the first to uppercase
+         */
+        KSDUtils.capitalizeFirstLetter  = function( theString ){
+            return theString.toLowerCase().replace(/\b[a-z]/g, function(letter) {
+                return letter.toUpperCase();
+            });
+        };
+        
+                
+        /*---------------------------------------------------------------*/
+        /*************************************ANALYTICS*********************/
+        /*---------------------------------------------------------------*/
+            KSDAnalytics = function(){
+            _this = this;
+            };
+            KSDAnalytics.init = function(){
+                if ( "yes" !== ksd_admin.enable_anonymous_tracking ){
+                    return;
+                }
+                (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+                    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');  
+
+                    ga('create', 'UA-48956820-3', 'auto');      
+                    ga('require', 'linkid', 'linkid.js');
+ 
+                //Send the page view for the current page. This is called the first time the page is loaded
+                //so we get the current admin_tab from ksd_admin.admin_tab
+                this.sendPageView( ksd_admin.admin_tab );
+            };
+            /**
+             * Send a page view to Google Analytics
+             * @param {string} current_admin_tab ID of the screen view to send. e.g. ksd-tickets
+             * @returns none
+             */
+            KSDAnalytics.sendPageView = function( current_admin_tab ){
+                pageName  =   KSDUtils.capitalizeFirstLetter( current_admin_tab.replace("ksd-","").replace(/\-/g," ") );
+                if ( pageName === "Kanzu Support Desk" ){//For instances where user directly clicks the main KSD menu item, its title is "Kanzu Support Desk" and it displays the dashboard so we translate it here
+                    pageName = "Dashboard";
+                    current_admin_tab = "ksd-dashboard";
+                }
+                thePage     =   '/'+current_admin_tab;//NB: Page names must start with a / 
+                pageTitle   =   pageName+" - Kanzu Support Desk";   
+                ga( 'send', 'pageview', { 'page': thePage, 'title': pageTitle } ); 
+            };
 
         /*---------------------------------------------------------------*/
         /****************************SETTINGS****************************/
@@ -164,6 +214,7 @@ jQuery( document ).ready(function() {
         this.init = function(){
                 this.statistics();
                 this.charts();
+                this.notifications();
         };
         
         
@@ -285,7 +336,47 @@ jQuery( document ).ready(function() {
               }catch( err ){
                   jQuery('#ksd_dashboard_chart').html( err );
               }
-	}//eof:charts
+	};//eof:charts
+        this.notifications = function(){
+            //Show/Hide the notifications panel
+            jQuery ( '.admin-ksd-title span.more_nav img' ).click(function(e){
+                e.preventDefault();
+                jQuery(this).toggleClass("active");
+                jQuery( "#ksd-notifications" ).toggle( "slide" );
+        });
+            //Retrieve the notifications
+                try{
+                        jQuery.post( ksd_admin.ajax_url, 
+                                {   action : 'ksd_get_notifications',
+                                    ksd_admin_nonce : ksd_admin.ksd_admin_nonce
+                                }, 
+                                function( response ) {                                        
+                                    var respObj = JSON.parse(response);
+                                    if ( 'undefined' !== typeof(respObj.error) ){
+                                        jQuery('#ksd-notifications').html( respObj.error.message );
+                                        return ;
+                                    }
+                                    //Parse the XML. We chose to do it here, rather than in the PHP (at the server end)
+                                    //for better performance (no impact on the server)
+                                    notificationsXML = jQuery.parseXML( respObj );
+                                    notificationData    =   '<ul>';
+                                    jQuery(notificationsXML).find("item").each(function(i, item) {
+                                          blogPost = jQuery(this); 
+                                          notificationData  +=  '<li>';
+                                          notificationData  +=  '<a href="'+blogPost.find('link').text()+'" target="_blank" class="post-title">'+blogPost.find('title').text()+'</a>';
+                                          notificationData  +=  '<span class="date-published">'+blogPost.find('pubDate').text()+'</span>';
+                                          notificationData  +=  '<a href="'+blogPost.find('link').text()+'" target="_blank" class="excerpt"><p>'+blogPost.find('description').text().substr(0, 100)+'...</p></a>';
+                                          notificationData  +=  '</li>';
+                                          return i<2;//Stops the loop after the first 3 items are returned
+                                     });
+                                    notificationData    +=   '</ul>';
+                                    //Add the entries to the div*/
+                                    jQuery( "#ksd-notifications" ).html( notificationData );            
+                                });
+                            }catch( err ){
+                  jQuery('#ksd-notifications').html( err );
+              }
+        };//eof:notifications
         };//eof:Dashboard
         
         /*---------------------------------------------------------------*/
@@ -321,7 +412,18 @@ jQuery( document ).ready(function() {
                 var pointerContentIndex = 0;
                 if( ksd_admin.ksd_tour_pointers.ksd_intro_tour ){//If pointers are set, show them off 
                     var pointer = ksd_admin.ksd_tour_pointers.ksd_intro_tour;
-                     options = jQuery.extend( pointer[pointerContentIndex].options, {
+                    
+                    /**
+                     * Create a pointer using content defined at pointer[pointerContentIndex]
+                     * and display on a particular tab (dashboard, tickets, etc). The tab to display
+                     * it on is defined in pointer[pointerContentIndex].tab
+                     * @param int pointerContentIndex
+                     */
+                    generatePointer = function( pointerContentIndex ){
+                        //Change the active tab
+                        jQuery( "#tabs" ).tabs( "option", "active", pointer[pointerContentIndex].tab );
+                        //Generate the pointer options
+                        options = jQuery.extend( pointer[pointerContentIndex].options, {
                         close: function() {
                            /* jQuery.post( ksd_admin.ajax_url, {
                                 pointer: 'ksd_intro_tour',
@@ -332,14 +434,23 @@ jQuery( document ).ready(function() {
                                 action: 'ksd_disable_tour_mode'
                             });
                         }
-                    }); 
-                jQuery( pointer[pointerContentIndex].target ).pointer( options ).pointer('open');
-                //Inject a 'Next' button into the pointer
-                jQuery( 'a.close' ).after('<a href="#" class="ksd-next button-primary">'+ksd_admin.ksd_labels.pointer_next+'</a>');
-  
-                //Move to the next tab when 'Next' is clicked
-                jQuery( 'a.ksd-next' ).click( function(){                     
-                    if( pointerContentIndex < 6  ){
+                        }); 
+                        //Open the pointer
+                        jQuery( pointer[pointerContentIndex].target ).pointer( options ).pointer('open');
+                        //Inject a 'Next' button into the pointer
+                        jQuery( 'a.close' ).after('<a href="#" class="ksd-next button-primary">'+ksd_admin.ksd_labels.pointer_next+'</a>');
+                    };
+                     
+                  generatePointer( pointerContentIndex );       
+                //Move to the next pointer when 'Next' is clicked
+                //Event needs to be attached this way since the link was manually injected into the HTML
+                jQuery( 'body' ).on( 'click', 'a.ksd-next', function(e){     
+                    e.preventDefault();
+                    //Close the current pointer
+                    //jQuery( pointer[pointerContentIndex].target ).pointer('close');
+                    //Manually hide the parent
+                    jQuery(this).parents('.wp-pointer').hide();
+                    if( pointerContentIndex < pointer.length  ){
                         ++pointerContentIndex;
                     }
                     else{//End of the tour
@@ -352,20 +463,11 @@ jQuery( document ).ready(function() {
                         jQuery.post( ksd_admin.ajax_url, {
                                 action: 'ksd_disable_tour_mode'
                         });
-                        //Close the pointer
-                        jQuery( pointer[pointerContentIndex].target ).pointer('close');
                         return;
                     }
-                   jQuery('.wp-pointer-content span').html(pointer[pointerContentIndex].options.content);
-                   if ( pointerContentIndex >= 2 ){//At pointerContentIndex == 2, we are displaying ticket
-                                                  //instructions. We display two different sets of instructions, one after 
-                                                  //another so we compensate for this by decrementing pointerContentIndex 
-                      displayTabIndex = pointerContentIndex - 1;
-                    }
-                    else{
-                       displayTabIndex = pointerContentIndex;
-                    }
-                    jQuery( "#tabs" ).tabs( "option", "active", displayTabIndex );
+                   //Open the next pointer
+                   generatePointer( pointerContentIndex );   
+               
                 });
                 }
             };
@@ -856,7 +958,7 @@ jQuery( document ).ready(function() {
             /*Switch the active tab depending on what page has been selected*/
             activeTab=0;        
             switch(ksd_admin.admin_tab){
-                    case "ksd-tickets":
+                    case "ksd-tickets":  
                             activeTab=1;
                     break;
                     case "ksd-new-ticket":
@@ -878,7 +980,7 @@ jQuery( document ).ready(function() {
             }
             jQuery( "#tabs" ).tabs( "option", "active", activeTab );
             //Set the title
-            jQuery('.admin-ksd-title h2').html(ksd_admin.admin_tab.replace("ksd-","").replace("-"," "));
+            jQuery('.admin-ksd-title h2').html( ksd_admin.admin_tab.replace("ksd-","").replace(/\-/g," ") );
  
             /**AJAX: Send the AJAX request to change ticket owner on selecting new person to 'Assign to'**/
             jQuery("#ticket-tabs").on('click','.ticket-actions ul.assign_to li',function() {
@@ -917,6 +1019,9 @@ jQuery( document ).ready(function() {
             /**Change the title onclick of a side navigation tab*/
             jQuery( "#tabs .ksd-main-nav li a" ).click(function() {
                     jQuery('.admin-ksd-title h2').html(jQuery(this).attr('href').replace("#","").replace("_"," "));//Remove the hashtag, replace _ with a space
+                    if ( "yes" === ksd_admin.enable_anonymous_tracking ){
+                       KSDAnalytics.sendPageView(jQuery(this).attr('href').replace("#","ksd-").replace("_","-"));//Make it match the admin_tab format e.g. ksd-dashboard, ksd-tickets, etc
+                    }
             });
             
             /**Pre-populate the first tab in the tickets view*/
@@ -1368,6 +1473,11 @@ jQuery( document ).ready(function() {
         };
 };
 
+
+         
+        //Analytics
+        KSDAnalytics.init();
+
         //Settings
         Settings = new KSDSettings();
         Settings.init();
@@ -1382,6 +1492,7 @@ jQuery( document ).ready(function() {
         
         //Tickets
         Tickets = new KSDTickets();
-        Tickets.init();
+        Tickets.init();       
+
          
 });
