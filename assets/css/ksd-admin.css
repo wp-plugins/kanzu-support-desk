@@ -390,10 +390,10 @@ h1.ksd-single-ticket-subject {
   padding-right: 15px;
 }
 #ksd-single-ticket .description {
-  border-bottom: 1px solid #ccc;
-  border-top: 1px solid #ccc;
-  margin: 0 15px;
-  padding: 20px 0;
+  border-bottom: 1px solid #FFA500;
+  border-top: 1px solid #FFA500;
+  margin: 0;
+  padding: 20px 15px;
 }
 #ksd-single-ticket .ksd-submit{
     float: left;
@@ -443,12 +443,37 @@ h1.ksd-single-ticket-subject {
     width: 100%;
 }
 #ticket-replies{
-    margin-top: 10px;
-    padding-left: 15px;
+    margin-top: 0;
+    padding-left: 0;
+}
+.replies-more {
+    background-color: #f1f1f1;
+    background-image: url("../images/icons/ellipsis.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    border: 1px solid #ddd;
+    clear: both;
+    cursor: pointer;
+    height: 10px;
+    margin-top: 12px;
+    opacity: 0.3;
+    width: 20px;
+}
+div.replies-more:hover{
+    opacity: 0.9;
 }
 .ticket-reply {
-  border-bottom: 1px solid #ccc;
-  padding: 15px 5px;
+  border-bottom: 1px solid #FFA500;
+  padding: 15px;
+}
+#ticket-replies .reply_date {
+  float: right;
+  text-align: right;
+  width: 50%;
+}
+.reply_author {
+  float: left;
+  width: 50%;
 }
 #new-ticket input.ksd-submit:hover{
    cursor: pointer; 
@@ -655,6 +680,9 @@ ul.edit-ticket-options li.selected{
   font-weight: bold;
   width: 200px;
 }
+#update-settings h3{
+  margin-bottom: 0;  
+}
 #update-settings input {
   padding: 10px;
 }
@@ -693,7 +721,7 @@ ul.edit-ticket-options li.selected{
   margin-top: 15px;
   padding: 0 12px;
 }
-#update-settings span#ksd_mail_test_connection {
+#update-settings span#test_mail_connection {
   clear: both;
   float: left;
 }
@@ -716,6 +744,27 @@ ul.edit-ticket-options li.selected{
         box-shadow:1px 1px 3px rgba(0,0,0,.1);
         text-align:center;
 } 
+#update-settings ul.ksd-multiple-checkboxes {
+    float: left;
+    margin-top: 0;
+    width: 70%;
+}
+.ksd-multiple-checkboxes > li {
+    float: left;
+    width: 30%;
+}
+#update-settings .ksd-multiple-checkboxes input {
+    float: left;
+    margin: 0;
+    padding: 0;
+    width: 10%;
+}
+#update-settings .ksd-multiple-checkboxes label {
+    float: left;
+    font-weight: normal;
+    line-height: 15px;
+    width: 90%;
+}
 .ksd-blue{
     color: #2ea2cc;
 } 

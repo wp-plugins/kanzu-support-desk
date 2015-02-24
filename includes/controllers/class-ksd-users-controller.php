@@ -42,11 +42,18 @@ class KSD_Users_Controller extends KSD_Controller
 	/*
 	*Update user details
 	*/
-	public function update_user(&$user){
+	public function update_user ( &$user ) {
 		return $this->_model->update_user( $user );
 	}
-	
-	
+        
+        /**
+         * Get users with the specified roles
+         * @param string $roles |-separated list of role names. e.g. administrator|author|editor
+         * @return object
+         */
+        public function get_users_with_roles( $roles ){
+           return $this->_model->get_users_with_roles( $roles ); 
+        }
 }
 
 ?>

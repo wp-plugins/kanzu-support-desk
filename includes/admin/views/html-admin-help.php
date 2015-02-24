@@ -3,7 +3,7 @@
 <h3><?php _e( "Support","kanzu-support-desk" ); ?></h3>
     <p><?php _e( "If you have any trouble, please get in touch with us: <a href='http://kanzucode.com/support' target='_blank'>Kanzu Support</a>","kanzu-support-desk" ); ?></p>
 <h3><?php _e( "Spread the Love","kanzu-support-desk" ); ?></h3>
-    <p><?php _e( "We are working to make providing great customer service easy. Please support us by <a href='https://wordpress.org/support/view/plugin-reviews/kanzu-support-desk' target='_blank' class='button button-primary'>Rating Us</a> now","kanzu-support-desk" ); ?></p>
+    <p><?php _e( "We are working to make providing great customer service easy. Please support us by <a href='https://wordpress.org/support/view/plugin-reviews/kanzu-support-desk' target='_blank' class='button button-primary'>Rating Us</a> now. It'll take you less than a minute, promise.","kanzu-support-desk" ); ?></p>
 <h3><?php _e( "Feedback","kanzu-support-desk" ); ?></h3>
     <form action="#" id="ksd-feedback" method="POST">
         <p><?php _e( "We are all about making KSD better. We'd truly, truly love to hear from you. What's your experience with <strong>Kanzu Support Desk</strong>? What do you like? What do you love? What don't you like? What do you want us to fix or improve?","kanzu-support-desk" ); ?></p>
@@ -41,7 +41,7 @@
 		<div class="response" id="mce-success-response" style="display:none"></div>
             </div>    <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups-->
             <div style="position: absolute; left: -5000px;"><input type="text" name="b_072b3e28db_dc9cab2edd" tabindex="-1" value=""></div>
-            <div class="clear"><input type="submit" value="I'm in!" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
+            <div class="clear"><input type="submit" value="Send me tips!" name="subscribe" id="mc-embedded-subscribe" class="button"></div>
             </div>
         </form>
     </div>

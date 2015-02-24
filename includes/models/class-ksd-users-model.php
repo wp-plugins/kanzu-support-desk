@@ -72,6 +72,13 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 		
 		return ( $user_id > 0 ) ? $user_id : -1 ;
 	}
+        
+        public function get_users_with_roles( $roles ){
+            global $wpdb;
+            $guery_get_users = "SELECT user_id FROM {$wpdb->prefix}usermeta WHERE meta_key = '{$wpdb->prefix}capabilities' AND meta_value REGEXP '.$roles.'";
+            return parent::exec_query( $guery_get_users ); 
+        }
+
  }
  
  

@@ -24,6 +24,13 @@ class KSD_Install {
 	 * @var      object
 	 */
 	protected static $instance = null;
+        
+        /**
+         * The DB version
+         * @since 1.5.0
+         * @var int
+         */
+        protected static $ksd_db_version = 100;
 
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
@@ -80,10 +87,10 @@ class KSD_Install {
                     return;
                 }          
                 //Check if it's an upgrade. If it is, run the updates. @since 1.1.0
-                if ( $settings['kanzu_support_version'] != KSD_VERSION ) {                
+                if ( $settings['kanzu_support_version'] != KSD_VERSION ) { 
+                    do_action ( 'ksd_upgrade_plugin', $settings['kanzu_support_version'] );//Holds all upgrade-related changes except changes to the settings. We send the current version to the action           
                     $settings['kanzu_support_version'] =  KSD_VERSION;   //Update the version
                     $upgraded_settings = apply_filters( 'ksd_upgrade_settings', $settings );
-                    do_action ( 'ksd_upgrade_plugin' );//Mainly holds changes to the tables. (and all other changes really)               
                     Kanzu_Support_Desk::update_settings( $upgraded_settings );                            
                     set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
                     return;
@@ -94,6 +101,7 @@ class KSD_Install {
                 self::create_tables();
                 self::set_default_options(); 	
                 self::log_initial_tickets();
+                self::create_roles();//@since 1.5.0                        
                 set_transient( '_ksd_activation_redirect', 1, 60 * 60 );// Redirect to welcome screen
             }
             
@@ -137,20 +145,13 @@ class KSD_Install {
          * @since 1.1.0
          */
         public function upgrade_settings( $settings ){
-            switch ( KSD_VERSION ){
-                case '1.1.0':
-                    $settings['tour_mode']   = "yes";
-                    break;
-                case '1.3.1':
-                     $user_info = get_userdata(1);//Get the admin user's information. Used to set default email
-                     $settings['enable_recaptcha']          = "no";
-                     $settings['recaptcha_site_key']        = "";
-                     $settings['recaptcha_secret_key']      = "";
-                     $settings['recaptcha_error_message']   = "Sorry, an error occurred. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}";
-                    break;
-                case '1.3.2':
-                    $settings['enable_anonymous_tracking']  = "no";
-                    break;
+            //Compare the user's current settings array against our new default array and pick-up any settings they don't have 
+            //We'd have loved to use array_diff_key for this but it only exists for PHP 5 >= 5.1.0
+            //For any setting that doesn't exist, we define it and assign it the default value @since 1.5.0
+            foreach ( self::get_default_options() as $setting_key => $setting_default_value ){
+                if( !isset( $settings[$setting_key] ) ){
+                   $settings[$setting_key] =  $setting_default_value;
+                }
             }
             return $settings;
         }
@@ -158,27 +159,42 @@ class KSD_Install {
         /**
          * During plugin upgrade, this makes all the required changes
          * apart from plugin setting changes which are done by {@link upgrade_settings}
+         * Note that any changes to the DB are reflected by an increment in the Db number
+         * @param {string} $previous_version The previous version
          * @since 1.2.0
          */
-        public function upgrade_plugin(){
+        public function upgrade_plugin( $previous_version ){
             global $wpdb;  
             $wpdb->hide_errors();	
-            $dbChanges = null;//Holds all DB change queries
-           switch ( KSD_VERSION ){
-                case '1.2.0':
-                    //Add 'NEW' to tkt_status ENUM, change the default tkt_status from 'OPEN' to 'NEW'
-                    $dbChanges="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_status` `tkt_status` ENUM('NEW','OPEN','ASSIGNED','PENDING','RESOLVED') DEFAULT 'NEW';";
-                    break;
-            } 
-            if( !is_null( $dbChanges ) ){//Make the Db changes. We use $wpdb->query instead of dbDelta because of
-                                        //how strict and verbose the dbDelta alternative is. We'd
-                                        //need to rewrite CREATE table statements for dbDelta.
-                  $wpdb->query( $dbChanges );                 
+            //@since 1.5.0 Switch case based on target version removed. @TODO Update this to be version conscious
+            $dbChanges = array();//Holds all DB change queries
+            //Add 'NEW' to tkt_status ENUM, change the default tkt_status from 'OPEN' to 'NEW'
+            $dbChanges[]="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_status` `tkt_status` ENUM('NEW','OPEN','ASSIGNED','PENDING','RESOLVED') DEFAULT 'NEW';";
+            
+            //Drop the foreign key constraint. With it, the KSD user won't be able to delete WP users
+            $dbChanges[]="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` DROP FOREIGN KEY `tkts_custid_fk`;";            
+            
+            //Change tkt_cust_id's attributes to match those of WP_users.ID
+            $dbChanges[]="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_cust_id` `tkt_cust_id` BIGINT(20) UNSIGNED NOT NULL;";
+            
+            //Create new roles
+            self::create_roles();            
+       
+            if( count( $dbChanges ) > 0 ){  //Make the Db changes. We use $wpdb->query instead of dbDelta because of
+                                            //how strict and verbose the dbDelta alternative is. We'd
+                                            //need to rewrite CREATE table statements for dbDelta.
+                  foreach ( $dbChanges as $query ){
+                        $wpdb->query( $query );     
+                  }
             }
+            //Migrate customers from our customers table to WP_users. We do this  after deleting the foreign key
+            $this->move_customers_to_wp_users();     
+
         }
  
        /**
 	* Create KSD tables
+        * @TODO Test new installation with this new FK constraint
         * @since 1.0.0
 	*/
         private static function create_tables() {
@@ -212,16 +228,13 @@ class KSD_Install {
 				`tkt_status` ENUM('NEW','OPEN','ASSIGNED','PENDING','RESOLVED') DEFAULT 'NEW',
 				`tkt_severity` ENUM ('URGENT', 'HIGH', 'MEDIUM','LOW') DEFAULT 'LOW', 
 				`tkt_time_logged` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 				
-                                `tkt_cust_id` BIGINT(20) NOT NULL, 
+                                `tkt_cust_id` BIGINT(20) UNSIGNED NOT NULL, 
                                 `tkt_assigned_by` BIGINT(20) NOT NULL, 
                                 `tkt_assigned_to` BIGINT(20) NULL, 
 				`tkt_time_updated` TIMESTAMP NULL, 
 				`tkt_updated_by` BIGINT(20) NOT NULL,                                 
 				`tkt_private_note` TEXT,
-                                KEY (`tkt_assigned_to`,`tkt_assigned_by`,`tkt_cust_id`),
-                                CONSTRAINT `tkts_custid_fk`
-                                FOREIGN KEY (`tkt_cust_id`) REFERENCES {$wpdb->prefix}kanzusupport_customers(`cust_id`)
-                                ON DELETE NO ACTION    
+                                KEY (`tkt_assigned_to`,`tkt_assigned_by`,`tkt_cust_id`)
 				);	
 				CREATE TABLE `{$wpdb->prefix}kanzusupport_replies` (
 				`rep_id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY ,
@@ -258,6 +271,63 @@ class KSD_Install {
             }
             
             /**
+             * Create custom user roles
+             * @since 1.5.0
+             */
+            private static function create_roles(){
+                add_role( 'ksd_customer', __( 'KSD Customer', 'kanzu-support-desk' ), array(
+				'read' 		=> true,
+				'edit_posts' 	=> false,
+				'delete_posts' 	=> false
+			) );
+            }
+            
+            /**
+             * Migrate customers from {$wpdb->prefix}kanzusupport_customers to {$wpdb->prefix}users
+             * @since 1.5.0
+             */
+            private function move_customers_to_wp_users(){            
+               require_once( KSD_PLUGIN_DIR .  'includes/admin/class-ksd-admin.php' );
+               $ksd_admin =  KSD_Admin::get_instance();
+               $ksd_admin->do_admin_includes();
+               $CC = new KSD_Customers_Controller();
+               $filter = "%d";
+               $value_parameters[] = 1;
+               $all_customers = $CC->get_customers( $filter, $value_parameters );//Get all the customers
+               
+               foreach( $all_customers as $customer ){
+                    $username = sanitize_user( preg_replace('/@(.)+/','',$customer->cust_email ) );//Derive a username from the emailID
+                    //Ensure username is unique. Adapted from WooCommerce
+                    $append     = 1;
+                    $new_username = $username;
+                    
+                    while ( username_exists( $username ) ) { 
+			$username = $new_username . $append;
+			$append ++;
+                    }
+                    $password = wp_generate_password();//Generate a random password                   
+                    
+                    $userdata = array(
+                        'user_login'    => $username,
+                        'user_pass'     => $password,  
+                        'user_email'    => $customer->cust_email,
+                        'display_name'  => empty( $customer->cust_lastname ) ? $customer->cust_firstname : $customer->cust_firstname.' '.$customer->cust_lastname,
+                        'first_name'    => $customer->cust_firstname,
+                        'role'          => 'ksd_customer',
+                        'last_name'     => $customer->cust_lastname
+                    );
+                    $user_id = wp_insert_user( $userdata ) ;
+                    if( !is_wp_error($user_id) ) {
+                        //Get all tickets created by this customer and update the ID
+                        global $wpdb;
+                        $TC = new KSD_Tickets_Controller(); 
+                        $update_query = "UPDATE `{$wpdb->prefix}kanzusupport_tickets` SET `tkt_cust_id` = {$user_id} WHERE `tkt_cust_id` = {$customer->cust_id};";
+                        $TC->exec_query( $update_query );//Chose to use a custom query since this is just a one-off
+                    }
+               }
+            }
+            
+            /**
              * Get default settings
              */
             public static function get_default_options(){
@@ -265,6 +335,7 @@ class KSD_Install {
                 return  array (
                         /** KSD Version info ********************************************************/
                         'kanzu_support_version'             => KSD_VERSION,
+                        'kanzu_support_db_version'          => self::$ksd_db_version,
                     
                         /** Tickets **************************************************************/
                     
@@ -281,7 +352,9 @@ class KSD_Install {
                         'recaptcha_site_key'                => "",
                         'recaptcha_secret_key'              => "",
                         'recaptcha_error_message'           => "Sorry, an error occurred. If this persists, kindly get in touch with the site administrator on {$user_info->user_email}",
-                        'enable_anonymous_tracking'         => "no" //@since 1.3.2
+                        'enable_anonymous_tracking'         => "no", //@since 1.3.2,
+                        'auto_assign_user'                  => '',   //@since 1.5.0. Used to auto-assign new tickets when set 
+                        'ticket_management_roles'           => 'administrator' //@since 1.5.0. Who can manage your tickets
                     );
             }
             

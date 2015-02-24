@@ -133,8 +133,9 @@ class KSD_Admin {
                 $admin_labels_array['msg_still_loading']            = __('Loading Replies...','kanzu-support-desk');
                 $admin_labels_array['msg_loading']                  = __('Loading...','kanzu-support-desk');
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
-                $admin_labels_array['msg_error']                    = __('An unexpected error occurred. Kindly retry','kanzu-support-desk');
+                $admin_labels_array['msg_error']                    = __('Sorry, an unexpected error occurred. Kindly retry. Thank you.','kanzu-support-desk');
                 $admin_labels_array['pointer_next']                 = __('Next','kanzu-support-desk');
+                $admin_labels_array['lbl_toggle_trimmed_content']   = __('Toggle Trimmed Content','kanzu-support-desk');
                 //Get current settings
                 $settings = Kanzu_Support_Desk::get_settings();
                 
@@ -145,7 +146,7 @@ class KSD_Admin {
                                             'ajax_url'                  =>  admin_url( 'admin-ajax.php'),
                                             'ksd_admin_nonce'           =>  wp_create_nonce( 'ksd-admin-nonce' ),
                                             'ksd_tickets_url'           =>  admin_url( 'admin.php?page=ksd-tickets'),
-                                            'ksd_agents_list'           =>  self::get_agent_list(),
+                                            'ksd_agents_list'           =>  self::get_agent_list( $settings['ticket_management_roles'] ),
                                             'ksd_current_user_id'       =>  get_current_user_id(),
                                             'ksd_labels'                =>  $admin_labels_array,
                                             'ksd_tour_pointers'         =>  $tour_pointer_messages,
@@ -158,11 +159,18 @@ class KSD_Admin {
                             
         /**
          * Get a list of agents
+         * @param string $roles The WP Roles with access to KSD
          * @return An unordered list of agents
          */
-        public static function get_agent_list(){
+        public static function get_agent_list( $roles ){
+            include_once( KSD_PLUGIN_DIR.  "includes/controllers/class-ksd-users-controller.php");//@since 1.5.0 filter the list to return users in certain roles
+            $UC = new KSD_Users_Controller();
+            $tmp_user_IDs = $UC->get_users_with_roles( $roles );
+            foreach ( $tmp_user_IDs as $userID ){
+                $user_IDs[] = $userID->user_id;
+            }            
             $agents_list = "<ul class='ksd_agent_list hidden'>";//The available list of agents
-                foreach (  get_users() as $agent ) {
+                foreach (  get_users( array( 'include' => $user_IDs ) ) as $agent ) {
                     $agents_list .= "<li ID=".$agent->ID.">".esc_html( $agent->display_name )."</li>";
                 }
              $agents_list .= "</ul>";
@@ -407,11 +415,15 @@ class KSD_Admin {
             }
             $this->do_admin_includes();
             try{
-                $replies = new KSD_Replies_Controller();
+                $RC = new KSD_Replies_Controller();
                 $query = " rep_tkt_id = %d";
-                $value_parameters = array ($_POST['tkt_id']);
-                $response = $replies->get_replies( $query,$value_parameters );
-                echo json_encode($response);
+                $value_parameters[] = $_POST['tkt_id'];
+                $replies = $RC->get_replies( $query,$value_parameters );
+                //Replace the rep_created_by ID with the name of the reply creator
+                foreach ( $replies as $reply ){
+                    $reply->rep_created_by = get_userdata( $reply->rep_created_by )->display_name;
+                }
+                echo json_encode( $replies );
                 die();
             }catch( Exception $e){
                 $response = array(
@@ -546,7 +558,8 @@ class KSD_Admin {
          * Add a reply to a single ticket
          * @param Array $ticket_reply_array The ticket reply Array. This exists wnen this function is called
          * by an add-on
-         * @TODO Handle add-on replies. They don't provide tkt_id so get it
+         * Note that add-ons have to provide tkt_id too. It's retrieved in the check before this function
+         * is called
          */
         
         public function reply_ticket( $ticket_reply_array=null ){
@@ -566,22 +579,26 @@ class KSD_Admin {
                         $_POST = $ticket_reply_array;
                     }
                     $new_reply = new stdClass(); 
-                    $new_reply->rep_tkt_id    	 =  $_POST['tkt_id'] ;
+                    $new_reply->rep_tkt_id    	 = sanitize_text_field( $_POST['tkt_id'] );    
+                    $new_reply->rep_created_by   = sanitize_text_field( $_POST['ksd_rep_created_by'] );
                     $new_reply->rep_message 	 = wp_kses_post( stripslashes( $_POST['ksd_ticket_reply'] )  );
                     if ( strlen( $new_reply->rep_message ) < 2 && ! $add_on_mode ){//If the response sent it too short
                        throw new Exception( __("Error | Reply too short", 'kanzu-support-desk'), -1 );
                     }
-                    //Get the customer's email address and send them this reply
-                    $CC = new KSD_Customers_Controller();
-                    $customer_details   = $CC->get_customer_by_ticketID( $new_reply->rep_tkt_id );                   
-                    $this->send_email( $customer_details[0]->cust_email, $new_reply->rep_message, $customer_details[0]->tkt_subject );
-
+                   //Add the reply to the replies table
                    $RC = new KSD_Replies_Controller(); 
                    $response = $RC->add_reply( $new_reply );
                    
                    if( $add_on_mode ){
-                       return;//End the party if this came from an add-on
+                       do_action( 'ksd_new_ticket_logged', $_POST['addon_tkt_id'], $response );
+                       return;//End the party if this came from an add-on. All an add-on needs if for the reply to be logged
                    }
+                   
+                    //Get the customer's email address and send them this reply.
+                    $TC = new KSD_Tickets_Controller();
+                    $ticket_details   = $TC->get_ticket( $new_reply->rep_tkt_id );     
+                    $user = get_userdata( $ticket_details->tkt_cust_id );
+                    $this->send_email( $user->user_email, $new_reply->rep_message, 'Re: '.$ticket_details->tkt_subject );//NOTE: Prefix the reply subject with Re:    
                    
                    if ( $response > 0 ){
                       echo json_encode(  esc_html( $new_reply->rep_message )  );
@@ -607,25 +624,27 @@ class KSD_Admin {
         public function do_log_new_ticket( $new_ticket ){            
             $this->do_admin_includes();
             $TC = new KSD_Tickets_Controller();
-            //First check if the ticket initiator exists in our customers table. The assumption here is that 
-            //agents won't use an add-on to log a ticket; otherwise, we'd have to check the wp_users table too (where agents are stored)
-            $CC = new KSD_Customers_Controller();
-            $customer_details = $CC->get_customer_by_email ( $new_ticket->cust_email );
+            //First check if the ticket initiator exists in our users table. 
+            $customer_details = get_user_by ( 'email', $new_ticket->cust_email );
             if ( $customer_details ){//If the customer's already in the Db, get their customer ID and check whether this is a new ticket or a response
-                $new_ticket->tkt_cust_id = $customer_details[0]->cust_id;
+                $new_ticket->tkt_cust_id = $customer_details->ID;
                //Check whether it is a new ticket or a reply. We match against subject and ticket initiator
                 $value_parameters   = array();
-                $filter             = " tkt_subject = %s AND tkt_status != %d AND tkt_assigned_by = %d ";
-                $value_parameters[] = $new_ticket->tkt_subject ;
+                $filter             = " tkt_subject = %s AND tkt_status != %d AND tkt_cust_id = %d ";
+                $value_parameters[] = sanitize_text_field( str_ireplace( "Re:", "", $new_ticket->tkt_subject ) ) ;  //Remove the Re: prefix from the subject of replies. @TODO Stands the
+                                                                                                                    //very, very remote risk of removing other Re:'s in the subject if they exist
+                                                                                                                    //Note that we use str_ireplace because it is less expensive than preg_replace
                 $value_parameters[] = 'RESOLVED' ;
                 $value_parameters[] = $new_ticket->tkt_cust_id ;
                 $the_ticket = $TC->get_tickets( $filter, $value_parameters );
                 if ( count( $the_ticket ) > 0  ){//this is a reply
                     //Get a $_POST array to send to the reply_ticket function
-                    $_POST['tkt_id'] = $the_ticket[0]->tkt_id;//The ticket ID
-                    $_POST['ksd_ticket_reply'] = $new_ticket->tkt_message;//Get the reply
+                    $_POST['tkt_id']                = $the_ticket[0]->tkt_id;//The ticket ID
+                    $_POST['ksd_ticket_reply']      = $new_ticket->tkt_message;//Get the reply
+                    $_POST['ksd_rep_created_by']    = $new_ticket->tkt_cust_id;//The customer's ID
+                    $_POST['addon_tkt_id']          = $new_ticket->addon_tkt_id;//The add-on's ID for this ticket
                     $this->reply_ticket( $_POST ); 
-                    return; //die removed because it was triggering a fatal error in addons
+                    return; //die removed because it was triggering a fatal error in add-ons
                }               
             }
             //This is a new ticket
@@ -710,12 +729,18 @@ class KSD_Admin {
                 if ( isset( $_POST[ 'ksd_tkt_severity' ] ) ) {
                     $new_ticket->tkt_severity           =  $_POST[ 'ksd_tkt_severity' ] ;   
                 }
-                if ( isset( $_POST[ 'ksd_tkt_assigned_to' ] ) ) {
+                if ( isset( $_POST[ 'ksd_tkt_assigned_to' ] ) && !empty( $_POST[ 'ksd_tkt_assigned_to' ] ) ) {
                     $new_ticket->tkt_assigned_to    =  $_POST[ 'ksd_tkt_assigned_to' ] ;
-                }
-               
+                }   
+                               
                 //Get the settings. We need them for tickets logged from the support tab
                 $settings = Kanzu_Support_Desk::get_settings();
+                
+                 //If the ticket wasn't assigned by the user, check whether auto-assignment is set so we auto-assign it
+                if ( empty( $_POST[ 'ksd_tkt_assigned_to' ] ) &&  !empty( $settings['auto_assign_user'] ) ) {
+                    $new_ticket->tkt_assigned_to    = $settings['auto_assign_user'];                    
+                }
+
                 //Return a different message based on the channel the request came on
                 $output_messages_by_channel = array();
                 $output_messages_by_channel[ 'STAFF' ] = __("Ticket Logged", "kanzu-support-desk");
@@ -726,31 +751,30 @@ class KSD_Admin {
                 //Check that it is a valid email address. Don't do this check in add-on mode
                 if ( ! $add_on_mode && !is_email( $cust_email )){
                      throw new Exception( __('Error | Invalid email address specified','kanzu-support-desk') , -1);
-                }
-                
-                $CC = new KSD_Customers_Controller();
-                $customer_details = $CC->get_customer_by_email ( $cust_email );
+                }                
+
+                $customer_details = get_user_by ( 'email', $cust_email );
                 if ( $customer_details ){//If the customer's already in the Db, proceed. Get their customer ID
-                        $new_ticket->tkt_cust_id = $customer_details[0]->cust_id;
+                        $new_ticket->tkt_cust_id = $customer_details->ID;
                 }
                 else{//The customer isn't in the Db. We add them
                     $new_customer = new stdClass();
-                    $new_customer->cust_email           = $cust_email;
+                    $new_customer->user_email           = $cust_email;
                     //Check whether one or more than one customer name was provided
                     if( false === strpos( trim( sanitize_text_field( $_POST[ 'ksd_cust_fullname' ] ) ), ' ') ){//Only one customer name was provided
-                       $new_customer->cust_firstname   =   sanitize_text_field( $_POST[ 'ksd_cust_fullname' ] );
+                       $new_customer->first_name   =   sanitize_text_field( $_POST[ 'ksd_cust_fullname' ] );
                     }
                     else{
                        preg_match('/(\w+)\s+([\w\s]+)/', sanitize_text_field( $_POST[ 'ksd_cust_fullname' ] ), $new_customer_fullname );
-                        $new_customer->cust_firstname   = $new_customer_fullname[1];
-                        $new_customer->cust_lastname   = $new_customer_fullname[2];//We store everything besides the first name in the last name field
+                        $new_customer->first_name   = $new_customer_fullname[1];
+                        $new_customer->last_name   = $new_customer_fullname[2];//We store everything besides the first name in the last name field
                     }
-                    //Add the customer to the customers table and get the customer ID
-                    $new_ticket->tkt_cust_id    =   $CC->add_customer( $new_customer );
+                    //Add the customer to the user table and get the customer ID
+                    $new_ticket->tkt_cust_id    =  $this->create_new_customer( $new_customer );
                 }   
                 
                 //Set 'logged by' to the ID of whoever logged it ( admin side tickets ) or to the customer's ID ( for tickets from the front-end )
-               $new_ticket->tkt_assigned_by   = ( isset( $_POST[ 'ksd_tkt_assigned_by' ] ) ? sanitize_text_field( $_POST[ 'ksd_tkt_assigned_by' ] ) : $new_ticket->tkt_cust_id );
+               $new_ticket->tkt_assigned_by   = ( !empty( $_POST[ 'ksd_tkt_assigned_by' ] ) ? sanitize_text_field( $_POST[ 'ksd_tkt_assigned_by' ] ) : $new_ticket->tkt_cust_id );
                 
                //Log date and time if given
                if (isset( $_POST[ 'ksd_tkt_time_logged' ] ) ){
@@ -770,17 +794,19 @@ class KSD_Admin {
                     $this->do_ticket_assignment ( $new_ticket_id,$new_ticket->tkt_assigned_to,$new_ticket->tkt_assigned_by ); 
                 }   
 
-                //For add-ons to do something after new ticket is added.
-                do_action( 'ksd_new_ticket_logged', $new_ticket );
-                
+                //For add-ons to do something after new ticket is added. We share the ID and the final status
+                if ( isset( $_POST['ksd_addon_tkt_id'] ) ) {                    
+                    do_action( 'ksd_new_ticket_logged', $_POST['ksd_addon_tkt_id'], $new_ticket_status );
+                }
                 //If this was initiated by the email add-on, end the party here
                 if ( ( "yes" == $settings['enable_new_tkt_notifxns'] &&  $tkt_channel  ==  "EMAIL") ){
                      $this->send_email( $cust_email );
                      return;
                 }
                 
-                if( $add_on_mode ) return; //For addon mode to ensure graceful exit from function
-                
+                if( $add_on_mode ) {
+                    return; //For addon mode to ensure graceful exit from function. 
+                }
                 echo json_encode( $new_ticket_status );
                 die();// IMPORTANT: don't leave this out
                 
@@ -809,15 +835,12 @@ class KSD_Admin {
          * @param Object $ticket The ticket to modify
          */
         private function format_ticket_for_viewing( $ticket ){
-            //Replace the username
-            $users = new KSD_Users_Controller();
-            $CC = new KSD_Customers_Controller();
             //If the ticket was logged by staff from the admin end, then the username is available in wp_users. Otherwise, we retrive the name
             //from the KSD customers table
-            $tmp_tkt_assigned_by = ( 'STAFF' === $ticket->tkt_channel ? $users->get_user($ticket->tkt_assigned_by)->user_nicename : $CC->get_customer($ticket->tkt_assigned_by)->cust_firstname );
-            
+           // $tmp_tkt_assigned_by = ( 'STAFF' === $ticket->tkt_channel ? $users->get_user($ticket->tkt_assigned_by)->display_name : $CC->get_customer($ticket->tkt_assigned_by)->cust_firstname );
+            $tmp_tkt_cust_id = get_userdata( $ticket->tkt_cust_id )->display_name;
             //Replace the tkt_assigned_by name with a prettier one
-            $ticket->tkt_assigned_by = str_replace($ticket->tkt_assigned_by,$tmp_tkt_assigned_by,$ticket->tkt_assigned_by);
+            $ticket->tkt_cust_id = str_replace($ticket->tkt_cust_id,$tmp_tkt_cust_id,$ticket->tkt_cust_id);
             //Replace the date 
             $ticket->tkt_time_logged = date('M d',strtotime($ticket->tkt_time_logged));
             
@@ -908,8 +931,11 @@ class KSD_Admin {
             }                
             try{
                 $updated_settings = Kanzu_Support_Desk::get_settings();//Get current settings
-                //Iterate through the new settings and save them. 
+                //Iterate through the new settings and save them. We skip all multiple checkboxes; those are handled later. As of 1.5.0, there's only one set of multiple checkboxes, ticket_management_roles
                 foreach ( $updated_settings as $option_name => $current_value ) {
+                    if( $option_name == 'ticket_management_roles' ){
+                        continue;//Don't handle multiple checkboxes in here @since 1.5.0
+                    }
                     $updated_settings[$option_name] = ( isset ( $_POST[$option_name] ) ? sanitize_text_field ( stripslashes ( $_POST[$option_name] ) ) : $updated_settings[$option_name] );
                 }
                 //For a checkbox, if it is unchecked then it won't be set in $_POST
@@ -917,14 +943,17 @@ class KSD_Admin {
                 //Iterate through the checkboxes and set the value to "no" for all that aren't set
                 foreach ( $checkbox_names as $checkbox_name ){
                      $updated_settings[$checkbox_name] = ( !isset ( $_POST[$checkbox_name] ) ? "no" : $updated_settings[$checkbox_name] );
-                }                
+                }      
+                //Now handle the multiple checkboxes. As of 1.5.0, only have ticket_management_roles. If it isn't set, use administrator
+                $updated_settings['ticket_management_roles'] = !isset( $_POST['ticket_management_roles'] ) ? "administrator" : $this->convert_multiple_checkbox_to_setting( $_POST['ticket_management_roles'] );
+            
                 //Apply the settings filter to get settings from add-ons
                 $updated_settings = apply_filters( 'ksd_settings', $updated_settings, $_POST );
                 
                 $status = update_option( KSD_OPTIONS_KEY, $updated_settings );
                 
                 if( true === $status){
-                    do_action('ksd_settings_saved');
+                    do_action( 'ksd_settings_saved' );
                    echo json_encode(  __("Settings Updated"));
                 }else{
                     throw new Exception(__("Update failed. Please retry. "  ), -1);
@@ -980,7 +1009,7 @@ class KSD_Admin {
 				set_transient( 'ksd_add_ons_feed', $cache, 3600 );
 			}
 		} else {
-			$cache = '<div class="error"><p>' . __( 'There was an error retrieving the add-ons list from the server. Please try again later.', 'kanzu-support-desk' ) . '</div>';
+			$cache = '<div class="add-on-error add-ons"><p>' . __( 'Sorry, an error occurred while retrieving the add-ons list. A re-attempt will be made later. Thank you.', 'kanzu-support-desk' ) . '</div>';
 		}
             }
         echo $cache;
@@ -1154,6 +1183,40 @@ class KSD_Admin {
          }
          
          /**
+          * Create a new customer in wp_users
+          * @param Object $customer The customer object
+          */
+         private function create_new_customer( $customer ){
+                    $username = sanitize_user( preg_replace('/@(.)+/','',$customer->user_email ) );//Derive a username from the emailID
+                    //Ensure username is unique. Adapted from WooCommerce
+                    $append     = 1;
+                    $new_username = $username;
+                    
+                    while ( username_exists( $username ) ) { 
+			$username = $new_username . $append;
+			$append ++;
+                    }
+                    $password = wp_generate_password();//Generate a random password                   
+                    
+                    $userdata = array(
+                        'user_login'    => $username,
+                        'user_pass'     => $password,  
+                        'user_email'    => $customer->user_email,
+                        'display_name'  => empty( $customer->last_name ) ? $customer->first_name : $customer->first_name.' '.$customer->last_name,
+                        'first_name'    => $customer->first_name,
+                        'role'          => 'ksd_customer'
+                    );
+                    if( !empty( $customer->last_name )){//Add the username if it was provided
+                        $userdata['last_name']  =   $customer->last_name;
+                    }
+                    $user_id = wp_insert_user( $userdata ) ;
+                    if( !is_wp_error($user_id) ) {
+                        return $user_id;
+                    }
+                    return false;
+            }
+         
+         /**
           * Disable tour mode
           * @since 1.1.0
           */
@@ -1215,12 +1278,29 @@ class KSD_Admin {
 				set_transient( 'ksd_notifications_feed', $cache, 86400 );//Check everyday
 			}
 		} else {
-			$cache = '<div class="error"><p>' . __( 'There was an error retrieving the latest notifications from the server. A re-attempt will be made later.', 'kanzu-support-desk' ) . '</div>';
+                    $cache["error"] =  __( "Sorry, an error occurred while retrieving the latest notifications. A re-attempt will be made later. Thank you.","kanzu-support-desk" );
 		}
             }
             echo json_encode( $cache );
             echo ob_get_clean();    
             die();
+         }
+         
+         /**
+          * Convert the multiple checkbox input, which is an array in $_POST, into a setting,
+          * which is a string of the values separated by |. We save them this way since we use
+          * them in an SQL REGEXP which uses them as is 
+          * e.g. SELECT field1,field2 from table where REGEXP 'value1|value2|value3'
+          * @param Array $multiple_checbox_array An array of the checked checkboxes in a set of multiple checkboxes
+          * @return string A |-separated list of the checked values
+          * @since 1.5.0
+          */
+         private function convert_multiple_checkbox_to_setting( $multiple_checbox_array ){
+             $setting_string = "administrator";//By default, the administrator has access
+             foreach ( $multiple_checbox_array as $checkbox ){
+                 $setting_string.="|".$checkbox;                
+             }       
+             return $setting_string;
          }
          
          /**

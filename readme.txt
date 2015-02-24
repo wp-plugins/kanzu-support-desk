@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 1.4.0
+Stable tag: 1.5.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,11 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.5.0, February 24, 2015 =
+ * Added auto-assign feature for new tickets
+ * Migrated customers from KSD customers table to wp_users
+ * Role-based ticket management added
+
 = 1.4.0, February 10, 2015 =
  * Added Analytics
  * Added sweet notifications panel
@@ -155,6 +160,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.5.0 =
+ * Auto-assign feature for new tickets, role-based ticket management
+
 = 1.4.0 =
 * New Notifications panel to keep you updated & client-side validation for Google reCAPTCHA
 

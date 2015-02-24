@@ -353,7 +353,7 @@ jQuery( document ).ready(function() {
                                 function( response ) {                                        
                                     var respObj = JSON.parse(response);
                                     if ( 'undefined' !== typeof(respObj.error) ){
-                                        jQuery('#ksd-notifications').html( respObj.error.message );
+                                        jQuery('#ksd-notifications').html( respObj.error );
                                         return ;
                                     }
                                     //Parse the XML. We chose to do it here, rather than in the PHP (at the server end)
@@ -450,7 +450,7 @@ jQuery( document ).ready(function() {
                     //jQuery( pointer[pointerContentIndex].target ).pointer('close');
                     //Manually hide the parent
                     jQuery(this).parents('.wp-pointer').hide();
-                    if( pointerContentIndex < pointer.length  ){
+                    if( pointerContentIndex <= ( pointer.length - 2 )  ){//We subtract 2 because of how we are doing the incrementing; tour will automatically end after the array's contents are done
                         ++pointerContentIndex;
                     }
                     else{//End of the tour
@@ -620,7 +620,7 @@ jQuery( document ).ready(function() {
                                             ticketListData += 	'<div class="ticket-info">';
                                             ticketListData += 	'<input type="checkbox" value="'+value.tkt_id+'" name="ticket_ids[]" id="ticket_checkbox_'+value.tkt_id+'">';
                                             ticketListData +=   '<span class="ksd-tkt-status '+(value.tkt_status).toLowerCase()+'"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit" title="'+(value.tkt_status).toLowerCase()+'">'+(value.tkt_status).charAt(0)+'</a></span>';  
-                                            ticketListData += 	'<span class="ksd-tkt-customer-name"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_assigned_by+ kst_tkt_replies + '</a></span>';
+                                            ticketListData += 	'<span class="ksd-tkt-customer-name"><a href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_cust_id+ kst_tkt_replies + '</a></span>';
                                             ticketListData +=	'<span class="subject-and-message-excerpt"><a class="ksd-tkt-subject"href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit">'+value.tkt_subject+'</a>';
                                             ticketListData += 	'<a class="ksd-message-excerpt" href="'+ksd_admin.ksd_tickets_url+'&ticket='+value.tkt_id+'&action=edit"> - '+value.tkt_message_excerpt+'</a></span>';                                            
                                             ticketListData += 	'<span class="ticket-time">'+value.tkt_time_logged+'</span>';
@@ -864,6 +864,36 @@ jQuery( document ).ready(function() {
                         }
                 });
         };
+        
+        /**
+         * Format ticket replies. Hide extra content from
+         * the previous message and generally make the displayed content
+         * more user-friendly
+         */        
+        this.formatTicketReplies = function(){            
+           /* #1 First match extra content from various email clients and wrap it in class 'ksd_extra'. We match the extra content
+                 based on knowing that content's structure. Currently matches Gmail (Android and Desktop) & Outlook. To be expanded
+                 -------------------------------------------------------------------------------------------*/
+            //Match Outlook 2013 extra content  @TODO Add mobile outlook, outlook 2007 and 2010
+            jQuery('p:contains("-----Original Message-----")').nextUntil("div").andSelf().wrapAll('<div class="ksd_extra"></div>');
+            //Match Gmail ( Android and Desktop ) clients
+            jQuery('div.gmail_quote').addClass('ksd_extra');
+            //Match Yahoo desktop clients. Written separately from the rest merely for legibility
+            jQuery('div.yahoo_quoted').addClass('ksd_extra');
+            //@TODO Add more mail clients, IOS particularly
+            
+            /* #2 To the content we've wrapped in class 'ksd_extra' in #1 above, append the icon that'll be used to toggle the extra content*/
+            jQuery('#ksd-single-ticket .ksd_extra').before('<div class="replies-more" title="'+ksd_admin.ksd_labels.lbl_toggle_trimmed_content+'"></div>');            
+
+            // #3 Add an event to that icon we appended
+            jQuery('#ksd-single-ticket').on('click','.replies-more',function() {
+                jQuery( this).parents('.ticket-reply').find('.ksd_extra').toggle('slide');//Go up the DOM, find the ticket reply then find the extra content in it
+             });
+             
+            //#4 Initially, hide all the extra content
+            jQuery('.ksd_extra').toggle();
+        };
+        
             this.editTicketForm = function(){            
                 jQuery("form#edit-ticket").validate({
                    submitHandler: function( form ) {
@@ -1181,11 +1211,11 @@ jQuery( document ).ready(function() {
                             }                             
                              the_ticket = respObj;
                              jQuery("#ksd-single-ticket h1.ksd-single-ticket-subject").html(the_ticket.tkt_subject);
-                             jQuery("#ksd-single-ticket span.author").html(the_ticket.tkt_assigned_by);//@TODO Use customer name                               
+                             jQuery("#ksd-single-ticket span.author").html(the_ticket.tkt_cust_id);                              
                              jQuery("#ksd-single-ticket span.date").html(the_ticket.tkt_time_logged);//@TODO Format this
                              jQuery("#ksd-single-ticket .description").removeClass("pending").html(the_ticket.tkt_message).text();
                              jQuery("#ksd-single-ticket textarea[name=tkt_private_note]").val(the_ticket.tkt_private_note);
-                             jQuery("#ticket-replies").html(ksd_admin.ksd_labels.msg_still_loading) ;                          
+                             jQuery("#ticket-replies p.loading").html(ksd_admin.ksd_labels.msg_still_loading) ;                          
                              //Make the 'Back' button visible
                              jQuery(".top-nav li.back").removeClass("hidden");
 
@@ -1213,12 +1243,21 @@ jQuery( document ).ready(function() {
                                         return ;
                                     }
                                     
-                                     jQuery("#ticket-replies").html("") ; //Clear the replies div
+                                     repliesData = "";
                                      jQuery.each( respObj, function( key, value ) {
-                                     jQuery("#ticket-replies").append("<div class='ticket-reply'>"+value.rep_message+"</div>");                                    
+                                         repliesData += "<div class='ticket-reply'>";
+                                         repliesData += "<span class='reply_author'>"+value.rep_created_by+"</span>";
+                                         repliesData += "<span class='reply_date'>"+value.rep_date_created+"</span>";
+                                         repliesData += "<div class='reply_message'>"+value.rep_message+"</div>";
+                                         repliesData += "</div>";                             
                                      });
+                                     jQuery("#ticket-replies").html(repliesData) ; 
                                      //Toggle the color of the reply background
-                                     jQuery("#ticket-replies div.ticket-reply").filter(':even').addClass("alternate");
+                                    // jQuery("#ticket-replies div.ticket-reply").filter(':even').addClass("alternate");
+                                     //Clean-up the replies to make them more user--friendly
+                                     _this.formatTicketReplies();
+                                     //Scroll to the bottom
+                                     jQuery('html, body').animate({ scrollTop: jQuery(".edit-ticket").offset().top}, 1400, "swing" );
                                  });
                          });	
          }
@@ -1471,6 +1510,7 @@ jQuery( document ).ready(function() {
                         
                     });
         };
+
 };
 
 

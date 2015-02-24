@@ -21,7 +21,7 @@
             <div class="ksd-assign-to">
                 <label for="ksd_tkt_assigned_to"><?php _e('Assign To','kanzu-support-desk'); ?></label>
                 <select name="ksd_tkt_assigned_to">
-                    <option>-</option>
+                    <option value="">-</option>
                 <?php $agents = get_users();
                     foreach ( $agents as $agent ) {
                         echo '<option value='.$agent->ID.'>' . esc_html( $agent->display_name ) . '</option>';

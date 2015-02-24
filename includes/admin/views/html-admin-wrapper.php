@@ -34,6 +34,6 @@
             <div class="ksd-dialog error hidden"><?php __("Error...","kanzu-support-desk"); ?></div>
             <div class="ksd-dialog success hidden"><?php __("Success...","kanzu-support-desk"); ?></div> 
             <div class="ksd-loading-tickets ksd-loading-tickets-overlay hidden"></div> 
-            <div id="ksd-notifications"><?php __("Loading...","kanzu-support-desk"); ?></div>
+            <div id="ksd-notifications"><?php _e("Loading...","kanzu-support-desk"); ?></div>
     </div>
 </div>
