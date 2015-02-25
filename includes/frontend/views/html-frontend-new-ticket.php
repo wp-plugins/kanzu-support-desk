@@ -24,7 +24,7 @@
             </li>
         <?php endif; ?>
           <li class="ksd-frontend-submit">
-            <img src="<?php echo KSD_PLUGIN_URL.'assets/images/loading_button.gif'; ?>" class="hidden ksd_loading_button" width="45" height="35" />
+            <img src="<?php echo KSD_PLUGIN_URL.'assets/images/loading_dialog.gif'; ?>" class="hidden ksd_loading_dialog" width="45" height="35" />
             <input type="submit" value="<?php _e( "Send Message","kanzu-support-desk" ); ?>" name="ksd-submit-tab-new-ticket" class="ksd-submit"/>
           </li>
         </ul>

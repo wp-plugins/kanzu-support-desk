@@ -705,7 +705,7 @@ ul.edit-ticket-options li.selected{
     color: red;
 }
 #update-settings div.setting span.loading {
-  background-image: url("../images/loading_button.gif");
+  background-image: url("../images/loading_dialog.gif");
   background-position: center center;
   background-repeat: no-repeat;
   float: left;

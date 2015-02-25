@@ -162,7 +162,11 @@ class KSD_Admin {
          * @param string $roles The WP Roles with access to KSD
          * @return An unordered list of agents
          */
-        public static function get_agent_list( $roles ){
+        public static function get_agent_list( $roles="" ){
+            if( empty( $roles ) ){
+                $settings = Kanzu_Support_Desk::get_settings();
+                $roles = $settings['ticket_management_roles'];
+            }
             include_once( KSD_PLUGIN_DIR.  "includes/controllers/class-ksd-users-controller.php");//@since 1.5.0 filter the list to return users in certain roles
             $UC = new KSD_Users_Controller();
             $tmp_user_IDs = $UC->get_users_with_roles( $roles );

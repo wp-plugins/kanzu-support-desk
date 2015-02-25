@@ -19,12 +19,12 @@ jQuery( document ).ready(function() {
         if( jQuery(form).hasClass('ksd-form-short-code-form')){
            targetFormClass = '.ksd-form-short-code-form';
         }
-        jQuery( targetFormClass+' img.ksd_loading_button' ).show();//Show the loading button
+        jQuery( targetFormClass+' img.ksd_loading_dialog' ).show();//Show the loading button
         jQuery('form'+targetFormClass+' :submit').hide(); //Hide the submit button
         jQuery.post(    ksd_frontend.ajax_url, 
                         jQuery(form).serialize(), //The action and nonce are hidden fields in the form
                         function( response ) { 
-                            jQuery( targetFormClass+' img.ksd_loading_button' ).hide();//Hide the loading button
+                            jQuery( targetFormClass+' img.ksd_loading_dialog' ).hide();//Hide the loading button
                             var respObj = JSON.parse(response);
                             //Show the response received. Check for errors
                             if ( 'undefined' !== typeof(respObj.error) ){
