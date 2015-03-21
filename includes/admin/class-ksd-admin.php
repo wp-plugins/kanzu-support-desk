@@ -191,7 +191,7 @@ class KSD_Admin {
 
 		return array_merge(
 			array(
-				'settings' => '<a href="' . admin_url( 'admin.php?page=ksd-settings' ) . '">' . __( 'Settings', KSD_SLUG ) . '</a>'
+				'settings' => '<a href="' . admin_url( 'admin.php?page=ksd-settings' ) . '">' . __( 'Settings', 'kanzu-support-desk' ) . '</a>'
 			),
 			$links
 		);
@@ -958,9 +958,9 @@ class KSD_Admin {
                 
                 if( true === $status){
                     do_action( 'ksd_settings_saved' );
-                   echo json_encode(  __("Settings Updated"));
+                   echo json_encode(  __("Settings Updated","kanzu-support-desk"));
                 }else{
-                    throw new Exception(__("Update failed. Please retry. "  ), -1);
+                    throw new Exception(__("Update failed. Please retry.","kanzu-support-desk"  ), -1);
                 }
                 die();
             }catch( Exception $e){
@@ -985,9 +985,9 @@ class KSD_Admin {
                 $base_settings = apply_filters( 'ksd_settings', $base_settings );
                 $status = update_option( KSD_OPTIONS_KEY, $base_settings );
                 if( $status){
-                    echo json_encode( __("Settings Reset") );
+                    echo json_encode( __("Settings Reset","kanzu-support-desk") );
                 }else{
-                    throw new Exception( __("Reset failed. Please retry"), -1);
+                    throw new Exception( __("Reset failed. Please retry","kanzu-support-desk"), -1);
                 }                    
                 die();
             }catch( Exception $e){

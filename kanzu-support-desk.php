@@ -3,7 +3,7 @@
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
  * Description:       All-in-one WordPress customer service ( support ticket ) solution for your site
- * Version:           1.5.2
+ * Version:           1.5.3
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '1.5.2';
+	public $version = '1.5.3';
 	
 	
 	/**
@@ -154,8 +154,8 @@ final class Kanzu_Support_Desk {
 	
 		$locale = apply_filters( 'plugin_locale', get_locale(), KSD_SLUG );
 
-		load_textdomain( KSD_SLUG, trailingslashit( WP_LANG_DIR ) . KSD_SLUG . '/' . KSD_SLUG . '-' . $locale . '.mo' );
-		load_plugin_textdomain( KSD_SLUG, FALSE, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
+                load_textdomain( 'kanzu-support-desk', trailingslashit( WP_LANG_DIR ) . KSD_SLUG . '/' . KSD_SLUG . '-' . $locale . '.mo' );
+		load_plugin_textdomain( 'kanzu-support-desk', FALSE, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
 
 	}
 	

@@ -32,7 +32,7 @@ class KSD_Deamon {
         $this->transient = 'ksd_deamon_transient';
         
         if( php_sapi_name() !== 'cli' ) {
-            die( __( "Must be run from commandline." ) ) ;
+            die( __( "Must be run from commandline.","kanzu-support-desk" ) ) ;
         }
         set_error_handler( array( $this, 'error_handler' ), E_ERROR & ~E_DEPRECATED );
         set_exception_handler( array( $this, 'exception_handler' ) );
@@ -69,7 +69,7 @@ class KSD_Deamon {
 
             delete_transient( $transient );            
         }else{
-            _e( 'Script still running.' );
+            _e( 'Script still running.','kanzu-support-desk' );
         } 
     }
     

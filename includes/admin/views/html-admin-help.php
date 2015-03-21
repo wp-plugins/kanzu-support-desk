@@ -1,9 +1,9 @@
 <h3><?php _e( "Documentation","kanzu-support-desk" ); ?></h3>
-    <p><?php _e( "Kindly go through readme.txt. If the instructions there aren't sufficient, please visit: <a href='https://kanzucode.com/documentation/wordpress-customer-service-plugin-ksd-getting-started/' target='_blank'>Kanzu Support Desk Documentation</a>","kanzu-support-desk" ); ?></p>
+    <p><?php printf( __( 'Kindly go through readme.txt. If the instructions there are not sufficient, please visit: <a href="%s" target="_blank">Kanzu Support Desk Documentation</a>','kanzu-support-desk' ),'https://kanzucode.com/documentation/wordpress-customer-service-plugin-ksd-getting-started/' ); ?></p>
 <h3><?php _e( "Support","kanzu-support-desk" ); ?></h3>
-    <p><?php _e( "If you have any trouble, please get in touch with us: <a href='http://kanzucode.com/support' target='_blank'>Kanzu Support</a>","kanzu-support-desk" ); ?></p>
+    <p><?php printf( __( 'If you have any trouble, please get in touch with us: <a href="%s" target="_blank">Kanzu Support</a>','kanzu-support-desk' ), 'http://kanzucode.com/support' ); ?></p>
 <h3><?php _e( "Spread the Love","kanzu-support-desk" ); ?></h3>
-    <p><?php _e( "We are working to make providing great customer service easy. Please support us by <a href='https://wordpress.org/support/view/plugin-reviews/kanzu-support-desk' target='_blank' class='button button-primary'>Rating Us</a> now. It'll take you less than a minute, promise.","kanzu-support-desk" ); ?></p>
+    <p><?php printf( __( 'We are working to make providing great customer service easy. Please support us by <a href="%s" target="_blank" class="button button-primary">Rating Us</a> now. It will take you less than a minute, promise.','kanzu-support-desk' ),'https://wordpress.org/support/view/plugin-reviews/kanzu-support-desk' ); ?></p>
 <h3><?php _e( "Feedback","kanzu-support-desk" ); ?></h3>
     <form action="#" id="ksd-feedback" method="POST">
         <p><?php _e( "We are all about making KSD better. We'd truly, truly love to hear from you. What's your experience with <strong>Kanzu Support Desk</strong>? What do you like? What do you love? What don't you like? What do you want us to fix or improve?","kanzu-support-desk" ); ?></p>

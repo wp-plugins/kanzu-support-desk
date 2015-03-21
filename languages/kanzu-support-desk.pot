@@ -6,9 +6,9 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Kanzu Support Desk 1.3.1\n"
+"Project-Id-Version: Kanzu Support Desk 1.5.3\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-02-05 15:39+0300\n"
+"POT-Creation-Date: 2015-03-21 12:50+0300\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,74 +22,94 @@ msgstr ""
 msgid "Cheatin&#8217; huh?"
 msgstr ""
 
-#: addons/ksd-mail/ksd-mail.php:197
+#: addons/ksd-mail/ksd-mail.php:196
 msgid ""
-"Kanzu Support Desk must be active to use this plugin. Please activate it "
-"first"
+"Kanzu Support Desk Mail | The Kanzu Support Desk plugin must be active to "
+"use this plugin. Please activate it first."
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:188
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:216
 msgid ""
 "Kanzu Support Desk Mail | You need to provide a valid license key before "
 "this plugin can function"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:307
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:321
+#, php-format
+msgid "Kanzu Support Desk Mail | %s"
+msgstr ""
+
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:346
 msgid " Run interval has not passed."
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:318
-msgid "Can not connect to mailbox."
-msgstr ""
-
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:367
-#: includes/admin/class-ksd-admin.php:248
-#: includes/admin/class-ksd-admin.php:278
-#: includes/admin/class-ksd-admin.php:379
-#: includes/admin/class-ksd-admin.php:404
-#: includes/admin/class-ksd-admin.php:429
-#: includes/admin/class-ksd-admin.php:454
-#: includes/admin/class-ksd-admin.php:485
-#: includes/admin/class-ksd-admin.php:516
-#: includes/admin/class-ksd-admin.php:556
-#: includes/admin/class-ksd-admin.php:664
-#: includes/admin/class-ksd-admin.php:831
-#: includes/admin/class-ksd-admin.php:872
-#: includes/admin/class-ksd-admin.php:905
-#: includes/admin/class-ksd-admin.php:945
-#: includes/admin/class-ksd-admin.php:993
-#: includes/admin/class-ksd-admin.php:1154
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:421
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:612
+#: includes/admin/class-ksd-admin.php:262
+#: includes/admin/class-ksd-admin.php:292
+#: includes/admin/class-ksd-admin.php:393
+#: includes/admin/class-ksd-admin.php:418
+#: includes/admin/class-ksd-admin.php:447
+#: includes/admin/class-ksd-admin.php:472
+#: includes/admin/class-ksd-admin.php:503
+#: includes/admin/class-ksd-admin.php:534
+#: includes/admin/class-ksd-admin.php:575
+#: includes/admin/class-ksd-admin.php:689
+#: includes/admin/class-ksd-admin.php:860
+#: includes/admin/class-ksd-admin.php:901
+#: includes/admin/class-ksd-admin.php:934
+#: includes/admin/class-ksd-admin.php:980
+#: includes/admin/class-ksd-admin.php:1028
+#: includes/admin/class-ksd-admin.php:1241
 msgid "Busted!"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:381
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:435
 msgid "An error occurred. Please retry"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:412
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:466
 msgid ""
 "License successfully validated. Welcome to a super-charged Kanzu Support "
 "Desk!"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:416
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:470
 msgid "Invalid License. Please renew your license"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:422
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:476
 msgid "Your license has been deactivated successfully. Thank you."
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:460
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:514
 msgid "KSD Mail Check Interval"
 msgstr ""
 
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:588
+#, php-format
+msgid ""
+"Sorry, your host has not enabled the PHP IMAP extension. Please contact them "
+"or <a href=\"%s\" target=\"_blank\" >visit our documentation.</a> Thank you."
+msgstr ""
+
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:596
+msgid "Woohoo! Your connection succeeded! Let's roll"
+msgstr ""
+
+#: addons/ksd-mail/includes/admin/class-ksd-mail-admin.php:602
+msgid ""
+"Sorry, your connection failed. Please change your settings and try again."
+msgstr ""
+
 #: addons/ksd-mail/includes/admin/views/html-admin-help.php:1
-msgid "KSD Mail Addon"
+msgid "KSD Mail Add-on"
 msgstr ""
 
 #: addons/ksd-mail/includes/admin/views/html-admin-help.php:2
-msgid "Please visit"
+#, php-format
+msgid ""
+"Please visit our <a href=\"%s\" target=\"_blank\">mail add-on details</a>"
 msgstr ""
 
 #: addons/ksd-mail/includes/admin/views/html-admin-settings.php:4
@@ -116,24 +136,25 @@ msgstr ""
 msgid "Port"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:27
+#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:28
+#, php-format
 msgid ""
-"Default Ports are: 143 (IMAP), 993 (IMAP/SSL), 110 (POP3) and 995 (POP3/SSL)"
+"Default Ports are: %1$d (%2$s), %3$d (%4$s), %5$d (%6$s) and %7$d (%8$s)"
 msgstr ""
 
 #: addons/ksd-mail/includes/admin/views/html-admin-settings.php:31
 msgid "Mailbox"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:32
+#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:33
 msgid "The mailbox to query. You almost never need to change this"
 msgstr ""
 
 #: addons/ksd-mail/includes/admin/views/html-admin-settings.php:36
-msgid "Mailbox Check Frequency ( In minutes ) "
+msgid "Mailbox Check Frequency ( In minutes )"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:37
+#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:38
 msgid "How often your mailbox should be checked"
 msgstr ""
 
@@ -141,7 +162,7 @@ msgstr ""
 msgid "Validate Certificate"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:42
+#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:43
 msgid ""
 "Validate your SSL certificate during connection. Use only if you have a "
 "valid SSL certificate otherwise it will fail"
@@ -151,10 +172,15 @@ msgstr ""
 msgid "Always use secure connection(SSL)?"
 msgstr ""
 
-#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:47
+#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:48
+#, php-format
 msgid ""
 "Enable use of secure connections (SSL). Note that you will need to use the "
-"correct corresponding port. Defaults are 993 (IMAP/SSL) and 995 (POP3/SSL)"
+"correct corresponding port. Defaults are %1$d (%2$s) and %3$d (%4$s)"
+msgstr ""
+
+#: addons/ksd-mail/includes/admin/views/html-admin-settings.php:52
+msgid "Test Connection"
 msgstr ""
 
 #: addons/ksd-mail/includes/extras/class-ksd-mail-updater.php:156
@@ -176,80 +202,95 @@ msgstr ""
 msgid "You do not have permission to install plugin updates"
 msgstr ""
 
-#: includes/class-ksd-install.php:280
+#: includes/class-ksd-install.php:262
+msgid "KSD Customer"
+msgstr ""
+
+#: includes/class-ksd-install.php:329
 msgid "Your support ticket has been received"
 msgstr ""
 
-#: includes/class-ksd-install.php:281
+#: includes/class-ksd-install.php:330
 msgid ""
 "Thank you for getting in touch with us. Your support request has been "
 "opened. Please allow at least 24 hours for a reply."
 msgstr ""
 
-#: includes/class-ksd-install.php:282
-msgid "1"
-msgstr ""
-
-#: includes/class-ksd-install.php:284
+#: includes/class-ksd-install.php:333
 msgid ""
 "Thank you. Your support request has been opened. Please allow at least 24 "
 "hours for a reply."
 msgstr ""
 
-#: includes/class-ksd-install.php:315
+#: includes/class-ksd-install.php:338
+#, php-format
+msgid ""
+"Sorry, an error occurred. If this persists, kindly get in touch with the "
+"site administrator on %s"
+msgstr ""
+
+#: includes/class-ksd-install.php:367
 msgid "Welcome to Kanzu Support Desk."
 msgstr ""
 
-#: includes/class-ksd-install.php:317
+#: includes/class-ksd-install.php:368
+#, php-format
 msgid ""
-"Welcome to the Kanzu Support Desk (KSD) community *cue Happy Music and "
-"energetic dancers!*. Thanks for choosing us. We are all about making it "
-"simple for you to provide amazing customer support."
+"Hi %s,<br />Welcome to the Kanzu Support Desk (KSD) community *cue Happy "
+"Music and energetic dancers!*. Thanks for choosing us. We are all about "
+"making it simple for you to provide amazing customer support.We can't wait "
+"for you to get started!<br /><br />The KSD Team."
 msgstr ""
 
-#: includes/class-ksd-install.php:328
+#: includes/class-ksd-install.php:380
 msgid "Quick Intro to Kanzu Support Desk Features"
 msgstr ""
 
-#: includes/class-ksd-install.php:329
+#: includes/class-ksd-install.php:381
+#, php-format
 msgid ""
 "We arranged a simple walk-through to get you started. From the on-screen "
-"instructions, click 'Next' to proceed with the introductory tour. If you'd "
-"like to get a much deeper appreciation of how everything works, check out "
-"our <a href='http://www.kanzucode.com/documentation' "
-"target='_blank'>documentation</a>.<br /><br />The KSD Team"
+"instructions, click \"Next\" to proceed with the introductory tour. If you "
+"would like to get a much deeper appreciation of how everything works, check "
+"out our <a href=\"%s\" target=\"_blank\">documentation</a>.<br /><br />The "
+"KSD Team"
 msgstr ""
 
-#: includes/class-ksd-install.php:340
+#: includes/class-ksd-install.php:392
 msgid "KSD Documentation"
 msgstr ""
 
-#: includes/class-ksd-install.php:341
+#: includes/class-ksd-install.php:393
+#, php-format
 msgid ""
 "We made every effort to make KSD simple but powerful.<br />Learn how to get "
-"even more out of KSD from our rich resources <a href='http://www.kanzucode."
-"com/documentation' target='_blank'>here</a>.<br /><br />The KSD Team."
+"even more out of KSD from our rich resources <a href=\"%s\" target=\"_blank"
+"\">here</a>.<br /><br />The KSD Team."
 msgstr ""
 
-#: includes/class-ksd-install.php:352
+#: includes/class-ksd-install.php:404
 msgid "KSD Add-ons and other goodies."
 msgstr ""
 
-#: includes/class-ksd-install.php:353
+#: includes/class-ksd-install.php:405
 msgid ""
 "Kanzu Support Desk can go even a notch higher; we have a neat set of add-ons "
 "that power-up your experience. Check out the add-ons tab to get a load of "
 "them!<br /><br />The KSD Team"
 msgstr ""
 
-#: includes/class-ksd-install.php:364
+#: includes/class-ksd-install.php:416
 msgid "Get in touch. Seriously"
 msgstr ""
 
-#: includes/class-ksd-install.php:366
+#: includes/class-ksd-install.php:417
+#, php-format
 msgid ""
-"What's your experience with Kanzu Support Desk? What do you like? What do "
-"you love? What don't you like? What do you want us to fix or improve?<br />"
+"%1$s, this cannot work without you *sob sob*. We sit by our KSD installation "
+"hitting refresh constantly (and sipping coffee). Get in touch. <br/>What is "
+"your experience with Kanzu Support Desk? What do you like? What do you love? "
+"What do you want us to fix or improve?<br />We would love to hear from you. "
+"<a href=\"%2$s\">Click to send us an email</a><br /><br />The KSD Team"
 msgstr ""
 
 #: includes/admin/class-ksd-admin.php:120
@@ -302,7 +343,7 @@ msgstr ""
 
 #: includes/admin/class-ksd-admin.php:130
 #: includes/admin/views/html-admin-single-ticket.php:42
-#: includes/admin/views/html-admin-single-ticket.php:55
+#: includes/admin/views/html-admin-single-ticket.php:56
 msgid "Reply"
 msgstr ""
 
@@ -323,6 +364,8 @@ msgstr ""
 #: includes/admin/views/html-admin-single-ticket.php:29
 #: includes/admin/views/html-admin-single-ticket.php:33
 #: includes/admin/views/html-admin-single-ticket.php:36
+#: includes/admin/views/html-admin-wrapper.php:33
+#: includes/admin/views/html-admin-wrapper.php:37
 msgid "Loading..."
 msgstr ""
 
@@ -331,231 +374,252 @@ msgid "Sending..."
 msgstr ""
 
 #: includes/admin/class-ksd-admin.php:136
-msgid "An unexpected error occurred. Kindly retry"
+msgid "Sorry, an unexpected error occurred. Kindly retry. Thank you."
 msgstr ""
 
 #: includes/admin/class-ksd-admin.php:137
-#: includes/admin/class-ksd-admin.php:1062
+#: includes/admin/class-ksd-admin.php:1098
 msgid "Next"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:180
-#: includes/admin/class-ksd-admin.php:209
-#: includes/admin/class-ksd-admin.php:1106
-#: includes/admin/views/html-admin-wrapper.php:10
+#: includes/admin/class-ksd-admin.php:138
+msgid "Toggle Trimmed Content"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:194
+#: includes/admin/class-ksd-admin.php:223
+#: includes/admin/class-ksd-admin.php:1157
+#: includes/admin/views/html-admin-wrapper.php:11
 msgid "Settings"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:193
-#: includes/admin/class-ksd-admin.php:194
+#: includes/admin/class-ksd-admin.php:207
+#: includes/admin/class-ksd-admin.php:208
 msgid "Kanzu Support Desk"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:206
+#: includes/admin/class-ksd-admin.php:220
 #: includes/admin/views/html-admin-wrapper.php:3
 msgid "Dashboard"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:207
+#: includes/admin/class-ksd-admin.php:221
 msgid "Tickets"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:208
-#: includes/admin/class-ksd-admin.php:1095
+#: includes/admin/class-ksd-admin.php:222
+#: includes/admin/class-ksd-admin.php:1145
 #: includes/admin/views/html-admin-single-ticket.php:3
-#: includes/admin/views/html-admin-wrapper.php:9
+#: includes/admin/views/html-admin-wrapper.php:10
 msgid "New Ticket"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:210
-#: includes/admin/class-ksd-admin.php:1116
-#: includes/admin/views/html-admin-wrapper.php:11
+#: includes/admin/class-ksd-admin.php:224
+#: includes/admin/class-ksd-admin.php:1168
+#: includes/admin/views/html-admin-wrapper.php:12
 msgid "Add-ons"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:211
-#: includes/admin/class-ksd-admin.php:1126
-#: includes/admin/views/html-admin-wrapper.php:12
+#: includes/admin/class-ksd-admin.php:225
+#: includes/admin/class-ksd-admin.php:1179
+#: includes/admin/views/html-admin-wrapper.php:13
 msgid "Help"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:335
+#: includes/admin/class-ksd-admin.php:349
 msgid "Nothing to see here. Great work!"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:435
+#: includes/admin/class-ksd-admin.php:453
 msgid "Deleted"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:437
-#: includes/admin/class-ksd-admin.php:468
-#: includes/admin/class-ksd-admin.php:499
-#: includes/admin/class-ksd-admin.php:531
-#: includes/admin/class-ksd-admin.php:1005
+#: includes/admin/class-ksd-admin.php:455
+#: includes/admin/class-ksd-admin.php:486
+#: includes/admin/class-ksd-admin.php:517
+#: includes/admin/class-ksd-admin.php:549
+#: includes/admin/class-ksd-admin.php:1040
 msgid "Failed"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:466
-#: includes/admin/class-ksd-admin.php:497
+#: includes/admin/class-ksd-admin.php:484
+#: includes/admin/class-ksd-admin.php:515
 msgid "Updated"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:529
+#: includes/admin/class-ksd-admin.php:547
 msgid "Re-assigned"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:570
+#: includes/admin/class-ksd-admin.php:590
 msgid "Error | Reply too short"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:587
-#: includes/admin/class-ksd-admin.php:761
+#: includes/admin/class-ksd-admin.php:610
+#: includes/admin/class-ksd-admin.php:791
 msgid "Error"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:703
+#: includes/admin/class-ksd-admin.php:728
 msgid "Error | Your subject and message should be at least 2 characters"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:719
+#: includes/admin/class-ksd-admin.php:750
 msgid "Ticket Logged"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:726
+#: includes/admin/class-ksd-admin.php:757
 msgid "Error | Invalid email address specified"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:840
+#: includes/admin/class-ksd-admin.php:869
 msgid "No logged tickets. Graphing isn't possible"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:847
+#: includes/admin/class-ksd-admin.php:876
 msgid "Day"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:848
+#: includes/admin/class-ksd-admin.php:877
 msgid "Ticket Volume"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:926
+#: includes/admin/class-ksd-admin.php:961
 msgid "Settings Updated"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:928
-msgid "Update failed. Please retry. "
+#: includes/admin/class-ksd-admin.php:963
+msgid "Update failed. Please retry."
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:953
+#: includes/admin/class-ksd-admin.php:988
 msgid "Settings Reset"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:955
+#: includes/admin/class-ksd-admin.php:990
 msgid "Reset failed. Please retry"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:981
+#: includes/admin/class-ksd-admin.php:1016
 msgid ""
-"There was an error retrieving the add-ons list from the server. Please try "
-"again later."
+"Sorry, an error occurred while retrieving the add-ons list. A re-attempt "
+"will be made later. Thank you."
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1003
+#: includes/admin/class-ksd-admin.php:1038
 msgid "Noted"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1058
+#: includes/admin/class-ksd-admin.php:1094
 msgid "Kanzu Support Desk Dashboard"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1059
+#: includes/admin/class-ksd-admin.php:1095
 msgid ""
 "Welcome to Kanzu Support Desk! Thanks for choosing us. Let's see where "
 "everything is. First off..."
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1060
+#: includes/admin/class-ksd-admin.php:1096
 msgid "Your dashboard displays your performance statistics"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1071
+#: includes/admin/class-ksd-admin.php:1108
+#: includes/admin/views/html-admin-wrapper.php:4
+msgid "Notifications"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:1109
+msgid ""
+"Notifications to keep you up-to-date with all things KSD! Get the latest "
+"news and tips right here."
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:1119
 msgid "The tickets"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1072
+#: includes/admin/class-ksd-admin.php:1120
 msgid ""
 "All your tickets are displayed here. Filter tickets using the filters at the "
 "top left"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1073
+#: includes/admin/class-ksd-admin.php:1121
 msgid ""
 "Search, refresh and paginate the view using the buttons at the top right."
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1074
+#: includes/admin/class-ksd-admin.php:1122
 msgid "View ticket details by clicking on a single ticket"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1083
+#: includes/admin/class-ksd-admin.php:1132
 msgid "Ticket Status & Severity"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1084
+#: includes/admin/class-ksd-admin.php:1133
 msgid "These labels show New, Open, Pending & Resolved tickets respectively"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1086
+#: includes/admin/class-ksd-admin.php:1135
 msgid ""
 "The Red and Orange borders show tickets with Urgent & High severity "
 "respectively"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1096
+#: includes/admin/class-ksd-admin.php:1146
 msgid ""
 "You or your agent(s) can log new tickets here. If \"Send Email\" is checked, "
 "an email is sent to your customer"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1097
+#: includes/admin/class-ksd-admin.php:1147
 msgid ""
 "New tickets can also be logged by your customers from a form at the front-"
 "end of your site."
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1107
+#: includes/admin/class-ksd-admin.php:1158
 msgid "Modify your settings"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1117
+#: includes/admin/class-ksd-admin.php:1169
 msgid ""
 "Activate an add-on to allow your customers to log tickets using other "
 "channels such as email"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1127
+#: includes/admin/class-ksd-admin.php:1180
 msgid ""
 "Resource center to help you make the most of your Kanzu Support Desk "
 "experience"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1128
+#: includes/admin/class-ksd-admin.php:1181
 msgid ""
 "That's it! Dive right in. To take this tour again, click 'Enable Tour Mode' "
 "in your settings tab, update your settings then refresh your page"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1157
+#: includes/admin/class-ksd-admin.php:1244
 msgid "Error | The feedback field's empty. Please type something then send"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1160
+#: includes/admin/class-ksd-admin.php:1247
 msgid "Sent successfully. Thank you!"
 msgstr ""
 
-#: includes/admin/class-ksd-admin.php:1160
+#: includes/admin/class-ksd-admin.php:1247
 msgid ""
 "Error | Message not sent. Please try sending mail directly to "
 "feedback@kanzucode.com"
+msgstr ""
+
+#: includes/admin/class-ksd-admin.php:1285
+msgid ""
+"Sorry, an error occurred while retrieving the latest notifications. A re-"
+"attempt will be made later. Thank you."
 msgstr ""
 
 #: includes/admin/views/html-admin-addons.php:1
@@ -565,72 +629,67 @@ msgid ""
 msgstr ""
 
 #: includes/admin/views/html-admin-help.php:1
-msgid "Initial Configuration"
-msgstr ""
-
-#: includes/admin/views/html-admin-help.php:2
-msgid ""
-"To set-up your installation and start an awesome ticketing experience, go to "
-"'Kanzu Support Desk' in your side navigation and select 'Settings'"
-msgstr ""
-
-#: includes/admin/views/html-admin-help.php:3
 msgid "Documentation"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:4
+#: includes/admin/views/html-admin-help.php:2
+#, php-format
 msgid ""
-"Kindly go through readme.txt. If the instructions there aren't sufficient, "
-"please visit: <a href='http://kanzucode.com/kanzu-support-desk' "
-"target='_blank'>Kanzu Support Documentation</a>"
+"Kindly go through readme.txt. If the instructions there are not sufficient, "
+"please visit: <a href=\"%s\" target=\"_blank\">Kanzu Support Desk "
+"Documentation</a>"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:5
+#: includes/admin/views/html-admin-help.php:3
 #: includes/frontend/class-ksd-frontend.php:38
 msgid "Support"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:6
+#: includes/admin/views/html-admin-help.php:4
+#, php-format
 msgid ""
-"If you have any trouble, please get in touch with us: <a href='http://"
-"kanzucode.com/support' target='_blank'>Kanzu Support</a>"
+"If you have any trouble, please get in touch with us: <a href=\"%s\" target="
+"\"_blank\">Kanzu Support</a>"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:5
+msgid "Spread the Love"
+msgstr ""
+
+#: includes/admin/views/html-admin-help.php:6
+#, php-format
+msgid ""
+"We are working to make providing great customer service easy. Please support "
+"us by <a href=\"%s\" target=\"_blank\" class=\"button button-primary"
+"\">Rating Us</a> now. It will take you less than a minute, promise."
 msgstr ""
 
 #: includes/admin/views/html-admin-help.php:7
-msgid "Show some love"
-msgstr ""
-
-#: includes/admin/views/html-admin-help.php:8
-msgid ""
-"Has Kanzu Support been helpful? If so, please give us a rating in the <a "
-"href='https://wordpress.org/plugins/kanzu-support-desk/' "
-"target='_blank'>WordPress plugin store</a>"
-msgstr ""
-
-#: includes/admin/views/html-admin-help.php:9
 msgid "Feedback"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:11
+#: includes/admin/views/html-admin-help.php:9
 msgid ""
-"We'd truly, truly love to hear from you. What's your experience with "
-"<strong>Kanzu Support Desk</strong>? What do you like? What do you love? "
-"What don't you like? What do you want us to fix or improve?"
+"We are all about making KSD better. We'd truly, truly love to hear from you. "
+"What's your experience with <strong>Kanzu Support Desk</strong>? What do you "
+"like? What do you love? What don't you like? What do you want us to fix or "
+"improve?"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:15
-msgid "Holla!"
+#: includes/admin/views/html-admin-help.php:13
+#: includes/admin/views/html-admin-new-ticket.php:41
+msgid "Send"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:15
+#: includes/admin/views/html-admin-help.php:13
 msgid "PS: This sends us an email"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:17
+#: includes/admin/views/html-admin-help.php:15
 msgid "Stay on top!"
 msgstr ""
 
-#: includes/admin/views/html-admin-help.php:18
+#: includes/admin/views/html-admin-help.php:16
 msgid ""
 "The KSD team's constantly improving your experience. Get the latest tips "
 "fresh off the keyboard"
@@ -658,10 +717,6 @@ msgstr ""
 
 #: includes/admin/views/html-admin-new-ticket.php:34
 msgid "Send Email"
-msgstr ""
-
-#: includes/admin/views/html-admin-new-ticket.php:41
-msgid "Send"
 msgstr ""
 
 #: includes/admin/views/html-admin-settings.php:4
@@ -724,81 +779,114 @@ msgid "Tab message on ticket submission"
 msgstr ""
 
 #: includes/admin/views/html-admin-settings.php:46
+msgid "Auto-assign new tickets to"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:54
+msgid "No One"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:56
+msgid "If set, new tickets are automatically assigned to this user."
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:59
 msgid "Enable tour mode"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:48
+#: includes/admin/views/html-admin-settings.php:61
 msgid ""
 "Refresh your page after enabling this and tour mode will start automatically"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:51
+#: includes/admin/views/html-admin-settings.php:64
 msgid "Enable Google reCAPTCHA"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:53
+#: includes/admin/views/html-admin-settings.php:66
 msgid "Add Google reCAPTCHA to front-end forms to prevent spam"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:56
+#: includes/admin/views/html-admin-settings.php:69
 msgid "Google reCAPTCHA Site Key"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:58
-msgid ""
-"Your Google reCAPTCHA Site Key. Get one at https://www.google.com/recaptcha/"
-"admin"
+#: includes/admin/views/html-admin-settings.php:71
+#, php-format
+msgid "Your Google reCAPTCHA Site Key. Get one at %s"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:61
+#: includes/admin/views/html-admin-settings.php:74
 msgid "Google reCAPTCHA Secret Key"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:63
-msgid ""
-"Your Google reCAPTCHA Secret Key. Get one at https://www.google.com/"
-"recaptcha/admin"
+#: includes/admin/views/html-admin-settings.php:76
+#, php-format
+msgid "Your Google reCAPTCHA Secret Key. Get one at %s"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:66
+#: includes/admin/views/html-admin-settings.php:79
 msgid "Message on reCAPTCHA failure"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:68
+#: includes/admin/views/html-admin-settings.php:81
 msgid ""
 "Message to display in case Google reCAPTCHA continuously fails. This is very "
 "unlikely but just in case."
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:79
+#: includes/admin/views/html-admin-settings.php:84
+msgid "Allow tracking?"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:86
+msgid ""
+"To focus our efforts solely on making KSD serve you better (and NOT waste "
+"time on features you don't need), we need some information on how you "
+"interact with the plugin. We won't track ANY user details so your security "
+"and privacy are safe. Please enable this."
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:89
+msgid "Roles that manage tickets"
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:96
+msgid ""
+"Only users with these roles can manage tickets. All other users won't have "
+"access to your support desk. Note that the Administrator role always has "
+"access."
+msgstr ""
+
+#: includes/admin/views/html-admin-settings.php:107
 msgid "Licenses"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:87
+#: includes/admin/views/html-admin-settings.php:115
 msgid "active"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:88
+#: includes/admin/views/html-admin-settings.php:116
 msgid "Deactivate License"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:90
+#: includes/admin/views/html-admin-settings.php:118
 msgid "not set"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:90
+#: includes/admin/views/html-admin-settings.php:118
 msgid "invalid"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:91
+#: includes/admin/views/html-admin-settings.php:119
 msgid "Activate License"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:103
+#: includes/admin/views/html-admin-settings.php:131
 msgid "Update"
 msgstr ""
 
-#: includes/admin/views/html-admin-settings.php:104
+#: includes/admin/views/html-admin-settings.php:132
 msgid "Reset to Defaults"
 msgstr ""
 
@@ -858,12 +946,20 @@ msgstr ""
 msgid "Are you sure you want to delete this ticket and all data related to it?"
 msgstr ""
 
-#: includes/admin/views/html-admin-wrapper.php:7
+#: includes/admin/views/html-admin-wrapper.php:8
 msgid "Home"
 msgstr ""
 
-#: includes/admin/views/html-admin-wrapper.php:8
+#: includes/admin/views/html-admin-wrapper.php:9
 msgid "Inbox"
+msgstr ""
+
+#: includes/admin/views/html-admin-wrapper.php:34
+msgid "Error..."
+msgstr ""
+
+#: includes/admin/views/html-admin-wrapper.php:35
+msgid "Success..."
 msgstr ""
 
 #: includes/extras/class-ksd-deamon.php:35
@@ -874,35 +970,41 @@ msgstr ""
 msgid "Script still running."
 msgstr ""
 
-#: includes/frontend/class-ksd-frontend.php:96
+#: includes/frontend/class-ksd-frontend.php:69
+#, php-format
+msgid ""
+"Please check the <em>%s</em> checkbox and wait for it to complete loading"
+msgstr ""
+
+#: includes/frontend/class-ksd-frontend.php:97
 msgid ""
 "ERROR - Sorry, the \"I'm not a robot\" field is required. Please refresh "
 "this page & check it."
 msgstr ""
 
-#: includes/frontend/class-ksd-frontend.php:106
+#: includes/frontend/class-ksd-frontend.php:107
 msgid "Sorry, an error occurred. Please retry"
 msgstr ""
 
-#: includes/frontend/class-ksd-frontend.php:117
+#: includes/frontend/class-ksd-frontend.php:118
 msgid ""
 "Sorry, an error occurred due to a missing reCAPTCHA secret key. Please "
 "refresh the page and retry."
 msgstr ""
 
-#: includes/frontend/class-ksd-frontend.php:120
+#: includes/frontend/class-ksd-frontend.php:121
 msgid ""
-"Sorry, an error occurred due to an invalid or malformed reCAPTCHA secret key. "
-"Please refresh the page and retry."
+"Sorry, an error occurred due to an invalid or malformed reCAPTCHA secret "
+"key. Please refresh the page and retry."
 msgstr ""
 
-#: includes/frontend/class-ksd-frontend.php:123
+#: includes/frontend/class-ksd-frontend.php:124
 msgid ""
 "Sorry, an error occurred due to a missing reCAPTCHA input response. Please "
 "refresh the page and retry."
 msgstr ""
 
-#: includes/frontend/class-ksd-frontend.php:126
+#: includes/frontend/class-ksd-frontend.php:127
 msgid ""
 "Sorry, an error occurred due to an invalid or malformed reCAPTCHA input "
 "response. Please refresh the page and retry."
@@ -920,6 +1022,6 @@ msgstr ""
 msgid "Email"
 msgstr ""
 
-#: includes/frontend/views/html-frontend-new-ticket.php:21
+#: includes/frontend/views/html-frontend-new-ticket.php:28
 msgid "Send Message"
 msgstr ""

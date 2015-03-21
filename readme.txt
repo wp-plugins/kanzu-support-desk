@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,10 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.5.3, March 21, 2015 =
+ * BUG FIX | Better support for localization
+ * Customers table no longer created at installation
+
 = 1.5.2, February 25, 2015 =
  * BUG FIX | Get correct role-based agent list in single ticket view
 
@@ -166,6 +170,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.5.3 =
+ * BUG FIX | Better support for localization
+
 = 1.5.2 =
  * BUG FIX | Get correct role-based agent list in single ticket view
 
