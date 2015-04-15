@@ -8,7 +8,7 @@
     <li>
         <a href="#" class="add-new-h2 change_status"><?php _e('Change Status','kanzu-support-desk'); ?></a>
         <ul class="status hidden">
-            <li>OPEN</li>
+            <li>OPEN</li><!--@TODO Internalize this. CAN only be done after changing receiving logic to map item position to these corresponding values for correct storage in the Db -->
             <li>PENDING</li>
             <li>RESOLVED</li>
         </ul>

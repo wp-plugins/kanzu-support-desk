@@ -38,6 +38,6 @@
         <input name="action" type="hidden" value="ksd_log_new_ticket" />
         <input name="ksd_tkt_channel" type="hidden" value="staff" />
          <?php wp_nonce_field( 'ksd-new-ticket', 'new-ticket-nonce' ); ?>
-        <input type="submit" value="<?php _e( "Send","kanzu-support-desk" ); ?>" name="ksd-submit-admin-new-ticket" class="ksd-submit"/>
+        <input type="submit" value="<?php _e( 'Send', 'kanzu-support-desk'); ?>" name="ksd-submit-admin-new-ticket" class="ksd-submit"/>
     </form>
 </div>

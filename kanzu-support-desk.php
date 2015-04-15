@@ -3,7 +3,7 @@
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
  * Description:       All-in-one WordPress customer service ( support ticket ) solution for your site
- * Version:           1.5.3
+ * Version:           1.5.4
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '1.5.3';
+	public $version = '1.5.4';
 	
 	
 	/**

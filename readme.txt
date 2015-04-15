@@ -1,10 +1,10 @@
 === Kanzu Support Desk ===
 Contributors: kanzucode
 Donate link: https://kanzucode.com/
-Tags: customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
+Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.1
-Stable tag: 1.5.3
+Stable tag: 1.5.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,12 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.5.4, April 15, 2015 =
+ * Ticket importation from CSV files added
+ * Renamed show support tab and updated explanation
+ * Notify primary admin on new ticket creation
+ * Internalization strings updated to use single quotes
+
 = 1.5.3, March 21, 2015 =
  * BUG FIX | Better support for localization
  * Customers table no longer created at installation
@@ -170,6 +176,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.5.4 =
+ * Ticket importation from CSV added, notify primary admin on new ticket creation
+
 = 1.5.3 =
  * BUG FIX | Better support for localization
 

@@ -925,6 +925,16 @@ jQuery( document ).ready(function() {
                             return ;
                         }
                        KSDUtils.showDialog("success",respObj);
+                       //We send an email to the admin telling them about the new ticket. We do this by AJAX
+                       //because our tests showed that wp_mail took in some cases 5 seconds to return a response
+                       jQuery.post(    ksd_admin.ajax_url, 
+                             { 	action : 'ksd_notify_new_ticket',
+                                ksd_admin_nonce : ksd_admin.ksd_admin_nonce
+                             }, 
+                            function() {   
+                                //@TODO We currently don't do anything with this response
+                        });
+                       
                        //Redirect to the Tickets page
                        window.location.replace( ksd_admin.ksd_tickets_url );
                 });

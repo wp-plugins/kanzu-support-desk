@@ -1596,3 +1596,32 @@ span.feedback_note{
     height:16px;
     width:3%;
 }
+/*KSD Tickets importer*/
+.ksd-importer-fields {
+  font-size: 0.9em;
+  display: table;
+  border-collapse: collapse;
+  margin: 0;
+  padding: 1em;
+}
+ 
+ 
+.ksd-importer-fields .ksd-field-row {
+   display: table-row;
+}
+.ksd-importer-header{
+    font-weight: bold;
+}
+ 
+.ksd-importer-fields .ksd-field-row div {
+   display: table-cell;
+   text-align: left;
+   vertical-align: top;
+   padding-right: 15px;
+}
+.ksd-importer-form {
+  background-color: #fff;
+  border: 1px solid #0074a2;
+  margin: 10px 0;
+  padding: 25px 10px;
+}
