@@ -102,7 +102,7 @@
                 </ul>
                 <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e( "Only users with these roles can manage tickets. All other users won't have access to your support desk. Note that the Administrator role always has access.",'kanzu-support-desk')  ;?>"/>
              </div>
-        </div>   
+        </div> 
              <?php 
              //Retrieve extra settings from add-ons. Pass current settings to them
              do_action( 'ksd_display_settings', $settings );  

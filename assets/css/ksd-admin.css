@@ -516,6 +516,12 @@ ul.add-ons li {
   padding: 15px;
   text-align: center;
   width: 230px;
+  float: left;
+  margin-left: 10px;
+}
+ul.add-ons li img{
+    width: 64px;
+    height: 64px;
 }
 ul.add-ons li a{
     text-decoration: none;
@@ -602,16 +608,16 @@ ul.tour li {
   padding: 5px;
 }
 .ticket-list-item span.new,.ticket-list-item span.assigned,ul.tour li.new{    
-    background-color: #2ea2cc;  
+    background-color: #bcc1c5;  
 }
 .ticket-list-item span.open,ul.tour li.open{
-  background-color: #008000;  
+  background-color: red;  
 }
 .ticket-list-item span.pending,ul.tour li.pending{
-  background-color: #9361d3;  
+  background-color: orange;  
 }
 .ticket-list-item span.resolved,ul.tour li.resolved{
-  background-color: #bcc1c5;  
+  background-color: #008000;  
 }
 .ticket-list-item span.ksd-tkt-status a{
     text-decoration: none;

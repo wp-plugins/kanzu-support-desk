@@ -312,6 +312,7 @@ class KSD_Install {
                     }
                }
             }
+
             
             /**
              * Get default settings

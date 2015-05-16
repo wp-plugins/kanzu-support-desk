@@ -171,9 +171,10 @@ class KSD_Admin {
         /**
          * Get a list of agents
          * @param string $roles The WP Roles with access to KSD
-         * @return An unordered list of agents
+         * @param boolean $as_options Return the agent list as select options. 
+         * @return An unordered list of agents or select options depending on $as_options
          */
-        public static function get_agent_list( $roles="" ){
+        public static function get_agent_list( $roles="", $as_options = false ){
             if( empty( $roles ) ){
                 $settings = Kanzu_Support_Desk::get_settings();
                 $roles = $settings['ticket_management_roles'];
@@ -183,12 +184,14 @@ class KSD_Admin {
             $tmp_user_IDs = $UC->get_users_with_roles( $roles );
             foreach ( $tmp_user_IDs as $userID ){
                 $user_IDs[] = $userID->user_id;
-            }            
-            $agents_list = "<ul class='ksd_agent_list hidden'>";//The available list of agents
+            }
+            $agents_list = ( !$as_options ? "<ul class='ksd_agent_list hidden'>" : "" );//The available list of agents
                 foreach (  get_users( array( 'include' => $user_IDs ) ) as $agent ) {
-                    $agents_list .= "<li ID=".$agent->ID.">".esc_html( $agent->display_name )."</li>";
+                    $agents_list .= ( !$as_options ? "<li ID=".$agent->ID.">".esc_html( $agent->display_name )."</li>" : "<option value=".$agent->ID.">".esc_html( $agent->display_name )."</option>" );
                 }
-             $agents_list .= "</ul>";
+             if( !$as_options ){
+                 $agents_list .= "</ul>";
+             }
              return $agents_list;
         }
 
@@ -801,6 +804,9 @@ class KSD_Admin {
                    $new_ticket->tkt_private_note = sanitize_text_field( $_POST[ 'ksd_tkt_private_note' ] );
                }
                
+                //Apply the pre-logging filter
+                apply_filters( 'ksd_ticket_pre', $new_ticket, $cust_email  );
+                
                 $TC = new KSD_Tickets_Controller();
                 $new_ticket_id = $TC->log_ticket( $new_ticket );
                 $new_ticket_status = (  $new_ticket_id > 0  ? $output_messages_by_channel[ $tkt_channel ] : __("Error", 'kanzu-support-desk') );
@@ -1330,7 +1336,7 @@ class KSD_Admin {
          public function get_notifications(){
             ob_start();  
             if ( false === ( $cache = get_transient( 'ksd_notifications_feed' ) ) ) {
-		$feed = wp_remote_get( 'http://blog.kanzucode.com/feed/', array( 'sslverify' => false ) );
+		$feed = wp_remote_get( 'http://kanzucode.com/work/blog/feed/', array( 'sslverify' => false ) );
 		if ( ! is_wp_error( $feed ) ) {                   
 			if ( isset( $feed['body'] ) && strlen( $feed['body'] ) > 0 ) {
 				$cache = wp_remote_retrieve_body( $feed );

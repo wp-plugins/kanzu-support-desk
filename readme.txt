@@ -3,8 +3,8 @@ Contributors: kanzucode
 Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
-Tested up to: 4.1
-Stable tag: 1.5.4
+Tested up to: 4.2
+Stable tag: 1.5.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -98,6 +98,11 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.5.5, May 16, 2015 =
+ * Change of ticket status colors to more intuitive ones
+ * Addition of pre-ticket logging filter
+ * Support for the KSD Rules add-on
+
 = 1.5.4, April 15, 2015 =
  * Ticket importation from CSV files added
  * Renamed show support tab and updated explanation
@@ -176,6 +181,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.5.5 =
+ * Change of ticket status colors to more intuitive ones
+
 = 1.5.4 =
  * Ticket importation from CSV added, notify primary admin on new ticket creation
 
