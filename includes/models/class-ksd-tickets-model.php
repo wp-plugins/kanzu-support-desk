@@ -84,6 +84,35 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
 		return parent::update_row( $ticket );
 	}
         
+        /**
+         * Update several tickets at a go
+         * @param Array $ticket_IDs
+         * @param Array $updates Filds and the corresponding values to assign to them 
+         */
+        public function bulk_update_tickets ( $ticket_IDs, $updates ){
+        $where = " WHERE tkt_id IN (".implode(",", $ticket_IDs).")";
+
+        $set = '';
+        $numUpdates = count($updates);
+        $ni = 0;
+        foreach ( $updates as $field => $new_value ) {            
+            if ( ++$ni === $numUpdates ) {
+               $set.=$field."= '".$new_value."' ";
+               continue;
+            }
+            $set.=$field."= '".$new_value."', ";
+        }
+        //NB: We can't use $wpdb->update since it uses AND, not OR to join the WHERE clause
+        $query = 'UPDATE '.$this->_tablename.' SET '.$set.' '.$where.';';
+            return parent::exec_query( $query );
+        }       
+        
+        public function bulk_delete_tickets( $ticket_IDs ){
+            $where = " WHERE tkt_id IN (".implode(",", $ticket_IDs).")";
+            $query = 'DELETE FROM '.$this->_tablename.' '.$where.';';
+            return parent::exec_query( $query );    
+        }
+        
         
         public function exec_query( $query ){
 		return parent::exec_query( $query );

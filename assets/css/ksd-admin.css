@@ -15,6 +15,7 @@
   background-color: #f1f1f1;
   color: #222;
 }
+
 #admin-kanzu-support-desk .ui-widget {
     font-family: "Open Sans",sans-serif;
     font-size: 13px;
@@ -123,6 +124,25 @@
 #tickets .ui-tabs ul.ui-tabs-nav li.ui-state-active a.ui-tabs-anchor,#tickets .ui-tabs ul.ui-tabs-nav li.ui-state-active{
     color: #000;
     font-weight: bold;
+}
+.ticket-actions-top-menu {
+    background-color: #0074a2;
+    border-radius: 5px;
+    color: #fff;
+    left: 255px;
+    padding: 2px 10px;
+    position: fixed;
+    top: 130px;
+}
+#tabs .ticket-actions-top-menu a {
+  color: #fff;
+  text-decoration: none;
+}
+.ticket-actions-top-menu ul li{
+    cursor: pointer;
+}
+.ticket-actions-top-menu ul li:hover{
+    text-decoration: underline;
 }
 
 #admin-kanzu-support-desk .admin-ksd-content {
@@ -335,6 +355,30 @@ a.new-ticket:hover {
     width: 30%;
     border: 1px solid #d3d3d3;
 }
+ul#ksd-attachments, ul#ksd-attachments-single-ticket{
+    width: 100%;
+    float: left;
+    margin: 5px auto;
+}
+ul#ksd-attachments li,ul#ksd-attachments-single-ticket li {
+    background-color: #fafafa;
+    background-image: url("../images/icons/attachment.png");
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    border: 1px solid #dcdcdc;
+    line-height: 30px;
+    padding-left: 30px;
+}
+.ksd-close-dialog {
+    background-image: url("../images/icons/close_dialog.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    float: right;
+    height: 30px;
+    margin-left: 30px;
+    width: 32px;
+}
 .ksd-subject,.ksd-message,.ksd-tags{
     width: 100%;
 }
@@ -394,6 +438,10 @@ h1.ksd-single-ticket-subject {
   border-top: 1px solid #FFA500;
   margin: 0;
   padding: 20px 15px;
+}
+ul#ksd-attachments{
+    float: none;
+    margin-top: 40px;
 }
 #ksd-single-ticket .ksd-submit{
     float: left;

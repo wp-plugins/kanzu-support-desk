@@ -21,6 +21,7 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 			
 		$this->_formats = array(
 		'assign_tkt_id'             => '%d', 
+                'attach_rep_id'             => '%d',     
 		'assign_assigned_to'        => '%d',
 		'assign_date_assigned'      => '%s' , 
 		'assign_assigned_by'        => '%d'
@@ -28,16 +29,16 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 	}
 	
 	/*
-	*Get user object
+	*Get Assignment object
 	*
-	*@param userid
+	*@param int assign_id
 	*/
 	public function get_assignment( $id ){
 		return parent::get_row($id);
 	}
 	
 	/*
-	*Get all from users (kanzu-users) from wp users table
+	*Get all assignments
 	*
 	*@param string $filter Everything after the WHERE clause. Uses placeholders %s and %d
         *@param Array $value_parameters The values to replace the placeholders
@@ -47,7 +48,7 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 	}
  
 	/*
-	*Add user to 
+	*Add new assignment
 	*
 	*
 	*/
@@ -56,9 +57,9 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 	}
 	
 	/*
-	*Add user to 
+	*Delete assignment 
 	*
-	*@param Ticket object.
+	*@param Object Assignment
 	*/
 	public function delete_assignment(  &$obj ){
 		return parent::delete_row( $obj );
@@ -66,14 +67,11 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 	
 
 	/*
-	* Save/update 
-	*@param ticket object
+	* Save/update Assignment
+	* @param Object Assignment
 	* *new_* for new value
 	*/
 	public function update_assignment( &$obj ){
 		return parent::update_row( $obj );
 	}
  }
- 
- 
- ?>

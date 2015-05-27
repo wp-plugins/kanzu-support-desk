@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.2
-Stable tag: 1.5.5
+Stable tag: 1.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -65,6 +65,11 @@ To add CAPTCHA to the form, go [here](https://www.google.com/recaptcha/admin), g
 
 Please check out [our documentation here](https://kanzucode.com/documentation/wordpress-customer-service-plugin-ksd-getting-started/) for a more detailed walk-through should you need it
 
+= Follow the action =
+Be an active part of the plugin growth by getting involved in the [KSD Roadmap](https://trello.com/b/zLkHwBz2/kanzu-support-desk-development)<br />
+Contribute to the dev process on [GitHub](https://github.com/kanzucode/kanzu-support-desk)<br />
+Get the latest in KSD and WP in general from [@KanzuCode on Twitter](https://twitter.com/KanzuCode)
+
 == Frequently Asked Questions ==
 
 = Can I run KSD on my .wordpress.com site? =
@@ -98,6 +103,13 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.6.0, May 27, 2015 =
+ * Added attachments to tickets & replies
+ * Bulk update options (change status, severity, re-assign, delete ) added
+ * HTML replies supported
+ * Internationalization of single ticket view options
+ * Ticket grid default list increased to 20 from 5
+
 = 1.5.5, May 16, 2015 =
  * Change of ticket status colors to more intuitive ones
  * Addition of pre-ticket logging filter
@@ -181,6 +193,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.6.0 =
+ * Attachments now supported. Bulk changes to tickets supported
+
 = 1.5.5 =
  * Change of ticket status colors to more intuitive ones
 

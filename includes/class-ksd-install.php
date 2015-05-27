@@ -30,7 +30,7 @@ class KSD_Install {
          * @since 1.5.0
          * @var int
          */
-        protected static $ksd_db_version = 100;
+        protected static $ksd_db_version = 110;
 
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
@@ -184,7 +184,11 @@ class KSD_Install {
                 self::create_roles();    
                 //Migrate customers from our customers table to WP_users. We do this  after deleting the foreign key
                 $this->move_customers_to_wp_users(); 
-            }            
+            }
+            if ( $sanitized_version < 160 ){//In 1.6.0, we added attachments. Consider changing these ifs to a switch case
+                //@since $this->ksd_db_version 110. Added attachments table
+                $dbChanges[]= KSD_Install::create_attachments_table();
+            }
             if( count( $dbChanges ) > 0 ){  //Make the Db changes. We use $wpdb->query instead of dbDelta because of
                                             //how strict and verbose the dbDelta alternative is. We'd
                                             //need to rewrite CREATE table statements for dbDelta.
@@ -196,12 +200,11 @@ class KSD_Install {
  
        /**
 	* Create KSD tables
-        * @TODO Test new installation with this new FK constraint
         * @since 1.0.0
 	*/
         private static function create_tables() {
             global $wpdb;        
-		$wpdb->hide_errors();		            
+		//$wpdb->hide_errors();		            
                 //@since 1.5.3 customers table removed
                 require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); 
                 $kanzusupport_tables = "
@@ -247,8 +250,30 @@ class KSD_Install {
                                 ON DELETE CASCADE 
 				);
                                 ";
-      dbDelta($kanzusupport_tables);                     
- }
+        //Add the attachments table. The SQL is in a separate function since it is also used in $this->upgrade_plugin()  
+        $kanzusupport_tables.=self::create_attachments_table(); 
+        
+        dbDelta($kanzusupport_tables);                     
+        }
+        private static function create_attachments_table(){
+            global $wpdb;   
+            $sql="
+            CREATE TABLE `{$wpdb->prefix}kanzusupport_attachments` (
+            `attach_id` BIGINT(20) NOT NULL AUTO_INCREMENT PRIMARY KEY,
+            `attach_tkt_id` BIGINT(20) NULL ,
+            `attach_rep_id` BIGINT(20) NULL ,
+            `attach_url` VARCHAR(100) NOT NULL,
+            `attach_size` VARCHAR(10) NULL,
+            `attach_filename` TEXT NOT NULL,
+            CONSTRAINT `attach_tktid_fk`
+            FOREIGN KEY (`attach_tkt_id`) REFERENCES {$wpdb->prefix}kanzusupport_tickets(`tkt_id`)
+            ON DELETE CASCADE,
+            CONSTRAINT `attach_repid_fk`
+            FOREIGN KEY (`attach_rep_id`) REFERENCES {$wpdb->prefix}kanzusupport_replies(`rep_id`)
+            ON DELETE CASCADE
+            );";
+            return $sql;
+        }
  
              private static function set_default_options() {                    
                 

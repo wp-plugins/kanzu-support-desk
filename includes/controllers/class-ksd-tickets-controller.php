@@ -50,8 +50,27 @@ class KSD_Tickets_Controller extends KSD_Controller {
 	public function update_ticket( $ticket ){
 		return $this->_model->update_ticket( $ticket );
 	}
+        
+        /**
+         * Update multiple tickets at a go
+         * @param Array $tkt_IDs The ticket IDs
+         * @param Array $update The fields and corresponding new values. Array keys are the fields
+         * @return Object The updated tickets
+         */
+        public function bulk_update_ticket( $tkt_IDs, $update ){
+                return $this->_model->bulk_update_tickets( $tkt_IDs, $update );
+        }
+        
+        /**
+         * Delete tickets in bulk
+         * @param Array $tkt_IDs Array of ticket IDs to delete
+         * @return Array  
+         */
+        public function bulk_delete_tickets($tkt_IDs) {
+        return $this->_model->bulk_delete_tickets( $tkt_IDs );
+        }
 
-	/*
+    /*
 	*Returns ticket object with specified id.
 	*
 	*@param  int $ticket_id	ticket id
@@ -130,4 +149,3 @@ class KSD_Tickets_Controller extends KSD_Controller {
 
 
 }
-?>

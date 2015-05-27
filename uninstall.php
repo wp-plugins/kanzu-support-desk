@@ -53,19 +53,21 @@ class KSD_Uninstall {
         $wpdb->hide_errors();		
         require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); 
         //Because of foreign key constraints, we need to delete the tables in the order below
-        $tables    = array( 'kanzusupport_assignments','kanzusupport_replies','kanzusupport_tickets','kanzusupport_customers' );
-        $deleteTables   = "";
+        $tables    = array( 'kanzusupport_assignments','kanzusupport_attachments','kanzusupport_replies','kanzusupport_tickets' );
+        $deleteTables   = array();
         //Iterate through the tables for deletion
         foreach ( $tables as $table ){
-            $deleteTables .= "DROP TABLE `{$wpdb->prefix}{$table}`;";
+            $deleteTables[] = "DROP TABLE `{$wpdb->prefix}{$table}`;";
         }
         //Optimize the options table
-        $deleteTables .= "OPTIMIZE TABLE `{$wpdb->prefix}options`;";
-        dbDelta( $deleteTables );
+        $deleteTables[]  = "OPTIMIZE TABLE `{$wpdb->prefix}options`;";
+        foreach ( $deleteTables as $delete_table_query ){
+            $wpdb->query( $delete_table_query ); //We use this instead of dbDelta because of how complex the latter's query would be
+        }        
     }
     
     private function delete_options(){
-         delete_option( KSD_OPTIONS_KEY );
+         delete_option( 'kanzu_support_desk' );//Can't use KSD_OPTIONS_KEY since it isn't defined here
     }
 
 }

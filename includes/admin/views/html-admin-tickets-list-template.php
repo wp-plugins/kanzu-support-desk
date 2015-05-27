@@ -4,7 +4,7 @@
             <button class="button" title="<?php _e( 'Refresh', 'kanzu-support-desk');?>"></button>
         </div>
         <div class="ksd-pagination-field">
-            <?php _e( 'Show:', 'kanzu-support-desk');?> <input type="number" value="5" maxlength="3"  class="ksd-pagination-limit" id="ksd_pagination_limit_<?php echo $tab_id; ?>" max="999" min="1" step="1"/>
+            <?php _e( 'Show:', 'kanzu-support-desk');?> <input type="number" value="20" maxlength="3"  class="ksd-pagination-limit" id="ksd_pagination_limit_<?php echo $tab_id; ?>" max="999" min="1" step="1"/>
         </div>
         <div class="ksd-ticket-search">
             <input type="type" size="18" name="ksd_tkt_search_input_<?php echo $tab_id;?>" class="ksd_tkt_search_input" /> 

@@ -5,6 +5,8 @@
 <h3><?php _e( 'Spread the Love', 'kanzu-support-desk'); ?></h3>
     <p><?php printf( __( 'We are working to make providing great customer service easy. Please support us by <a href="%s" target="_blank" class="button button-primary">Rating Us</a> now. It will take you less than a minute, promise.','kanzu-support-desk' ),'https://wordpress.org/support/view/plugin-reviews/kanzu-support-desk' ); ?></p>
 <h3><?php _e( 'Feedback', 'kanzu-support-desk'); ?></h3>
+<p><?php _e( 'Be a part of the creation process. Vote for, comment on and see upcoming features very easily on the ', 'kanzu-support-desk'); ?><a href="https://trello.com/b/zLkHwBz2/kanzu-support-desk-development" target="_blank"><?php _e( 'Kanzu Support Desk RoadMap.', 'kanzu-support-desk'); ?></a></p>
+<p>
     <form action="#" id="ksd-feedback" method="POST">
         <p><?php printf ( __( "We are all about making KSD better. We'd truly, truly love to hear from you. What's your experience with %s? What do you like? What do you love? What don't you like? What do you want us to fix or improve?", "kanzu-support-desk"), '<strong>Kanzu Support Desk</strong>' ) ; ?></p>
         <p><textarea name="ksd_user_feedback" rows="5" cols="100"></textarea></p>
@@ -12,6 +14,10 @@
         <?php wp_nonce_field( 'ksd-send-feedback', 'feedback-nonce' ); ?>
         <p><input type="submit" class="button-primary" name="ksd-feedback-submit" value="<?php _e('Send','kanzu-support-desk'); ?>"/><span class="feedback_note"><?php _e( 'PS: This sends us an email', 'kanzu-support-desk');?></span></p>
     </form>
+</p>
+<h3><?php _e( 'Get Involved', 'kanzu-support-desk'); ?></h3>
+<p><?php _e( 'Follow us on Twitter: ', 'kanzu-support-desk'); ?><a href="https://twitter.com/KanzuCode" target="_blank">@KanzuCode</a></p>
+<p><?php _e( 'For you the developer, KSD is built to be very easy to extend. Be a part of the development process with ', 'kanzu-support-desk'); ?><a href="https://github.com/kanzucode/kanzu-support-desk" target="_blank"><?php _e( 'Kanzu Support Desk on Github', 'kanzu-support-desk'); ?></a></p>
 <h3><?php _e( 'Stay on top!', 'kanzu-support-desk'); ?></h3>
     <p><?php _e( "The KSD team's constantly improving your experience. Get the latest tips fresh off the keyboard", "kanzu-support-desk"); ?></p>
     <div id="mc_embed_signup">

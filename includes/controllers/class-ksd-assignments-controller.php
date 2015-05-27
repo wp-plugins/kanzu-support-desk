@@ -28,9 +28,9 @@ class KSD_Assignments_Controller extends KSD_Controller
 	* @param $notes 	Notes on ticket assignment
 	*/
 	public function assign_ticket( $ticket_id, $assign_to,  $assign_by, $notes="" ){
-		$aO                = $this->_model->get_obj();
-		$aO->assign_assigned_to     = $assign_to;
-		$aO->assign_assigned_by 	   = $assign_by;
+		$aO                                 = $this->_model->get_obj();
+		$aO->assign_assigned_to             = $assign_to;
+		$aO->assign_assigned_by             = $assign_by;
 		$aO->assign_tkt_id = $ticket_id;
 		return $this->_model->add_assignment( $aO );
 	}
@@ -42,7 +42,7 @@ class KSD_Assignments_Controller extends KSD_Controller
 	* @param $ticket_id Ticket ID of ticket to unassign 
 	*
 	*/
-	public function unassign_ticket( int $ticket_id ){
+	public function unassign_ticket( $ticket_id ){
 		$aO                = $this->_model->get_obj();
 		$aO->assign_tkt_id = $ticket_id;
 		$this->_model->delete_assignment( $aO );

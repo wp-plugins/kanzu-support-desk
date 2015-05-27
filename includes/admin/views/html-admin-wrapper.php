@@ -35,5 +35,16 @@
             <div class="ksd-dialog success hidden"><?php __( 'Success...', 'kanzu-support-desk'); ?></div> 
             <div class="ksd-loading-tickets ksd-loading-tickets-overlay hidden"></div> 
             <div id="ksd-notifications"><?php _e( 'Loading...', 'kanzu-support-desk'); ?></div>
+            <div class="ticket-actions-top-menu hidden">
+                <a class="trash" href="#"><?php _e( 'Trash', 'kanzu-support-desk'); ?></a> |
+                <a class="change_status" href="#"><?php _e( 'Change Status', 'kanzu-support-desk'); ?></a> |
+                <a class="assign_to" href="#"><?php _e( 'Assign To', 'kanzu-support-desk'); ?></a>     
+                <ul class="status hidden">
+                    <li class="OPEN"><?php _e( 'OPEN', 'kanzu-support-desk'); ?></li>
+                    <li class="PENDING"><?php _e( 'PENDING', 'kanzu-support-desk'); ?></li>
+                    <li class="RESOLVED"><?php _e( 'RESOLVED', 'kanzu-support-desk'); ?></li>
+                </ul>
+                <?php echo KSD_Admin::get_agent_list(); ?>
+            </div>
     </div>
 </div>

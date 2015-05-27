@@ -33,6 +33,9 @@ if ( isset($_GET['ticket']) ):
             <div id="delete-dialog" class="hidden" title="<?php _e( 'Delete ticket', 'kanzu-support-desk'); ?>">
                 <?php _e( 'Are you sure you want to delete this ticket and all data related to it?', 'kanzu-support-desk'); ?>
              </div>
+            <div id="delete-dialog-bulk" class="hidden" title="<?php _e( 'Delete tickets', 'kanzu-support-desk'); ?>">
+                <?php _e( 'Are you sure you want to delete these tickets and all data related to them?', 'kanzu-support-desk'); ?>
+             </div>
 	</div>
     
 <?php endif; ?>
