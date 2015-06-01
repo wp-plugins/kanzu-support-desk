@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.2
-Stable tag: 1.6.0
+Stable tag: 1.6.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.6.1, June 01, 2015 =
+ * BUG FIX | Ticket logging without Google reCAPTCHA fixed. Cost us all growth thus far
+
 = 1.6.0, May 27, 2015 =
  * Added attachments to tickets & replies
  * Bulk update options (change status, severity, re-assign, delete ) added
@@ -193,6 +196,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.6.1 =
+ * Ticket logging without Google reCAPTCHA fixed
+
 = 1.6.0 =
  * Attachments now supported. Bulk changes to tickets supported
 

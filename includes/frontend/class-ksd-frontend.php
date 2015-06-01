@@ -67,8 +67,12 @@ class KSD_FrontEnd {
         public function enqueue_frontend_scripts() {	
             wp_enqueue_script( KSD_SLUG . '-frontend-js', KSD_PLUGIN_URL .  'assets/js/ksd-frontend.js' , array( 'jquery', 'jquery-ui-core' ), KSD_VERSION );
             $msd_grecaptcha_error = sprintf( __( 'Please check the <em>%s</em> checkbox and wait for it to complete loading', 'kanzu-support-desk'), "I'm not a robot" );
-            wp_localize_script( KSD_SLUG . '-frontend-js', 'ksd_frontend' , array( 'ajax_url' => admin_url( 'admin-ajax.php'), 'msg_gcaptcha_error' => $msd_grecaptcha_error ) );            
-            wp_enqueue_script( KSD_SLUG . '-frontend-grecaptcha', '//www.google.com/recaptcha/api.js', array(), KSD_VERSION ); //@TODO Add check to see if enable_recaptcha is checked
+            wp_localize_script( KSD_SLUG . '-frontend-js', 'ksd_frontend' , array( 'ajax_url' => admin_url( 'admin-ajax.php'), 'msg_gcaptcha_error' => $msd_grecaptcha_error ) );    
+            //Check whether enable_recaptcha is checked. @TODO Don't retrieve settings again. Use same set of settings
+            $settings = Kanzu_Support_Desk::get_settings();
+            if( "yes" == $settings['enable_recaptcha'] && $settings['recaptcha_site_key'] !== '' ){
+               wp_enqueue_script( KSD_SLUG . '-frontend-grecaptcha', '//www.google.com/recaptcha/api.js', array(), KSD_VERSION );  
+            }
         }
         
         /**
@@ -76,10 +80,13 @@ class KSD_FrontEnd {
          */
         public function log_new_ticket(){
             //First check the CAPTCHA to prevent spam
-            $recaptcha_response = $this->verify_recaptcha();
-            if( $recaptcha_response['error'] ){
-                echo json_encode( $recaptcha_response['message'] );
-                die();//This is important for WordPress AJAX
+             $settings = Kanzu_Support_Desk::get_settings();
+            if( "yes" == $settings['enable_recaptcha'] && $settings['recaptcha_site_key'] !== '' ){
+                $recaptcha_response = $this->verify_recaptcha();
+                if( $recaptcha_response['error'] ){
+                    echo json_encode( $recaptcha_response['message'] );
+                    die();//This is important for WordPress AJAX
+                }
             }
             //Use the admin side logic to do the ticket logging
             $ksd_admin =  KSD_Admin::get_instance();
