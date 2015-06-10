@@ -626,6 +626,7 @@ ul.dashboard-statistics-summary li.ksd-dash-click:hover{
     margin: 0;
     line-height: 20px;
     border-bottom: 2px solid #F1F1F1;
+    background-color: #f9f9f9;
 }
 .ticket-list-item input{
     float: left;
@@ -1214,23 +1215,14 @@ span.feedback_note{
 .ksd-tkt-row-options li:hover {
   text-decoration: underline;
 }
-.ticket-actions ul.status {
-  /*border:1px solid @theme2;
-    width:100px;*/
-  /*margin-left:20px;*/
-}
-.ticket-actions ul.status li {
+.ticket-actions ul.status li,.ticket-actions ul.severity li {
   padding: 2px;
 }
-.ticket-actions ul.status li:hover {
+.ticket-actions ul.status li:hover,.ticket-actions ul.severity li:hover {
   text-decoration: underline;
   cursor: pointer;
 }
-.ticket-actions ul.ksd_agent_list {
-  /*border:1px solid @theme2;
-    width:100px;*/
-  /*margin-left:100px;*/
-}
+
 .ticket-actions ul.ksd_agent_list li {
   padding: 2px;
 }
@@ -1243,7 +1235,7 @@ span.feedback_note{
 .ksd-open-ticket a.ksd-tkt-subject,.ksd-open-ticket .ksd-tkt-customer-name a{
     font-weight:bold;
 }
-.ksd-open-ticket{
+.ksd-unread{
     background-color: #FFF;
 }
 

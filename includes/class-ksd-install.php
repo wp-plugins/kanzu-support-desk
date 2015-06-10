@@ -30,7 +30,7 @@ class KSD_Install {
          * @since 1.5.0
          * @var int
          */
-        protected static $ksd_db_version = 110;
+        protected static $ksd_db_version = 111;
 
 	/**
 	 * Initialize the plugin by setting localization and loading public scripts
@@ -189,6 +189,10 @@ class KSD_Install {
                 //@since $this->ksd_db_version 110. Added attachments table
                 $dbChanges[]= KSD_Install::create_attachments_table();
             }
+             //@since $this->ksd_db_version 111 Added tkt_is_read & made tkt_time_updated not null , @1.6.2
+            $dbChanges[]= "ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` ADD `tkt_is_read` BOOLEAN NOT NULL DEFAULT FALSE ;";
+            $dbChanges[]= "ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_time_updated` `tkt_time_updated` TIMESTAMP NOT NULL;";
+            
             if( count( $dbChanges ) > 0 ){  //Make the Db changes. We use $wpdb->query instead of dbDelta because of
                                             //how strict and verbose the dbDelta alternative is. We'd
                                             //need to rewrite CREATE table statements for dbDelta.
@@ -220,9 +224,10 @@ class KSD_Install {
                                 `tkt_cust_id` BIGINT(20) UNSIGNED NOT NULL, 
                                 `tkt_assigned_by` BIGINT(20) NOT NULL, 
                                 `tkt_assigned_to` BIGINT(20) NULL, 
-				`tkt_time_updated` TIMESTAMP NULL, 
+				`tkt_time_updated` TIMESTAMP NOT NULL, 
 				`tkt_updated_by` BIGINT(20) NOT NULL,                                 
 				`tkt_private_note` TEXT,
+                                `tkt_is_read` BOOLEAN NOT NULL DEFAULT FALSE,
                                 KEY (`tkt_assigned_to`,`tkt_assigned_by`,`tkt_cust_id`)
 				);	
 				CREATE TABLE `{$wpdb->prefix}kanzusupport_replies` (

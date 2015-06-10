@@ -22,6 +22,7 @@
             <li class="URGENT"><?php  _e('URGENT','kanzu-support-desk');?></li>
         </ul>
     </li>
+    <li><a href="#" class="add-new-h2 mark_unread"><?php  _e('Mark as unread','kanzu-support-desk');?></a></li>
 </ul>
 <div id="ksd-single-ticket">
     <h1 class="ksd-single-ticket-subject"></h1>

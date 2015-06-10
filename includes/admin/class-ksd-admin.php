@@ -69,8 +69,8 @@ class KSD_Admin {
                 add_action( 'wp_ajax_ksd_disable_tour_mode', array( $this, 'disable_tour_mode' ));              
                 add_action( 'wp_ajax_ksd_get_notifications', array( $this, 'get_notifications' ));  
                 add_action( 'wp_ajax_ksd_notify_new_ticket', array( $this, 'notify_new_ticket' ));  
-                add_action( 'wp_ajax_ksd_bulk_change_status', array( $this, 'bulk_change_status' ));  
-                
+                add_action( 'wp_ajax_ksd_bulk_change_status', array( $this, 'bulk_change_status' )); 
+                add_action( 'wp_ajax_ksd_change_read_status', array( $this, 'change_read_status' ));                
 
                 //Register KSD tickets importer
                 add_action( 'admin_init', array( $this, 'ksd_importer_init' ) );
@@ -140,6 +140,9 @@ class KSD_Admin {
                 $admin_labels_array['tkt_trash']                    = __('Trash','kanzu-support-desk');
                 $admin_labels_array['tkt_assign_to']                = __('Assign To','kanzu-support-desk');
                 $admin_labels_array['tkt_change_status']            = __('Change Status','kanzu-support-desk');
+                $admin_labels_array['tkt_change_severity']          = __('Change Severity','kanzu-support-desk');
+                $admin_labels_array['tkt_mark_read']                = __('Mark as Read','kanzu-support-desk');
+                $admin_labels_array['tkt_mark_unread']              = __('Mark as Unread','kanzu-support-desk');
                 $admin_labels_array['tkt_subject']                  = __('Subject','kanzu-support-desk');
                 $admin_labels_array['tkt_cust_fullname']            = __('Customer Name','kanzu-support-desk');
                 $admin_labels_array['tkt_cust_email']               = __('Customer Email','kanzu-support-desk');
@@ -147,7 +150,14 @@ class KSD_Admin {
                 $admin_labels_array['tkt_forward']                  = __('Forward','kanzu-support-desk');
                 $admin_labels_array['tkt_update_note']              = __('Update Note','kanzu-support-desk');
                 $admin_labels_array['tkt_attach_file']              = __('Attach File','kanzu-support-desk');
-                $admin_labels_array['tkt_attach']                   = __('Attach','kanzu-support-desk');
+                $admin_labels_array['tkt_attach']                   = __('Attach','kanzu-support-desk');                
+                $admin_labels_array['tkt_status_open']              = __('OPEN','kanzu-support-desk');
+                $admin_labels_array['tkt_status_pending']           = __('PENDING','kanzu-support-desk');
+                $admin_labels_array['tkt_status_resolved']          = __('RESOLVED','kanzu-support-desk');                
+                $admin_labels_array['tkt_severity_low']             = __('LOW','kanzu-support-desk');
+                $admin_labels_array['tkt_severity_medium']          = __('MEDIUM','kanzu-support-desk');
+                $admin_labels_array['tkt_severity_high']            = __('HIGH','kanzu-support-desk');
+                $admin_labels_array['tkt_severity_urgent']          = __('URGENT','kanzu-support-desk');              
                 $admin_labels_array['msg_still_loading']            = __('Loading Replies...','kanzu-support-desk');
                 $admin_labels_array['msg_loading']                  = __('Loading...','kanzu-support-desk');
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
@@ -367,7 +377,7 @@ class KSD_Admin {
                     }
 
                     //order
-                    $filter .= " ORDER BY tkt_time_logged DESC ";
+                    $filter .= " ORDER BY tkt_time_updated DESC ";//@since 1.6.2 sort by tkt_time_updated
 
                     //limit
                     $count_filter = $filter; //Query without limit to get the total number of rows
@@ -432,13 +442,16 @@ class KSD_Admin {
             try {
                 $tickets = new KSD_Tickets_Controller();
                 $ticket = $tickets->get_ticket( $_POST['tkt_id'] );
-                $this->format_ticket_for_viewing($ticket);
+                $this->format_ticket_for_viewing( $ticket, true );
                 
                 //Get the ticket's attachments
                 $attachments = new KSD_Attachments_Controller();
                 $query = " attach_tkt_id = %d";
                 $value_parameters[] = $_POST['tkt_id'];                
                 $ticket->attachments = $attachments->get_attachments( $query, $value_parameters );
+                
+                //Mark the ticket as read
+                $this->do_change_read_status( $_POST['tkt_id'] );
 
                 echo json_encode($ticket);
                 die();
@@ -665,7 +678,10 @@ class KSD_Admin {
                     }
                     $new_reply = new stdClass(); 
                     $new_reply->rep_tkt_id    	 = sanitize_text_field( $_POST['tkt_id'] );    
-                    $new_reply->rep_created_by   = sanitize_text_field( $_POST['ksd_rep_created_by'] );
+                    $new_reply->rep_created_by   = sanitize_text_field( $_POST['ksd_rep_created_by'] );                    
+                    if( isset( $_POST['ksd_rep_date_created'])){//Set by add-ons
+                        $new_reply->rep_date_created =  sanitize_text_field( $_POST['ksd_rep_date_created'] );  
+                    }
                     $new_reply->rep_message 	 = wp_kses_post( stripslashes( $_POST['ksd_ticket_reply'] )  );
                     if ( strlen( $new_reply->rep_message ) < 2 && ! $add_on_mode ){//If the response sent it too short
                        throw new Exception( __("Error | Reply too short", 'kanzu-support-desk'), -1 );
@@ -678,7 +694,13 @@ class KSD_Admin {
                     if ( isset( $_POST['ksd-attachments'] ) ) {
                         $this->add_ticket_attachments( $new_reply_id, $_POST['ksd-attachments'], true );
                     }
-
+                    //Update the main ticket's 	tkt_time_updated field
+                    $ksd_TC = new KSD_Tickets_Controller();
+                    $update_main_ticket = new stdClass();
+                    $update_main_ticket->tkt_id = $new_reply->rep_tkt_id;
+                    $update_main_ticket->new_tkt_time_updated = $new_reply->rep_date_created;                    
+                    $ksd_TC->update_ticket( $update_main_ticket ) ;
+                     
                     if( $add_on_mode ){//@TODO Change this action. Should be new_reply_loggeed
                        do_action( 'ksd_new_ticket_logged', $_POST['addon_tkt_id'], $response );
                        return;//End the party if this came from an add-on. All an add-on needs if for the reply to be logged
@@ -732,6 +754,7 @@ class KSD_Admin {
                     $_POST['tkt_id']                = $the_ticket[0]->tkt_id;//The ticket ID
                     $_POST['ksd_ticket_reply']      = $new_ticket->tkt_message;//Get the reply
                     $_POST['ksd_rep_created_by']    = $new_ticket->tkt_cust_id;//The customer's ID
+                    $_POST['ksd_rep_date_created']  = $new_ticket->tkt_time_logged;//@since 1.6.2
                     $_POST['addon_tkt_id']          = $new_ticket->addon_tkt_id;//The add-on's ID for this ticket
                     $this->reply_ticket( $_POST ); 
                     return; //die removed because it was triggering a fatal error in add-ons
@@ -807,7 +830,13 @@ class KSD_Admin {
                 $new_ticket->tkt_message_excerpt    = wp_trim_words( $sanitized_message, $ksd_excerpt_length );
                 $new_ticket->tkt_message            = $sanitized_message;
                 $new_ticket->tkt_channel            = $tkt_channel;
-                $new_ticket->tkt_status             = $tkt_status;             
+                $new_ticket->tkt_status             = $tkt_status; 
+                if( isset( $_POST[ 'ksd_tkt_time_logged' ] )){//Set by add-ons
+                    $new_ticket->tkt_time_updated   = $_POST[ 'ksd_tkt_time_logged' ];
+                }
+                else{
+                    $new_ticket->tkt_time_updated   = current_time( 'mysql' );
+                }
                 
                 //Server side validation for the inputs. Only holds if we aren't in add-on mode
                 if ( ( ! $add_on_mode && strlen( $new_ticket->tkt_subject ) < 2 || strlen( $new_ticket->tkt_message ) < 2 ) ) {
@@ -958,12 +987,17 @@ class KSD_Admin {
          * Replace the tkt_time_logged with a date better-suited for viewing
          * NB: Because we use {@link KSD_Users_Controller}, call this function after {@link do_admin_includes} has been called.   
          * @param Object $ticket The ticket to modify
+         * @param boolean $single_ticket_view Whether we are in single ticket view or not
          */
-        private function format_ticket_for_viewing( $ticket ){
+        private function format_ticket_for_viewing( $ticket, $single_ticket_view = false ){
             //If the ticket was logged by staff from the admin end, then the username is available in wp_users. Otherwise, we retrive the name
             //from the KSD customers table
            // $tmp_tkt_assigned_by = ( 'STAFF' === $ticket->tkt_channel ? $users->get_user($ticket->tkt_assigned_by)->display_name : $CC->get_customer($ticket->tkt_assigned_by)->cust_firstname );
-            $tmp_tkt_cust_id = get_userdata( $ticket->tkt_cust_id )->display_name;
+            $tkt_user_data      =  get_userdata( $ticket->tkt_cust_id );
+            $tmp_tkt_cust_id    =  $tkt_user_data->display_name;
+            if( $single_ticket_view ){
+                $tmp_tkt_cust_id.=  ' <'.$tkt_user_data->user_email.'>';
+            }
             //Replace the tkt_assigned_by name with a prettier one
             $ticket->tkt_cust_id = str_replace($ticket->tkt_cust_id,$tmp_tkt_cust_id,$ticket->tkt_cust_id);
             //Replace the date 
@@ -1316,6 +1350,48 @@ class KSD_Admin {
          }
          
          /**
+          * Mark a ticket as read or unread
+          * @param int $ticket_ID The ticket ID
+          * @param boolean $mark_as_read Whether to mark the ticket as read or not
+          */
+         private function do_change_read_status( $ticket_ID, $mark_as_read = true ) {
+            $ticket_read_status = ( $mark_as_read ? 1 : 0 );
+            $updated_ticket                  = new stdClass();
+            $updated_ticket->tkt_id          = $ticket_ID;
+            $updated_ticket->new_tkt_is_read = $ticket_read_status;
+            $TC = new KSD_Tickets_Controller();	                
+            return $TC->update_ticket( $updated_ticket );
+        }
+        
+        
+        /**
+         * Change ticket's read status
+         * @throws Exception
+         */
+        public function change_read_status(){
+            if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
+                    die ( __('Busted!','kanzu-support-desk') );
+            }
+            
+            try{
+                $this->do_admin_includes();	    
+                if( $this->do_change_read_status( $_POST['tkt_id'], $_POST['tkt_is_read'] ) ){
+                    echo json_encode( __( 'Ticket updated', 'kanzu-support-desk'));
+                }else {
+                    throw new Exception( __( 'Update Failed. Please retry', 'kanzu-support-desk') , -1);
+                }
+		die();// IMPORTANT: don't leave this out
+            }catch( Exception $e){ 
+                $response = array( 
+                    'error'=> array( 'message' => $e->getMessage() , 'code'=> $e->getCode())
+                );
+                echo json_encode($response);	
+                die();// IMPORTANT: don't leave this out
+            }  
+	}
+
+
+        /**
           * Create a new customer in wp_users
           * @param Object $customer The customer object
           */

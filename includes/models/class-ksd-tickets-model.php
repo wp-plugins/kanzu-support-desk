@@ -33,6 +33,7 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
                     'tkt_time_updated' 	 => '%s', 
                     'tkt_private_note'   => '%s',
                     'tkt_tags' 		 => '%s',
+                    'tkt_is_read'        => '%d',
                     'tkt_customer_rating'=> '%d'
                 );
 	}
