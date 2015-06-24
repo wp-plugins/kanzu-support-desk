@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.2
-Stable tag: 1.6.2
+Stable tag: 1.6.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,10 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.6.3, June 24, 2015 =
+ * BUG FIX | Show refresh message when nonce expires
+ * Plugin updates handled by KSD plugin
+
 = 1.6.2, June 10, 2015 =
  * Mark tickets as read/unread
  * Sort tickets by last time updated
@@ -201,6 +205,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.6.3 =
+ * BUG FIX | Show refresh message when nonce expires
+
 = 1.6.2 =
  * Mark tickets as read/unread
 

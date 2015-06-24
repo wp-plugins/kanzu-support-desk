@@ -3,7 +3,7 @@
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
  * Description:       All-in-one WordPress customer service ( support ticket ) solution for your site
- * Version:           1.6.2
+ * Version:           1.6.3
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '1.6.2';
+	public $version = '1.6.3';
 	
 	
 	/**
@@ -139,7 +139,12 @@ final class Kanzu_Support_Desk {
 		}
                 //The front-end
                 require_once( KSD_PLUGIN_DIR .  'includes/frontend/class-ksd-frontend.php' );
-		}
+                
+               //Deliver plugin updates like pizza
+                if ( !class_exists('KSD_Plugin_Updater') ) {
+                    include_once( KSD_PLUGIN_DIR . '/includes/extras/class-ksd-plugin-updater.php' );
+                }
+        }
 		
 	
 

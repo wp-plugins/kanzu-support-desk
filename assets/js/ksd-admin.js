@@ -41,7 +41,7 @@ jQuery(document).ready(function () {
             //to reduce cost of recalling parse
             respObj = JSON.parse(ajaxResponse);
         } catch (err) {
-            this.showDialog("error", err);
+            this.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
             return true;
         }
         //Check for error in request.
@@ -127,6 +127,7 @@ jQuery(document).ready(function () {
             this.enableAccordion();
 
             this.changeSubmitBtnVal();
+            this.modifyLicense();
         }
 
         /*
@@ -209,8 +210,60 @@ jQuery(document).ready(function () {
             }
 
         };
+        
+        /**
+         * Activate/Deactivate plugin licenses
+         * @returns {undefined}
+         */
+        this.modifyLicense = function () {
+            //Activate/Deactivate license button. Match all buttons that end with _license_status (Basically all license buttons)
+            jQuery("form.ksd-settings input[name$='_license_status']").click(function () {
+                var targetLicenseSetting = jQuery(this).parents('div.setting');
+                //Add a 'Loading button' next to the clicked button
+                var targetLicenseStatusSpan = targetLicenseSetting.find('span.license_status');
+                targetLicenseStatusSpan.html('');
+                targetLicenseStatusSpan.addClass('loading');
+                var licenseAction;
+                if (jQuery(this).hasClass('ksd-activate_license')) {
+                    licenseAction = 'activate_license';
+                }
+                else {
+                    licenseAction = 'deactivate_license';
+                }
+                //$plugin_name, $plugin_author, $plugin_options_key, $license_key, $license_status_key
+                var pluginName = targetLicenseSetting.find('span.plugin_name').text();
+                var pluginAuthorUri = targetLicenseSetting.find('span.plugin_author_uri').text();
+                var pluginOptionsKey = targetLicenseSetting.find('span.plugin_options_key').text();
+                var licenseKey = targetLicenseSetting.find('input[type=text]').attr('name');
+                var licenseStatusKey = targetLicenseSetting.find('input[type=submit]').attr('name');
+                var theLicense = targetLicenseSetting.find("input[name$='_license_key']").val();
+                //Send the request. The variables are from the Kanzu Support Desk Js localization
+                jQuery.post(ksd_admin.ajax_url,
+                        {action: 'ksd_modify_license',
+                            ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
+                            license_action: licenseAction,
+                            plugin_name: pluginName,
+                            plugin_author_uri: pluginAuthorUri,
+                            plugin_options_key: pluginOptionsKey,
+                            license_key: licenseKey,
+                            license_status_key: licenseStatusKey,
+                            license: theLicense
+                        },
+                function (response) {
+                    targetLicenseStatusSpan.removeClass('loading');
+                    try {
+                        var raw_response = JSON.parse(response);
+                    } catch (err) {
+                        targetLicenseStatusSpan.html(ksd_admin.ksd_labels.msg_error_refresh);
+                        return;
+                    }
+                    targetLicenseStatusSpan.html(raw_response);
+                }
+                );
+            });
+        };
 
-    }//eof:KSDSettings
+    };//eof:KSDSettings
 
     /*---------------------------------------------------------------*/
     /*-------------------DASHBOARD----------------------------------*/
@@ -529,7 +582,7 @@ jQuery(document).ready(function () {
                     //to reduce cost of recalling parse
                     respObj = JSON.parse(response);
                 } catch (err) {
-                    KSDUtils.showDialog("error", err);
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                     return;
                 }
 
@@ -592,7 +645,7 @@ jQuery(document).ready(function () {
                         //to reduce cost of recalling parse
                         respObj = JSON.parse(response);
                     } catch (err) {
-                        KSDUtils.showDialog("error", err);
+                        KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
                         return;
                     }
 
@@ -821,7 +874,7 @@ jQuery(document).ready(function () {
                     //to reduce cost of recalling parse
                     respObj = JSON.parse(response);
                 } catch (err) {
-                    KSDUtils.showDialog("error", err);
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
                     return;
                 }
 
@@ -861,7 +914,7 @@ jQuery(document).ready(function () {
                     //to reduce cost of recalling parse
                     respObj = JSON.parse(response);
                 } catch (err) {
-                    KSDUtils.showDialog("error", err);
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
                     return;
                 }
 
@@ -898,7 +951,7 @@ jQuery(document).ready(function () {
                     //to reduce cost of recalling parse
                     respObj = JSON.parse(response);
                 } catch (err) {
-                    KSDUtils.showDialog("error", err);
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
                     return;
                 }
 
@@ -951,7 +1004,7 @@ jQuery(document).ready(function () {
                                 //to reduce cost of recalling parse
                                 respObj = JSON.parse(response);
                             } catch (err) {
-                                KSDUtils.showDialog("error", err);
+                                KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
                                 return;
                             }
                             //Check for error in request.
@@ -994,7 +1047,7 @@ jQuery(document).ready(function () {
                             //to reduce cost of recalling parse
                             respObj = JSON.parse(response);
                         } catch (err) {
-                            KSDUtils.showDialog("error", err);
+                            KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                             return;
                         }
 
@@ -1074,7 +1127,7 @@ jQuery(document).ready(function () {
                                 //to reduce cost of recalling parse
                                 respObj = JSON.parse(response);
                             } catch (err) {
-                                KSDUtils.showDialog("error", err);
+                                KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                                 return;
                             }
 
@@ -1216,7 +1269,7 @@ jQuery(document).ready(function () {
 
             /**AJAX: Send the AJAX request to change ticket owner on selecting new person to 'Assign to'**/
             jQuery("#ticket-tabs").on('click', '.ticket-actions ul.assign_to li', function () {
-                ksd_show_dialog("loading");
+                KSDUtils.showDialog("loading");
                 var tkt_id = jQuery(this).parent().parent().attr("id").replace("tkt_", "");//Get the ticket ID
                 var assign_assigned_to = jQuery(this).attr("id");
                 jQuery.post(ksd_admin.ajax_url,
@@ -1233,7 +1286,7 @@ jQuery(document).ready(function () {
                         //to reduce cost of recalling parse
                         respObj = JSON.parse(response);
                     } catch (err) {
-                        KSDUtils.showDialog("error", err);
+                        KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                         return;
                     }
 
@@ -1242,7 +1295,7 @@ jQuery(document).ready(function () {
                         KSDUtils.showDialog("error", respObj.error.message);
                         return;
                     }
-                    ksd_show_dialog("success", respObj);
+                    KSDUtils.showDialog( "success", respObj );
                 });
             });
 
@@ -1288,7 +1341,7 @@ jQuery(document).ready(function () {
                     //to reduce cost of recalling parse
                     respObj = JSON.parse(response);
                 } catch (err) {
-                    KSDUtils.showDialog("error", err);
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                     return;
                 }
 
@@ -1458,7 +1511,7 @@ jQuery(document).ready(function () {
                         //to reduce cost of recalling parse
                         respObj = JSON.parse(response);
                     } catch (err) {
-                        KSDUtils.showDialog("error", err);
+                        KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                         return;
                     }
 
@@ -1498,7 +1551,7 @@ jQuery(document).ready(function () {
                             //to reduce cost of recalling parse
                             respObj = JSON.parse(the_replies);
                         } catch (err) {
-                            KSDUtils.showDialog("error", err);
+                            KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
                             return;
                         }
                         the_replies = respObj;

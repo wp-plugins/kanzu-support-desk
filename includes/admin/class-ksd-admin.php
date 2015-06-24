@@ -71,7 +71,8 @@ class KSD_Admin {
                 add_action( 'wp_ajax_ksd_notify_new_ticket', array( $this, 'notify_new_ticket' ));  
                 add_action( 'wp_ajax_ksd_bulk_change_status', array( $this, 'bulk_change_status' )); 
                 add_action( 'wp_ajax_ksd_change_read_status', array( $this, 'change_read_status' ));                
-
+                add_action( 'wp_ajax_ksd_modify_license', array( $this, 'modify_license_status' ));  
+                
                 //Register KSD tickets importer
                 add_action( 'admin_init', array( $this, 'ksd_importer_init' ) );
                 
@@ -163,6 +164,7 @@ class KSD_Admin {
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
                 $admin_labels_array['msg_reply_sent']               = __('Reply Sent!','kanzu-support-desk');
                 $admin_labels_array['msg_error']                    = __('Sorry, an unexpected error occurred. Kindly retry. Thank you.','kanzu-support-desk');
+                $admin_labels_array['msg_error_refresh']            = __('Sorry, an unexpected error occurred. Kindly refresh the page and retry. Thank you.','kanzu-support-desk');
                 $admin_labels_array['pointer_next']                 = __('Next','kanzu-support-desk');
                 $admin_labels_array['lbl_toggle_trimmed_content']   = __('Toggle Trimmed Content','kanzu-support-desk');
                 //Get current settings
@@ -1597,6 +1599,91 @@ class KSD_Admin {
             $callback    = array( $importer, 'dispatch' );
             register_importer ( $id, $name, $description, $callback ) ; 
         }
+        
+        /**
+         * Handle an AJAX request to change the license's status. We use this to activate
+         * and deactivate licenses
+         */
+        public function modify_license_status(){
+        if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
+                die ( __('Busted!','kanzu-support-desk') );                         
+          }
+          
+          $response = $this->do_license_modifications( $_POST['license_action'],sanitize_text_field( $_POST['license'] ) );
+          echo json_encode( $response );          
+          die();//Important. Don't leave this out
+        }
+        
+        /**
+         * For KSD plugins, make a remote call to Kanzu Code to activate/Deactivate/check license status
+         * @param string $action The action to perform on the license. Can be 'activate_license','deactivate_license' or 'check_license'
+         * @param string $plugin_name The plugin name
+         * @param string $plugin_author_uri Plugin author's URI
+         * @param string $plugin_options_key The plugin options key used to store its options in the KSD options array
+         * @param string $license_key The key used to store the license
+         * @param string $license_status_key The key used to store the license status
+         * @param string $license The license to check
+         * @return string $response Returns a response message 
+         */
+        public function do_license_modifications( $action, $plugin_name, $plugin_author_uri, $plugin_options_key, $license_key, $license_status_key, $license = NULL ) {
+                $response_message = __( 'An error occurred. Please retry','kanzu-support-desk' );
+           
+                 /*Retrieve the license from the database*/
+                //First get overall settings
+                $base_settings = get_option( KSD_OPTIONS_KEY );
+                //Check that the key exists
+                $plugin_settings = ( isset ( $base_settings[ $plugin_options_key ] ) ? $base_settings[ $plugin_options_key ] : array() );
+                
+                if( is_null( $license ) ){
+                    $license    =   trim( $plugin_settings[ $license_key ] );    	
+                }   
+
+		// data to send in our API request
+		$api_params = array( 
+			'edd_action'    => $action, 
+			'license' 	=> $license, 
+			'item_name'     => urlencode( $plugin_name ), // the name of our product in EDD
+			'url'           => home_url()
+		);
+		
+		// Call the custom API. @TODO Update add_query_arg() usage as per https://make.wordpress.org/plugins/2015/04/20/fixing-add_query_arg-and-remove_query_arg-usage/
+		$response = wp_remote_get( add_query_arg( $api_params, $plugin_author_uri ), array( 'timeout' => 15, 'sslverify' => false ) );
+
+		// make sure the response came back okay
+		if ( is_wp_error( $response ) ){
+			return $response_message;
+                }
+		// decode the license data
+		$license_data = json_decode( wp_remote_retrieve_body( $response ) );
+		
+                switch( $action ){
+                    case 'activate_license':
+                    case 'check_license':
+                        if( $license_data->license == 'valid' ) {
+                            $plugin_settings[ $license_status_key ] = 'valid';
+                            $response_message = __('License successfully validated. Welcome to a super-charged Kanzu Support Desk!','kanzu-support-desk' );
+                           }
+                        else{//Invalid license
+                            $plugin_settings[ $license_status_key ] = 'invalid';
+                            $response_message = __( 'Invalid License. Please renew your license','kanzu-support-desk' );             
+                        }
+                        break;
+                    case 'deactivate_license':
+                        if( $license_data->license == 'deactivated' ) {
+                            $plugin_settings[ $license_status_key ] = 'invalid';
+                            $response_message = __( 'Your license has been deactivated successfully. Thank you.','kanzu-support-desk' );                            
+                        }
+                        break;
+                }
+                //Retrieve the license for saving
+                $plugin_settings[ $license_key ] = $license;
+                
+                //Update the Db
+                $base_settings[ $plugin_options_key ] = $plugin_settings;
+                update_option( $plugin_options_key, $base_settings );         
+                
+                return $response_message;	 
+        } 
         
   
 }

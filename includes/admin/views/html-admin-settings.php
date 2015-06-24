@@ -109,6 +109,7 @@
   
              //Retrieve 'Licenses' tab if any licenses exist. This is true if one or more add-ons have been activated
              $settings_and_licenses  =   apply_filters( 'ksd_display_licenses', $settings ); 
+            
              $licenses      = ( isset( $settings_and_licenses['licenses'] ) ? $settings_and_licenses['licenses'] : array() ) ;
              if ( count($licenses) > 0 ) {//If some licenses were retrieved, display the licenses tab ?>
                 <h3><?php _e( 'Licenses', 'kanzu-support-desk'); ?></h3>
@@ -125,6 +126,9 @@
                                 <span class="license_status <?php echo $license_details['license_status'];?>"><?php echo ( empty( $license_details['license'] ) ? __( 'not set','kanzu-support-desk') : __( 'invalid','kanzu-support-desk') );  ?></span>
 				<input type="submit" class="button-secondary ksd-license ksd-activate_license" name="<?php echo $license_details['license_status_db_key']; ?>" value="<?php _e('Activate License','kanzu-support-desk'); ?>"/>
                             <?php } ?>
+                            <span class="plugin_name hidden"><?php echo $license_details['plugin_name'] ?></span>
+                            <span class="plugin_author_uri hidden"><?php echo $license_details['plugin_author_uri'] ?></span>
+                            <span class="plugin_options_key hidden"><?php echo $license_details['plugin_options_key'] ?></span>
                         </div>                  
                     <?php endforeach;
                     ?>
