@@ -75,8 +75,8 @@ jQuery(document).ready(function () {
         _this = this;
     };
     KSDAnalytics.init = function () {
-        if ("yes" !== ksd_admin.enable_anonymous_tracking) {
-            return;
+        if( ksd_admin.admin_tab.substr(0, 4) !== "ksd-" ){//@since 1.6.4. Exclude non-KSD pages from stats
+          return;  
         }
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -89,9 +89,11 @@ jQuery(document).ready(function () {
             a.src = g;
             m.parentNode.insertBefore(a, m)
         })(window, document, 'script', '//www.google-analytics.com/analytics.js', 'ga');
-
-        ga('create', 'UA-48956820-3', 'auto');
-        ga('require', 'linkid', 'linkid.js');
+        ga( 'create', 'UA-48956820-3', 'auto' );
+        ga( 'require', 'linkid', 'linkid.js' );
+        if ("yes" !== ksd_admin.enable_anonymous_tracking) {//Disable tracking if the user hasn't allowed it
+             window['ga-disable-UA-48956820-3'] = true;
+        }      
 
         //Send the page view for the current page. This is called the first time the page is loaded
         //so we get the current admin_tab from ksd_admin.admin_tab
@@ -128,6 +130,7 @@ jQuery(document).ready(function () {
 
             this.changeSubmitBtnVal();
             this.modifyLicense();
+            this.handleAddons();
         }
 
         /*
@@ -143,7 +146,54 @@ jQuery(document).ready(function () {
                     $that.val('Save')
                 }
             });
-        }
+        };
+        
+        /**
+         * Handle add-ons
+         * @returns {undefined}
+         */
+        this.handleAddons = function(){
+            //Move the dummy addons, add them to the real addons list
+            jQuery('span.ksd-dummy-addons li').appendTo('ul.add-ons');
+            //Show dialog when one is clicked
+            jQuery('li.ksd-dummy a').click(function(e){ 
+                e.preventDefault();
+                var addonName = jQuery(this).parents('li.ksd-dummy').find('h3').text();
+                jQuery('#ksd-dummy-plugin-dialog span.ksd-addon-name').text(addonName);
+            jQuery('#ksd-dummy-plugin-dialog').dialog({
+                modal: true,
+                buttons: {
+                    "Yes, add me to the waiting list": function () {
+                        jQuery(this).dialog("close");                       
+                        jQuery.post(ksd_admin.ajax_url,
+                                {   action: 'ksd_send_feedback',
+                                    ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
+                                    feedback_type: 'waiting_list',
+                                    ksd_user_feedback: addonName
+                                },
+                        function (response) {
+                            var respObj = {};
+                            //To catch cases when the ajax response is not json
+                            try {
+                                //to reduce cost of recalling parse
+                                respObj = JSON.parse(response);
+                            } catch (err) {
+                                KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
+                                return;
+                            }
+                            KSDUtils.showDialog("success", respObj);
+                        });
+                    },
+                    "It's interesting": function () {
+                        jQuery(this).dialog("close");
+                        //Enable Google Analytics temporarily and send this event to Google Analytics
+                        window['ga-disable-UA-48956820-3'] = false;
+                        ga('send', 'event', 'button', 'click', addonName.toLowerCase() );
+                    }
+                }
+            });
+            });
+        };
 
         /*
          * Submit Settings form.

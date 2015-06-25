@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.2
-Stable tag: 1.6.3
+Stable tag: 1.6.4
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -20,12 +20,13 @@ You'll love how simple and powerful it is. Ok ok, enough already! So...
 
 What's under the hood? Let's see:
 
+* Very simple user interface
 * Multiple channels for ticket-creation: Front-end via a support tab, backend via a pretty form, via Email as an optional add-on
 * Unlimited number of agents supported
 * Beautiful graphs to let you in on your performance
 * Customers receive email notifications on ticket creation
-* Multiple customizable ticket views 
-* Private notes on tickets
+* Multiple ticket views 
+* Private notes support on tickets
 * Simple ticket re-assignment 
 * Ticket severity supported 
 * Translation-ready 
@@ -103,6 +104,13 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.6.4, June 25, 2015 =
+ * Make support button text configurable
+ * BUG FIX | Allow Google Analytics disabling/activation
+ * BUG FIX | Track only KSD pages
+ * Support HTML email replies
+ * Highlight add-on submenu, populate with extra add-ons
+
 = 1.6.3, June 24, 2015 =
  * BUG FIX | Show refresh message when nonce expires
  * Plugin updates handled by KSD plugin
@@ -205,6 +213,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.6.3 =
+ * Support button text made configurable. Bug fixes & add-on list
+
 = 1.6.3 =
  * BUG FIX | Show refresh message when nonce expires
 

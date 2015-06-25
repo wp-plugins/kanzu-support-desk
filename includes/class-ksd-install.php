@@ -189,10 +189,11 @@ class KSD_Install {
                 //@since $this->ksd_db_version 110. Added attachments table
                 $dbChanges[]= KSD_Install::create_attachments_table();
             }
-             //@since $this->ksd_db_version 111 Added tkt_is_read & made tkt_time_updated not null , @1.6.2
-            $dbChanges[]= "ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` ADD `tkt_is_read` BOOLEAN NOT NULL DEFAULT FALSE ;";
-            $dbChanges[]= "ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_time_updated` `tkt_time_updated` TIMESTAMP NOT NULL;";
-            
+            if ( $sanitized_version < 162 ){
+                //@since $this->ksd_db_version 111 Added tkt_is_read & made tkt_time_updated not null , @1.6.2
+               $dbChanges[]= "ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` ADD `tkt_is_read` BOOLEAN NOT NULL DEFAULT FALSE ;";
+               $dbChanges[]= "ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_time_updated` `tkt_time_updated` TIMESTAMP NOT NULL;";
+            }
             if( count( $dbChanges ) > 0 ){  //Make the Db changes. We use $wpdb->query instead of dbDelta because of
                                             //how strict and verbose the dbDelta alternative is. We'd
                                             //need to rewrite CREATE table statements for dbDelta.
@@ -364,6 +365,7 @@ class KSD_Install {
                         'ticket_mail_message'               => __( 'Thank you for getting in touch with us. Your support request has been opened. Please allow at least 24 hours for a reply.', 'kanzu-support-desk'),
                         'recency_definition'                => "1",
                         'show_support_tab'                  => "yes",
+                        'support_button_text'               => "Support",
                         'tab_message_on_submit'             => __( 'Thank you. Your support request has been opened. Please allow at least 24 hours for a reply.', 'kanzu-support-desk'),
                         'tour_mode'                         => "yes", //@since 1.1.0
                         'enable_recaptcha'                  => "no",//@since 1.3.1 Not on by default since user needs to create & provide reCAPTCHA site & secret keys

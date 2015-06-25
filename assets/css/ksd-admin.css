@@ -566,6 +566,7 @@ ul.add-ons li {
   width: 230px;
   float: left;
   margin-left: 10px;
+  height: 315px;/*For the dummy addon tests*/
 }
 ul.add-ons li img{
     width: 64px;
@@ -576,6 +577,21 @@ ul.add-ons li a{
 }
 ul.add-ons li p{
     text-align: left;
+}
+//The dummy add-ons
+.ksd-price{
+    font-size: 0.9em;
+}
+ul.add-ons li:hover {
+  background-color: lightblue;
+  color: white;
+}
+#ksd-dummy-plugin-dialog {
+  font-size: 0.9em;
+  text-align: left;
+}
+#ksd-dummy-plugin-dialog button{
+    width: 80%;
 }
 /*The dashboard indicators*/
 ul.dashboard-statistics-summary {

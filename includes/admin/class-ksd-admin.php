@@ -164,7 +164,7 @@ class KSD_Admin {
                 $admin_labels_array['msg_sending']                  = __('Sending...','kanzu-support-desk');
                 $admin_labels_array['msg_reply_sent']               = __('Reply Sent!','kanzu-support-desk');
                 $admin_labels_array['msg_error']                    = __('Sorry, an unexpected error occurred. Kindly retry. Thank you.','kanzu-support-desk');
-                $admin_labels_array['msg_error_refresh']            = __('Sorry, an unexpected error occurred. Kindly refresh the page and retry. Thank you.','kanzu-support-desk');
+                $admin_labels_array['msg_error_refresh']            = __('Sorry, but it seems like something went wrong. Please try again or reload the page.','kanzu-support-desk');
                 $admin_labels_array['pointer_next']                 = __('Next','kanzu-support-desk');
                 $admin_labels_array['lbl_toggle_trimmed_content']   = __('Toggle Trimmed Content','kanzu-support-desk');
                 //Get current settings
@@ -255,7 +255,7 @@ class KSD_Admin {
 		$ticket_types[ 'ksd-tickets' ]    =   __( 'Tickets','kanzu-support-desk' );
                 $ticket_types[ 'ksd-new-ticket' ] =   __( 'New Ticket','kanzu-support-desk' );
 		$ticket_types[ 'ksd-settings' ]   =   __( 'Settings','kanzu-support-desk' );
-		$ticket_types[ 'ksd-addons' ]     =   __( 'Add-ons','kanzu-support-desk' );
+		$ticket_types[ 'ksd-addons' ]     =   '<span style="color:orange;">' .__( 'Add-ons','kanzu-support-desk' ). '</span>';
 		$ticket_types[ 'ksd-help' ]       =   __( 'Help','kanzu-support-desk' );               
 		
 		foreach ( $ticket_types as $submenu_slug => $submenu_title ) {
@@ -263,6 +263,7 @@ class KSD_Admin {
                     add_submenu_page($menu_slug, $page_title, $submenu_title, $capability, $submenu_slug, array($this,$function));                        		
       
                 }
+                            
                 
 	}
         
@@ -940,7 +941,7 @@ class KSD_Admin {
                     do_action( 'ksd_new_ticket_logged', $_POST['ksd_addon_tkt_id'], $new_ticket_id );
                 }
                 //If this was initiated by the email add-on, end the party here
-                if ( ( "yes" == $settings['enable_new_tkt_notifxns'] &&  $tkt_channel  ==  "EMAIL") ){
+                if ( "yes" == $settings['enable_new_tkt_notifxns'] &&  $tkt_channel  ==  "EMAIL"){
                      $this->send_email( $cust_email );//Send an auto-reply to the customer
                      $this->notify_new_ticket( $cust_email, $new_ticket->tkt_subject );//Notify the primary administrator that a new ticket exists
                      return;
@@ -1008,13 +1009,6 @@ class KSD_Admin {
             return $ticket;
         }
         
-        /**
-         * Replace escaped URLs in the attachment and remove null fields
-         * @param Object $attachment
-         */
-        private function format_attachment_for_viewing( $attachment ){
-            
-        }
 		
 		/**
 		 * Generate the ticket volumes displayed in the graph in the dashboard
@@ -1108,7 +1102,7 @@ class KSD_Admin {
                     $updated_settings[$option_name] = ( isset ( $_POST[$option_name] ) ? sanitize_text_field ( stripslashes ( $_POST[$option_name] ) ) : $updated_settings[$option_name] );
                 }
                 //For a checkbox, if it is unchecked then it won't be set in $_POST
-                $checkbox_names = array("show_support_tab","tour_mode","enable_new_tkt_notifxns","enable_recaptcha","enable_notify_on_new_ticket");
+                $checkbox_names = array("show_support_tab","tour_mode","enable_new_tkt_notifxns","enable_recaptcha","enable_notify_on_new_ticket","enable_anonymous_tracking");
                 //Iterate through the checkboxes and set the value to "no" for all that aren't set
                 foreach ( $checkbox_names as $checkbox_name ){
                      $updated_settings[$checkbox_name] = ( !isset ( $_POST[$checkbox_name] ) ? "no" : $updated_settings[$checkbox_name] );
@@ -1476,8 +1470,16 @@ class KSD_Admin {
           * @since 1.1.0
           */
          public function send_feedback(){
+             if ( !isset( $_POST['waiting_list'] ) ) {//If it a request to be added to our waiting list, add them
+                $current_user = wp_get_current_user();
+                $addon_message = sanitize_text_field($_POST['ksd_user_feedback']) . ',' . $current_user->user_email;
+                $response = ( $this->send_email("feedback@kanzucode.com", $addon_message, "KSD Add-on Waiting List") ? __('Sent successfully. Thank you!', 'kanzu-support-desk') : __('Error | Message not sent. Please try sending mail directly to feedback@kanzucode.com', 'kanzu-support-desk') );
+                echo json_encode($response);
+                die(); // IMPORTANT: don't leave this out
+            }
+            
             if ( ! wp_verify_nonce( $_POST['feedback-nonce'], 'ksd-send-feedback' ) ){
-			 die ( __('Busted!','kanzu-support-desk') );
+                die ( __('Busted!','kanzu-support-desk') );
                }
              if (strlen( $_POST['ksd_user_feedback'] )<= 2 ){
                 $response = __( "Error | The feedback field's empty. Please type something then send", "kanzu-support-desk"); 
@@ -1502,7 +1504,8 @@ class KSD_Admin {
                      $subject   = $settings['ticket_mail_subject'];
                      $message   = $settings['ticket_mail_message'];                     
              endswitch;
-                     $headers = 'From: '.$settings['ticket_mail_from_name'].' <'.$settings['ticket_mail_from_email'].'>' . "\r\n";
+                     $headers[] = 'From: '.$settings['ticket_mail_from_name'].' <'.$settings['ticket_mail_from_email'].'>';
+                     $headers[] = 'Content-Type: text/html; charset=UTF-8'; //@since 1.6.4 Support HTML emails
              return wp_mail( $to, $subject, $message, $headers ); 
          }
          

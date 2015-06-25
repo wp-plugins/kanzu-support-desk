@@ -43,12 +43,10 @@
                 <input name="show_support_tab"  type="checkbox" <?php checked( $settings['show_support_tab'], "yes" ) ?> value="yes"  />
                 <img width="16" height="16" src="<?php echo KSD_PLUGIN_URL."/assets/images/help.png";?>" class="help_tip" title="<?php _e("When enabled, shows a support button in the bottom left of your site which your customers can use to log new tickets",'kanzu-support-desk')  ;?>"/>
              </div>
-             <!--@since 1.5.4 Setting removed
              <div class="setting show_support_tab">
-                   <label for="tab_message_on_submit"><?php _e( 'Tab message on ticket submission', 'kanzu-support-desk'); ?></label>
-                   <textarea cols="60" rows="4" name="tab_message_on_submit"><?php echo $settings['tab_message_on_submit']; ?></textarea>
+                   <label for="support_button_text"><?php _e( 'Support button text', 'kanzu-support-desk'); ?></label>
+                   <input type="text" value="<?php echo $settings['support_button_text']; ?>" size="15" name="support_button_text" />
              </div>
-             -->
                 <div class="setting">
                     <label for="auto_assign_user"><?php _e( 'Auto-assign new tickets to', 'kanzu-support-desk'); ?></label>
                     <select name="auto_assign_user">

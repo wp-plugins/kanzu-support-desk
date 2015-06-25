@@ -35,7 +35,7 @@ class KSD_FrontEnd {
     public function generate_new_ticket_form(){
         $settings = Kanzu_Support_Desk::get_settings();
         if( "yes" == $settings['show_support_tab'] ) {?>
-            <button id="ksd-new-ticket-frontend"><?php _e( 'Support', 'kanzu-support-desk'); ?></button><?php
+            <button id="ksd-new-ticket-frontend"><?php echo $settings['support_button_text']; ?></button><?php
             $form_position_class = "ksd-form-hidden-tab";//Used as a class to style the form
             include( KSD_PLUGIN_DIR .  'includes/frontend/views/html-frontend-new-ticket.php' );
         }
