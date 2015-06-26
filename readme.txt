@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.2
-Stable tag: 1.6.4
+Stable tag: 1.6.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,6 +104,9 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.6.5, June 25, 2015 =
+ * BUG FIX | Plugin activation/deactivation fixed
+
 = 1.6.4, June 25, 2015 =
  * Make support button text configurable
  * BUG FIX | Allow Google Analytics disabling/activation
@@ -213,6 +216,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 1.6.5 =
+ * BUG FIX | Plugin activation/deactivation fixed
+
 = 1.6.3 =
  * Support button text made configurable. Bug fixes & add-on list
 

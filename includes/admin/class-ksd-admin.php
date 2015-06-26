@@ -1612,7 +1612,7 @@ class KSD_Admin {
                 die ( __('Busted!','kanzu-support-desk') );                         
           }
           
-          $response = $this->do_license_modifications( $_POST['license_action'],sanitize_text_field( $_POST['license'] ) );
+          $response = $this->do_license_modifications( $_POST['license_action'],$_POST['plugin_name'],$_POST['plugin_author_uri'],$_POST['plugin_options_key'],$_POST['license_key'],$_POST['license_status_key'],sanitize_text_field( $_POST['license'] ) );
           echo json_encode( $response );          
           die();//Important. Don't leave this out
         }
