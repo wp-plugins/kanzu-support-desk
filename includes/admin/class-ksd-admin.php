@@ -1629,7 +1629,7 @@ class KSD_Admin {
          * @return string $response Returns a response message 
          */
         public function do_license_modifications( $action, $plugin_name, $plugin_author_uri, $plugin_options_key, $license_key, $license_status_key, $license = NULL ) {
-                $response_message = __( 'An error occurred. Please retry','kanzu-support-desk' );
+                $response_message = __( 'Sorry, an error occurred. Please retry or reload the page','kanzu-support-desk' );
            
                  /*Retrieve the license from the database*/
                 //First get overall settings
@@ -1683,7 +1683,7 @@ class KSD_Admin {
                 
                 //Update the Db
                 $base_settings[ $plugin_options_key ] = $plugin_settings;
-                update_option( $plugin_options_key, $base_settings );         
+                update_option( KSD_OPTIONS_KEY, $base_settings );         
                 
                 return $response_message;	 
         } 
