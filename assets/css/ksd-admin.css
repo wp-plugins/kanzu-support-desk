@@ -27,6 +27,20 @@
 .admin-ksd-title h2{
 	text-transform: capitalize;
 }
+.ceo-caricature{
+     background-image: url("../images/ceo_caricature.png");
+     background-repeat: no-repeat;
+     width: 120px;
+     height: 131px;
+     position: absolute;
+     top: 0;
+     right: 0;
+     background-color: none;
+}
+.ksd-start-intro,.ksd-so-far{
+    width: 50%;
+    text-align: center;
+}
 .more_nav {
   height: 38px;
   position: absolute;

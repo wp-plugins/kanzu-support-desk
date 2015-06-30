@@ -71,7 +71,9 @@ class KSD_Admin {
                 add_action( 'wp_ajax_ksd_notify_new_ticket', array( $this, 'notify_new_ticket' ));  
                 add_action( 'wp_ajax_ksd_bulk_change_status', array( $this, 'bulk_change_status' )); 
                 add_action( 'wp_ajax_ksd_change_read_status', array( $this, 'change_read_status' ));                
-                add_action( 'wp_ajax_ksd_modify_license', array( $this, 'modify_license_status' ));  
+                add_action( 'wp_ajax_ksd_modify_license', array( $this, 'modify_license_status' )); 
+                add_action( 'wp_ajax_ksd_enable_usage_stats', array( $this, 'enable_usage_stats' )); 
+                
                 
                 //Register KSD tickets importer
                 add_action( 'admin_init', array( $this, 'ksd_importer_init' ) );
@@ -132,7 +134,7 @@ class KSD_Admin {
                 //Get intro tour messages if we are in tour mode @since 1.1.0
                 $tour_pointer_messages['ksd_intro_tour'] =  $this->load_intro_tour();
                 
-                //This array allows us to internalize (translate) the words/phrases/labels displayed in the JS 
+                //This array allows us to internationalize (translate) the words/phrases/labels displayed in the JS 
                 $admin_labels_array = array();
                 $admin_labels_array['dashboard_chart_title']        = __('Incoming Tickets','kanzu-support-desk');
                 $admin_labels_array['dashboard_open_tickets']       = __('Total Open Tickets','kanzu-support-desk');
@@ -285,8 +287,13 @@ class KSD_Admin {
 	 * Display the main Kanzu Support Desk admin dashboard
 	 */
 	public function output_admin_menu_dashboard(){
-		$this->do_admin_includes();               
-                include_once( KSD_PLUGIN_DIR .  'includes/admin/views/html-admin-wrapper.php');                
+		$this->do_admin_includes();             
+                if( isset( $_GET['ksd-intro'] ) ){
+                    include_once( KSD_PLUGIN_DIR .  'includes/admin/views/html-admin-intro.php');         
+                }
+                else{
+                    include_once( KSD_PLUGIN_DIR .  'includes/admin/views/html-admin-wrapper.php');   
+                }
 	}
         
  
@@ -1309,7 +1316,7 @@ class KSD_Admin {
                 )
             );
             $p[] = array(
-                'target' => '.enable_new_tkt_notifxns',
+                'target' => '.ksd-reset',
                 'tab'  => 3,
                 'options' => array(
                     'content' => sprintf( '<span><h3> %s </h3> <p> %s </p></span>',
@@ -1434,6 +1441,18 @@ class KSD_Admin {
          }
          
          /**
+          * Enable usage statistics
+          * @since 1.6.7
+          */
+         public function enable_usage_stats(){
+            $ksd_settings = Kanzu_Support_Desk::get_settings();
+            $ksd_settings['enable_anonymous_tracking'] = "yes";
+            Kanzu_Support_Desk::update_settings($ksd_settings);
+            echo json_encode( __('Successfully enabled. Thank you!','kanzu-support-desk') );
+            die();
+        }
+         
+         /**
           * Notify the primary administrator that a new ticket has been logged  
           * The wp_mail call in send_mail takes a while (about 5s in our tests)
           * so for tickets logged in the admin side, we call this using AJAX     
@@ -1466,14 +1485,38 @@ class KSD_Admin {
          }
          
          /**
+          * Return the HTML for a feedback form
+          * @param string $position The position of the form
+          * @param string $send_button_text Submit button text
+          */
+         public static function output_feeback_form( $position, $send_button_text='Send' ){
+            $form = '<form action="#" class="ksd-feedback-'.$position.'" method="POST">';        
+            $form.= '<p><textarea name="ksd_user_feedback" rows="5" cols="100"></textarea></p>';
+            $form.= '<input name="action" type="hidden" value="ksd_send_feedback" />';
+            $form.= '<input name="feedback_type" type="hidden" value="'.$position.'" />';
+            $form.= wp_nonce_field( 'ksd-send-feedback', 'feedback-nonce' ); 
+            $form.= '<p><input type="submit" class="button-primary" name="ksd-feedback-submit" value="'.$send_button_text.'"/></p>';
+            $form.= '</form>';
+            return $form;
+         }
+         
+         /**
           * Send the KSD team feedback
           * @since 1.1.0
           */
          public function send_feedback(){
-             if ( !isset( $_POST['waiting_list'] ) ) {//If it a request to be added to our waiting list, add them
-                $current_user = wp_get_current_user();
-                $addon_message = sanitize_text_field($_POST['ksd_user_feedback']) . ',' . $current_user->user_email;
-                $response = ( $this->send_email("feedback@kanzucode.com", $addon_message, "KSD Add-on Waiting List") ? __('Sent successfully. Thank you!', 'kanzu-support-desk') : __('Error | Message not sent. Please try sending mail directly to feedback@kanzucode.com', 'kanzu-support-desk') );
+             if ( isset( $_POST['feedback_type'] ) ) {//If it a request to be added to our waiting list, add them
+                switch( $_POST['feedback_type'] ):
+                    case 'waiting_list':
+                        $current_user = wp_get_current_user();
+                        $addon_message = sanitize_text_field( $_POST['ksd_user_feedback'] ) . ',' . $current_user->user_email;
+                        $response = ( $this->send_email("feedback@kanzucode.com", $addon_message, "KSD Add-on Waiting List") ? __('Sent successfully. Thank you!', 'kanzu-support-desk') : __('Error | Message not sent. Please try sending mail directly to feedback@kanzucode.com', 'kanzu-support-desk') );
+                        break;
+                    default:
+                        $feedback_message = sanitize_text_field( $_POST['ksd_user_feedback'] ) . ',' . $_POST['feedback_type'];
+                        $response = ( $this->send_email("feedback@kanzucode.com", $feedback_message, "KSD Feedback") ? __('Sent successfully. Thank you!', 'kanzu-support-desk') : __('Error | Message not sent. Please try sending mail directly to feedback@kanzucode.com', 'kanzu-support-desk') );
+                endswitch;
+ 
                 echo json_encode($response);
                 die(); // IMPORTANT: don't leave this out
             }

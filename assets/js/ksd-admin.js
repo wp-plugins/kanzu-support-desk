@@ -131,7 +131,8 @@ jQuery(document).ready(function () {
             this.changeSubmitBtnVal();
             this.modifyLicense();
             this.handleAddons();
-        }
+            this.enableUsageStats();
+        };
 
         /*
          * 
@@ -146,6 +147,30 @@ jQuery(document).ready(function () {
                     $that.val('Save')
                 }
             });
+        };
+        
+        /**
+         * Enable usage & error statistics
+         * @returns {NULL}
+         */
+        this.enableUsageStats = function () {
+            jQuery('button.ksd_enable_usage_stats').click(function () {
+                jQuery.post(ksd_admin.ajax_url,
+                        {   action: 'ksd_enable_usage_stats'
+                        },
+                function (response) {
+                    var respObj = {};
+                    //To catch cases when the ajax response is not json
+                    try {
+                        //to reduce cost of recalling parse
+                        respObj = JSON.parse(response);
+                    } catch (err) {
+                        KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
+                        return;
+                    }
+                    KSDUtils.showDialog("success", respObj);
+                });
+        });            
         };
         
         /**
@@ -506,6 +531,19 @@ jQuery(document).ready(function () {
         this.submitFeedbackForm = function () {
             /**AJAX: Send Feedback**/
             jQuery('form#ksd-feedback').submit(function (e) {
+                e.preventDefault();
+                KSDUtils.showDialog("loading", ksd_admin.ksd_labels.msg_sending);
+                jQuery.post(ksd_admin.ajax_url,
+                        jQuery(this).serialize(), //The action and nonce are hidden fields in the form, 
+                        function (response) {
+                            if (KSDUtils.ajaxResponseErrorCheck(response)) {
+                                return;
+                            }
+                            KSDUtils.showDialog("success", JSON.parse(response));
+                        });
+            });
+            //All other feedback forms. They start with class ksd-feedback-
+            jQuery("form[class^='ksd-feedback-']").submit(function (e) {
                 e.preventDefault();
                 KSDUtils.showDialog("loading", ksd_admin.ksd_labels.msg_sending);
                 jQuery.post(ksd_admin.ajax_url,

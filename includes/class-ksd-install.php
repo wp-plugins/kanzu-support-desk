@@ -134,7 +134,7 @@ class KSD_Install {
 		if ( ( isset( $_GET['action'] ) && 'upgrade-plugin' == $_GET['action'] ) && ( isset( $_GET['plugin'] ) && strstr( $_GET['plugin'], 'kanzu-support-desk.php' ) ) ){
 			return;
                 }
-		wp_redirect( admin_url( 'admin.php?page='.KSD_SLUG ) );
+		wp_redirect( admin_url( 'admin.php?page='.KSD_SLUG.'&ksd-intro=1' ) );
 		exit;		
 	}
         
