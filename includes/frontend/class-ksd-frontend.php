@@ -66,8 +66,9 @@ class KSD_FrontEnd {
          */
         public function enqueue_frontend_scripts() {	
             wp_enqueue_script( KSD_SLUG . '-frontend-js', KSD_PLUGIN_URL .  'assets/js/ksd-frontend.js' , array( 'jquery', 'jquery-ui-core' ), KSD_VERSION );
-            $msd_grecaptcha_error = sprintf( __( 'Please check the <em>%s</em> checkbox and wait for it to complete loading', 'kanzu-support-desk'), "I'm not a robot" );
-            wp_localize_script( KSD_SLUG . '-frontend-js', 'ksd_frontend' , array( 'ajax_url' => admin_url( 'admin-ajax.php'), 'msg_gcaptcha_error' => $msd_grecaptcha_error ) );    
+            $msd_grecaptcha_error   = sprintf( __( 'Please check the <em>%s</em> checkbox and wait for it to complete loading', 'kanzu-support-desk'), "I'm not a robot" );
+            $msg_error_refresh      = __('Sorry, but it seems like something went wrong. Please try again or reload the page.','kanzu-support-desk');
+            wp_localize_script( KSD_SLUG . '-frontend-js', 'ksd_frontend' , array( 'ajax_url' => admin_url( 'admin-ajax.php'), 'msg_gcaptcha_error' => $msd_grecaptcha_error, 'msg_error_refresh' => $msg_error_refresh ) );    
             //Check whether enable_recaptcha is checked. @TODO Don't retrieve settings again. Use same set of settings
             $settings = Kanzu_Support_Desk::get_settings();
             if( "yes" == $settings['enable_recaptcha'] && $settings['recaptcha_site_key'] !== '' ){

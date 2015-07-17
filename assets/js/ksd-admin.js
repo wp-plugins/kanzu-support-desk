@@ -5,6 +5,9 @@ if ('undefined' !== typeof (google)) {
 
 jQuery(document).ready(function () {
 
+    //Added to remove/hide distortion of UI that shows up during initial load of the plugin.
+    jQuery("#admin-kanzu-support-desk").css({visibility: 'visible'});
+
     /**For the general navigation tabs**/
     jQuery("#tabs").tabs().addClass("ui-tabs-vertical ui-helper-clearfix");
     jQuery("#tabs > ul > li").removeClass("ui-corner-top").addClass("ui-corner-left");
@@ -19,6 +22,32 @@ jQuery(document).ready(function () {
             return results[1] || 0;
         }
     };
+    
+    
+    /*
+     * Jquery plugin enhancements //@TODO Brilliant logic
+     * //@TODO Are we sure this rule isn't called whenever we use the validator
+     * on any form?
+     * //@TODO cc appears also on Ticket reply forms. Check how it performs on all forms
+     */
+    //Validation Rule for CC field
+    jQuery.validator.addMethod("ccRule", function(value, element, options){
+        var targetEl = jQuery('input[name="'+options.data+'"]');
+
+        if( targetEl.val() == "CC" ) return true;
+
+        emails = targetEl.val().split(",");
+        cnt    = emails.length;
+        for( i = 0; i < cnt; i++){
+            _status = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@(?:\S{1,63})$/.test(  emails[i] );
+            if( _status === false ){
+                return false;
+            }
+        }
+        return true;
+
+    },"Wrong email format for CC");//@TODO This text needs to be internationalized
+    
     /*---------------------------------------------------------------*/
     /***************************UTILITIES: Used by all the rest*******/
     /*---------------------------------------------------------------*/
@@ -640,7 +669,8 @@ jQuery(document).ready(function () {
             this.attachChangeSeverityEvents();
             this.attachMarkReadUnreadEvents();
             this.uiSingleTicketView();
-
+          //  this.attachCCFieldEvents();
+            
             //Search
             this.TicketSearch();
 
@@ -1164,11 +1194,26 @@ jQuery(document).ready(function () {
                         }
                     });
         };
+        
+        /**
+         * Format a single reply message. Particularly looks out for
+         * the tags appended to email messages of the format:
+         * "On {DATE}, FirstName LastName <address@domain.com> wrote:". This matches VERY many clients
+         * Supports other languages too; currently supports English and German
+         * German equivalent:
+         * "Den {DATE}, FirstName LastName <address@domain.com> skrev:
+         * @returns {string} Formated reply message wrapping tags in div with class ksd_extra
+         */
+        this.formatSingleReplyMessage = function( replyMessage ){
+            replyTag = /(On.*wrote:|Den.*skrev:)/g;//Match all those mentioned above.@TODO Internationalize this
+            return replyMessage.replace( replyTag, "<div class='ksd_extra'>$1</div>");
+        }
 
         /**
          * Format ticket replies. Hide extra content from
          * the previous message and generally make the displayed content
          * more user-friendly
+         * This builds on what this.formatSingleReplyMessage does
          */
         this.formatTicketReplies = function () {
             /* #1 First match extra content from various email clients and wrap it in class 'ksd_extra'. We match the extra content
@@ -1177,11 +1222,11 @@ jQuery(document).ready(function () {
             //Match Outlook 2013 extra content  @TODO Add mobile outlook, outlook 2007 and 2010
             jQuery('p:contains("-----Original Message-----")').nextUntil("div").andSelf().wrapAll('<div class="ksd_extra"></div>');
             //Match Gmail ( Android and Desktop ) clients
-            jQuery('div.gmail_quote').addClass('ksd_extra');
+            jQuery('div.gmail_quote,blockquote.gmail_quote').addClass('ksd_extra');
             //Match Yahoo desktop clients. Written separately from the rest merely for legibility
             jQuery('div.yahoo_quoted').addClass('ksd_extra');
             //@TODO Add more mail clients, IOS particularly
-
+            
             /* #2 To the content we've wrapped in class 'ksd_extra' in #1 above, append the icon that'll be used to toggle the extra content*/
             jQuery('#ksd-single-ticket .ksd_extra').before('<div class="replies-more" title="' + ksd_admin.ksd_labels.lbl_toggle_trimmed_content + '"></div>');
 
@@ -1195,7 +1240,12 @@ jQuery(document).ready(function () {
         };
 
         this.editTicketForm = function () {
+            //_toggleCCField();
+            
             jQuery("form#edit-ticket").validate({
+              //  rules: {
+              //      "ksd_tkt_cc": { "ccRule": { data: "ksd_tkt_cc" } }
+             //   },
                 submitHandler: function (form) {
                     _this.replyTicketAndUpdateNote(form);
                 }
@@ -1228,10 +1278,10 @@ jQuery(document).ready(function () {
                             //We send an email to the admin telling them about the new ticket. We do this by AJAX
                             //because our tests showed that wp_mail took in some cases 5 seconds to return a response
                             jQuery.post(ksd_admin.ajax_url,
-                                    {action: 'ksd_notify_new_ticket',
+                                    {   action: 'ksd_notify_new_ticket',
                                         ksd_admin_nonce: ksd_admin.ksd_admin_nonce
                                     },
-                            function () {
+                            function (response) {
                                 //@TODO We currently don't do anything with this response
                             });
 
@@ -1264,10 +1314,7 @@ jQuery(document).ready(function () {
             //First check if the element exists
             if (jQuery("ul.edit-ticket-options").length) {
                 jQuery("#edit-ticket-tabs").tabs();
-
             }
-
-
         }
 
 
@@ -1276,12 +1323,19 @@ jQuery(document).ready(function () {
 
             /*On focus, Toggle customer name, email and subject */
             _toggleFieldValues();
+            //_toggleCCField();
             //This mousedown event is very important; without it, the wp_editor value isn't sent by AJAX
             jQuery('form.ksd-new-ticket-admin :submit').mousedown(function () {
                 tinyMCE.triggerSave();
             });
+            
+
+            
             /**Validate New Tickets before submitting the form by AJAX**/
             jQuery("form.ksd-new-ticket-admin").validate({
+               // rules: {
+               //     "ksd_tkt_cc": { "ccRule": { data: "ksd_tkt_cc" } }
+              //  },
                 submitHandler: function (form) {
                     ksdLogNewTicketAdmin(form);
                 }
@@ -1445,6 +1499,28 @@ jQuery(document).ready(function () {
             });
 
         };
+
+        /**
+         *  Attach event on send as email check box to show cc field
+         */
+         this.attachCCFieldEvents = function () {
+
+            if ( jQuery( "form.ksd-new-ticket-admin input[name=ksd_send_email]" ).attr("checked") == "checked")
+            {
+                jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"block"});
+            }else{
+                jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"none"});
+            }
+             
+            //Attach event
+            jQuery( "form.ksd-new-ticket-admin input[name=ksd_send_email]" ).change(function() {
+                if( jQuery(this).attr("checked") == "checked"){
+                    jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"block"});
+                }else{
+                    jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"none"});
+                }
+            });
+         }
 
         /**
          * Attach an event to the items that change ticket status
@@ -1654,7 +1730,7 @@ jQuery(document).ready(function () {
                             repliesData += "<div class='ticket-reply'>";
                             repliesData += "<span class='reply_author'>" + value.rep_created_by + "</span>";
                             repliesData += "<span class='reply_date'>" + value.rep_date_created + "</span>";
-                            repliesData += "<div class='reply_message'>" + value.rep_message + "</div>";
+                            repliesData += "<div class='reply_message'>" + _this.formatSingleReplyMessage(value.rep_message) + "</div>";                            
                             //The Reply's Attachments
                             if (!jQuery.isEmptyObject(value.attachments)) {
                                 repliesData += '<ul id="ksd-attachments">';
@@ -1668,7 +1744,7 @@ jQuery(document).ready(function () {
                         jQuery("#ticket-replies").html(repliesData);
                         //Toggle the color of the reply background
                         // jQuery("#ticket-replies div.ticket-reply").filter(':even').addClass("alternate");
-                        //Clean-up the replies to make them more user--friendly
+                        //Clean-up the replies to make them more user-friendly
                         _this.formatTicketReplies();
                         //Scroll to the bottom
                         jQuery('html, body').animate({scrollTop: jQuery(".edit-ticket").offset().top}, 1400, "swing");
@@ -1679,17 +1755,14 @@ jQuery(document).ready(function () {
 
 
 
-
+        /**Toggle the form field values for new tickets on click**/
+        _toggle_form_field_input = function(event) {
+            if (jQuery(this).val() === event.data.old_value) {
+                jQuery(this).val(event.data.new_value);
+            }
+        }
 
         _toggleFieldValues = function () {
-
-            /**Toggle the form field values for new tickets on click**/
-            function toggle_form_field_input(event) {
-                if (jQuery(this).val() === event.data.old_value) {
-                    jQuery(this).val(event.data.new_value);
-                }
-            }
-            ;
             //The fields
             var new_form_fields = {
                 "ksd_tkt_subject": ksd_admin.ksd_labels.tkt_subject,
@@ -1701,13 +1774,26 @@ jQuery(document).ready(function () {
                 jQuery('form.ksd-new-ticket-admin input[name=' + field_name + ']').on('focus', {
                     old_value: form_value,
                     new_value: ""
-                }, toggle_form_field_input);
+                }, _toggle_form_field_input);
                 jQuery('form.ksd-new-ticket-admin input[name=' + field_name + ']').on('blur', {
                     old_value: "",
                     new_value: form_value
-                }, toggle_form_field_input);
+                }, _toggle_form_field_input);
             });
         };
+        
+        
+        _toggleCCField = function(){//@TODO Move this to the function above (_toggleFieldValues)
+            jQuery('input[name=ksd_tkt_cc]').on('focus', {
+                    old_value: "CC",
+                    new_value: ""
+            }, _toggle_form_field_input);
+                
+            jQuery('input[name=ksd_tkt_cc]').on('blur', {
+                    old_value: "",
+                    new_value: "CC"
+            }, _toggle_form_field_input);
+        }
 
         this.TicketPagination = function () {
 

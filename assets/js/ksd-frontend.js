@@ -27,7 +27,14 @@ jQuery( document ).ready(function() {
                         jQuery(form).serialize(), //The action and nonce are hidden fields in the form
                         function( response ) { 
                             jQuery( targetFormClass+' img.ksd_loading_dialog' ).hide();//Hide the loading button
-                            var respObj = JSON.parse(response);
+                            var respObj = {};
+                            try {
+                                //to reduce cost of recalling parse
+                                respObj = JSON.parse(response);
+                            } catch (err) {
+                                jQuery ( 'div'+targetFormClass+'-response' ).show().text( ksd_frontend.msg_error_refresh );
+                                return;
+                            }
                             //Show the response received. Check for errors
                             if ( 'undefined' !== typeof(respObj.error) ){
                                 jQuery ( 'div'+targetFormClass+'-response' ).show().text(respObj.error.message);

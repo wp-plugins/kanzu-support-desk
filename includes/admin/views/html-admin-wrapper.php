@@ -1,4 +1,4 @@
-<div id="admin-kanzu-support-desk">
+<div id="admin-kanzu-support-desk" style="visibility:hidden;">
     <div class="admin-ksd-title">
         <h2><?php _e('Dashboard','kanzu-support-desk'); ?></h2>
         <span class="more_nav"><img src="<?php echo KSD_PLUGIN_URL. '/assets/images/icons/more_top.png'; ?>" title="<?php _e('Notifications','kanzu-support-desk'); ?>" /></span>

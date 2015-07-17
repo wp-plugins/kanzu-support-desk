@@ -38,18 +38,29 @@
     </div>
     <div class="edit-ticket">
     <form id="edit-ticket" method="POST">
+        
         <div id="edit-ticket-tabs"> 
             <ul class="edit-ticket-options">
                 <li><a href="#reply_ticket"><?php _e('Reply','kanzu-support-desk'); ?></a></li>                
                 <li><a href="#update_private_note"><?php _e('Private Note','kanzu-support-desk'); ?></a></li>
-            </ul>        
+            </ul> 
+            
+            
+            
             <div class="edit-ticket-description" id="reply_ticket">
+                <!--<input type="text" value="CC" maxlength="255" name="ksd_tkt_cc" label="CC" class="ksd-cc" minlength="2" label="CC" style="display:block" />--@TODO Can validation be done by adding the rule here?-->
+                
                 <?php wp_editor(  '' , 'ksd_ticket_reply', array( "media_buttons" => true, "textarea_rows" => 5 ) ); ?> 
+                
             </div>
+            
            <div id="update_private_note" class="single-ticket-textarea">
                 <textarea name="tkt_private_note" rows="5" cols="100"></textarea> 
             </div>
-       </div>
+       </div>        
+        
+        
+        
         <input name="action" type="hidden" value="ksd_reply_ticket" />
         <input name="tkt_id" type="hidden" value="<?php echo $_GET['ticket'];?>" />  
         <input name="ksd_rep_created_by" type="hidden" value="<?php echo get_current_user_id();?>" />  

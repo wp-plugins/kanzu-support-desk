@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.2
-Stable tag: 1.6.7
+Stable tag: 1.6.8
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -104,6 +104,10 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 1.6.8, July 17, 2015 =
+ * BUG FIX | Send notifications on new ticket logged
+ * Mail reply wrap updated
+
 = 1.6.7, June 30, 2015 =
  * Intro tour updated. Adds intro message from CEO
  * Tracking message updated to show usage & error stats
@@ -223,7 +227,10 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
-= 1.6.6 =
+= 1.6.8 =
+ * BUG FIX | Notification on new tickets. Mail ticket reply wrapping improved
+
+= 1.6.7 =
  * Intro message updated, tracking label and message also updated 
 
 = 1.6.6 =

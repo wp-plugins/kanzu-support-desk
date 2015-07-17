@@ -4,6 +4,7 @@
             <input type="text" value="<?php _e('Customer Name','kanzu-support-desk'); ?>" size="30" name="ksd_cust_fullname" label="Customer Name" class="ksd-customer-name" minlength="2" required/>
             <input type="email" value="<?php _e('Customer Email','kanzu-support-desk'); ?>" size="30" name="ksd_cust_email" label="Customer Email" class="ksd-customer-email" required/>
             <input type="text" value="<?php _e('Subject','kanzu-support-desk'); ?>" maxlength="255" name="ksd_tkt_subject" label="Subject" class="ksd-subject" minlength="2" required/>
+            <!--<input type="text" value="CC" maxlength="255" name="ksd_tkt_cc" label="CC" class="ksd-cc" minlength="2" label="CC" />--@TODO Can validation be done by adding the rule here?-->
         </div>
         <div class="ksd-message">
             <?php wp_editor(  '' , 'ksd_tkt_message', array( "media_buttons" => true, "textarea_rows" => 5 ) ); ?> 

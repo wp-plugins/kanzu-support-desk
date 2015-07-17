@@ -393,9 +393,16 @@ ul#ksd-attachments li,ul#ksd-attachments-single-ticket li {
     margin-left: 30px;
     width: 32px;
 }
-.ksd-subject,.ksd-message,.ksd-tags{
+.ksd-subject,.ksd-message,.ksd-tags,.ksd-cc{
     width: 100%;
 }
+
+.ksd-cc{
+    display: none;
+}
+
+.edit-ticket-description .ksd-cc{ margin-bottom: 5px;}
+
 .ksd-severity-and-assign{
     width: 50%;
     float: right;

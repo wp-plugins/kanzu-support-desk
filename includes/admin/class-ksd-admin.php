@@ -692,6 +692,9 @@ class KSD_Admin {
                     if( isset( $_POST['ksd_rep_date_created'])){//Set by add-ons
                         $new_reply->rep_date_created =  sanitize_text_field( $_POST['ksd_rep_date_created'] );  
                     }
+                    else {
+                        $new_reply->rep_date_created = current_time('mysql');//@since 1.6.8. Fix bug setting tkt_time_updated to 0000-00-00 00:00
+                    }
                     $new_reply->rep_message 	 = wp_kses_post( stripslashes( $_POST['ksd_ticket_reply'] )  );
                     if ( strlen( $new_reply->rep_message ) < 2 && ! $add_on_mode ){//If the response sent it too short
                        throw new Exception( __("Error | Reply too short", 'kanzu-support-desk'), -1 );
@@ -720,7 +723,16 @@ class KSD_Admin {
                     $TC = new KSD_Tickets_Controller();
                     $ticket_details   = $TC->get_ticket( $new_reply->rep_tkt_id );     
                     $user = get_userdata( $ticket_details->tkt_cust_id );
-                    $this->send_email( $user->user_email, $new_reply->rep_message, 'Re: '.$ticket_details->tkt_subject );//NOTE: Prefix the reply subject with Re:    
+                    
+                    //@TODO:  Add CC.
+                    //@TODO Why is this !isset($_POST['ksd_tkt_cc'])? Shouldn't this be isset($_POST['ksd_tkt_cc'])?
+                    //@TODO This cc check should also be in log_new_ticket 
+                    //@TODO Need DB field to save cc's
+                    //@TODO Update ksd-mail to retrieve cc's
+                    $cc = null;
+                    if( !isset($_POST['ksd_tkt_cc']) && $_POST['ksd_tkt_cc'] != 'CC' ) $cc = $_POST['ksd_tkt_cc'];
+                    
+                    $this->send_email( $user->user_email, $new_reply->rep_message, 'Re: '.$ticket_details->tkt_subject,$cc );//NOTE: Prefix the reply subject with Re:    
                    
                    if ( $new_reply_id > 0 ){
                       echo json_encode(  $new_reply  );
@@ -803,11 +815,12 @@ class KSD_Admin {
                 //In add-on mode, this function was called by an add-on                            
                 $add_on_mode = ( is_array( $new_ticket_array ) ? true : false );
 
-                if( ! $add_on_mode ){//Check for NONCE if not in add-on mode
+               /* if( ! $add_on_mode ){//Check for NONCE if not in add-on mode
                     if ( ! wp_verify_nonce( $_POST['new-ticket-nonce'], 'ksd-new-ticket' ) ){
                              die ( __('Busted!','kanzu-support-desk') );
                     }
-                }
+                }//@TODO Update this
+                */
                 
 		$this->do_admin_includes();
             
@@ -939,18 +952,24 @@ class KSD_Admin {
                 }
                 
                //Notify the customer that their ticket has been logged 
+              //@TODO CC Field is not useful here. We send the notification ONLY to the customer
                 if ( ( "yes" == $settings['enable_new_tkt_notifxns'] &&  $tkt_channel  ==  "SUPPORT_TAB") || ( $tkt_channel  ==  "STAFF" && isset($_POST['ksd_send_email'])) ){
-                    $this->send_email( $cust_email );
+                    $this->send_email( $cust_email  );    
                 }
                 
                 //For add-ons to do something after new ticket is added. We share the ID and the final status
                 if ( isset( $_POST['ksd_addon_tkt_id'] ) ) {                    
                     do_action( 'ksd_new_ticket_logged', $_POST['ksd_addon_tkt_id'], $new_ticket_id );
                 }
+                if ( $tkt_channel  !==  "STAFF" ){
+                    $this->do_notify_new_ticket( $cust_email, $new_ticket->tkt_subject );//Notify the primary administrator that a new ticket exists     
+                    //Note that we use $tkt_channel  !==  "STAFF" because for tickets logged by staff, this notification of the admin is called using
+                    //AJAX action ksd_notify_new_ticket. This is because during our tests, wp_mail took in some cases 5 seconds to return a response. We used AJAX
+                    //to avoid agents waiting long before getting a response. Every other $tkt_channel can risk the wait
+                }
                 //If this was initiated by the email add-on, end the party here
                 if ( "yes" == $settings['enable_new_tkt_notifxns'] &&  $tkt_channel  ==  "EMAIL"){
-                     $this->send_email( $cust_email );//Send an auto-reply to the customer
-                     $this->notify_new_ticket( $cust_email, $new_ticket->tkt_subject );//Notify the primary administrator that a new ticket exists
+                     $this->send_email( $cust_email );//Send an auto-reply to the customer                     
                      return;
                 }
                 
@@ -1451,6 +1470,16 @@ class KSD_Admin {
             echo json_encode( __('Successfully enabled. Thank you!','kanzu-support-desk') );
             die();
         }
+        /**
+         * AJAX callback to send notification of a new ticket
+         */
+        public function notify_new_ticket(){
+            // if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
+           //       die ( __('Busted!','kanzu-support-desk') );                         
+           // } //@TODO Update this. Take into account when this is called directly, NOT from an action
+              $this->do_notify_new_ticket();
+              die();//IMPORTANT. Shouldn't be left out         
+        }
          
          /**
           * Notify the primary administrator that a new ticket has been logged  
@@ -1460,10 +1489,8 @@ class KSD_Admin {
           * @param string $ticket_subject The new ticket's subject   
           * @since 1.5.5
           */
-         public function notify_new_ticket( $customer_email = null, $ticket_subject = null ){
-            if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
-                  die ( __('Busted!','kanzu-support-desk') );                         
-            }
+         private function do_notify_new_ticket( $customer_email = null, $ticket_subject = null ){
+             
             $ksd_settings = Kanzu_Support_Desk::get_settings(); 
             //If new ticket notifications have been set, inform the primary administrator that a new ticket has been logged          
             if ( "yes" == $ksd_settings['enable_notify_on_new_ticket'] ){     
@@ -1480,8 +1507,8 @@ class KSD_Admin {
                 $notify_new_tkt_message .= sprintf(__('%s','kanzu-support-desk'), 'Kanzu Support Desk') . "\r\n";
                 $notify_new_tkt_subject = sprintf(__('[%s] New Support Ticket'), $blog_name);
                 $this->send_email( get_option('admin_email'), $notify_new_tkt_message, $notify_new_tkt_subject );  
-                }
-            die();//IMPORTANT. Shouldn't be left out
+                } 
+         
          }
          
          /**
@@ -1539,8 +1566,9 @@ class KSD_Admin {
           * @param string $to Recipient email address
           * @param string $message The message to send. Can be "new_ticket"
           * @param string $subject The message subject
+          * @param string $cc  A comma-separated list of email addresses to cc    
           */
-         public function send_email( $to, $message="new_ticket", $subject=null ){
+         public function send_email( $to, $message="new_ticket", $subject=null, $cc=null ){
              $settings = Kanzu_Support_Desk::get_settings();             
              switch ( $message ):
                  case 'new_ticket'://For new ticket auto-replies
@@ -1549,6 +1577,9 @@ class KSD_Admin {
              endswitch;
                      $headers[] = 'From: '.$settings['ticket_mail_from_name'].' <'.$settings['ticket_mail_from_email'].'>';
                      $headers[] = 'Content-Type: text/html; charset=UTF-8'; //@since 1.6.4 Support HTML emails
+                     if( !is_null( $cc ) ){
+                         $headers[] = "Cc: $cc";
+                     }
              return wp_mail( $to, $subject, $message, $headers ); 
          }
          
