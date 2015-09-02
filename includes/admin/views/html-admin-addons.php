@@ -53,4 +53,3 @@ do_action( 'ksd_load_addons' );
     <div id="ksd-dummy-plugin-dialog" class="hidden" title="<?php _e('Sorry, under construction...', 'kanzu-support-desk'); ?>">
         <span class="ksd-addon-name"></span><?php _e( " is not yet ready for use. Would you like us to let you know when it's ready? Or, just anonymously let us know that it is interesting.", 'kanzu-support-desk'); ?>
     </div>
-

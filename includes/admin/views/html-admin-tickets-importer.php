@@ -16,8 +16,8 @@
       $ksd_importer_fields['customer_email']['values'] = __( 'customer@email.com', 'kanzu-support-desk');                                              
       $ksd_importer_fields['customer_email']['default'] =   __( 'None', 'kanzu-support-desk');                                                
       $ksd_importer_fields['customer_email']['mandatory'] =  __( 'Yes', 'kanzu-support-desk');  
-      $ksd_importer_fields['channel']['values'] = "STAFF,FACEBOOK,TWITTER,SUPPORT_TAB,EMAIL,CONTACT_FORM";                                              
-      $ksd_importer_fields['channel']['default'] =   "STAFF";                                                
+      $ksd_importer_fields['channel']['values'] = "admin-form,FACEBOOK,TWITTER,SUPPORT_TAB,EMAIL,CONTACT_FORM";                                              
+      $ksd_importer_fields['channel']['default'] =   "admin-form";                                                
       $ksd_importer_fields['channel']['mandatory'] =  __( 'No', 'kanzu-support-desk');
       $ksd_importer_fields['status']['values'] = "NEW,OPEN,ASSIGNED,PENDING,RESOLVED";                                              
       $ksd_importer_fields['status']['default'] =   "NEW";                                                
@@ -60,7 +60,7 @@
     <p>
      <?php _e( 'Sample file input:', 'kanzu-support-desk');?>
         <pre>
-          <?php _e( 'Ticket subject, This is the ticket message, John Doe, customer@email.com, STAFF, NEW, HIGH,21-02-2015 09:00:00,Please update the client on progress every 1hr.', 'kanzu-support-desk');?>            
+          <?php _e( 'Ticket subject, This is the ticket message, John Doe, customer@email.com, admin-form, NEW, HIGH,21-02-2015 09:00:00,Please update the client on progress every 1hr.', 'kanzu-support-desk');?>            
           <?php  _e( 'Ticket subject, Ticket message, Jonathan Doe, customer@email.com', 'kanzu-support-desk'); ?>            
           <?php  _e( 'Ticket subject, Ticket message, Jonathan Doe, customer@email.com,,,MEDIUM', 'kanzu-support-desk');?>            
           <?php  _e( 'Ticket subject, Ticket message, Jane Doe, the.customer@email.com, EMAIL, OPEN, URGENT,21-02-2015 09:00:00,Checked his profile and it is fine', 'kanzu-support-desk');?>

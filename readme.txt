@@ -3,18 +3,18 @@ Contributors: kanzucode
 Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
-Tested up to: 4.2
-Stable tag: 1.6.8
+Tested up to: 4.3
+Stable tag: 2.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Kanzu Support Desk (KSD) is an all-in-one WordPress customer service ( support ticket ) solution that looks and feels like email.
+Kanzu Support Desk (KSD) is a WordPress customer service ( support ticket ) solution that allows you to respond effectively to every customer query in under 5 minutes.
 
 == Description ==
 
 Great customer care is at the heart of every good product or service. Kanzu Support Desk breathes fresh life into ticketing solutions
-so that you and your team can focus on what you do best-being awesome. This nifty and pretty plugin boasts of a very intuitive 
-interface that feels like email so you don't have to worry about a learning curve-get up and running immediately!
+so that you and your team can focus on what you do best-being awesome. This nifty and pretty plugin boasts of a native WordPress 
+interface so you don't have to worry about a learning curve-get up and running immediately!
 We do the heavy-lifting for you so you can focus on your customers. KSD was built with **SIMPLICITY** in the driving seat. 
 You'll love how simple and powerful it is. Ok ok, enough already! So...
 
@@ -24,8 +24,7 @@ What's under the hood? Let's see:
 * Multiple channels for ticket-creation: Front-end via a support tab, backend via a pretty form, via Email as an optional add-on
 * Unlimited number of agents supported
 * Beautiful graphs to let you in on your performance
-* Customers receive email notifications on ticket creation
-* Multiple ticket views 
+* You and your customers receive email notifications on ticket creation
 * Private notes support on tickets
 * Simple ticket re-assignment 
 * Ticket severity supported 
@@ -104,6 +103,22 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 2.0.0, August 29, 2015 =
+ * Overhaul: Switched from custom tables to custom post types for all ticket info
+ * Customers can reply and follow ticket progress from your website 
+ * Customers required to create accounts before submitting tickets
+
+= 1.7.0, July 29, 2015 =
+ * Better notifications on new tickets/replies
+ * Ticket cc feature added
+ * Internationalized validation error messages  
+ * Added KSD customer buttons to settings
+ * Added 'Generate debug file' to settings
+ * Ticket & Replies formatted for display and email sending. Better HTML support
+ * Auto-reply HTML support added
+ * Optional notification email
+ * KSD now has a Logo
+
 = 1.6.8, July 17, 2015 =
  * BUG FIX | Send notifications on new ticket logged
  * Mail reply wrap updated
@@ -227,6 +242,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 2.0.0 =
+ * Customers can view and follow ticket progress from your website
+
 = 1.6.8 =
  * BUG FIX | Notification on new tickets. Mail ticket reply wrapping improved
 

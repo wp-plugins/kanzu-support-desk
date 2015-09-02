@@ -36,12 +36,14 @@ class KSD_Uninstall {
                             switch_to_blog( $blog['blog_id'] );
                             $this->delete_options();
                             $this->delete_tables();
+                            $this->delete_ticket_info();
                             restore_current_blog();
                     }
             }
         } else {
            $this->delete_options();
            $this->delete_tables();
+           $this->delete_ticket_info();
         }
     }
     
@@ -57,7 +59,7 @@ class KSD_Uninstall {
         $deleteTables   = array();
         //Iterate through the tables for deletion
         foreach ( $tables as $table ){
-            $deleteTables[] = "DROP TABLE `{$wpdb->prefix}{$table}`;";
+            $deleteTables[] = "DROP TABLE IF EXISTS `{$wpdb->prefix}{$table}`;";
         }
         //Optimize the options table
         $deleteTables[]  = "OPTIMIZE TABLE `{$wpdb->prefix}options`;";
@@ -68,6 +70,28 @@ class KSD_Uninstall {
     
     private function delete_options(){
          delete_option( 'kanzu_support_desk' );//Can't use KSD_OPTIONS_KEY since it isn't defined here
+         delete_option('ksd_activation_time');
+    }
+    
+    /**
+     * Delete all tickets and related meta information
+     * @since 2.0.0
+     */
+    private function delete_ticket_info(){
+        global $wpdb;
+        $wpdb->hide_errors();		
+        require_once(ABSPATH . 'wp-admin/includes/upgrade.php'); 
+        
+        $delete_ticket_info_sql = array();
+        $delete_ticket_info_sql[]  = "DELETE FROM `{$wpdb->prefix}posts` WHERE `post_type` = 'ksd_ticket';";
+        $delete_ticket_info_sql[]  = "DELETE FROM `{$wpdb->prefix}posts` WHERE `post_type` = 'ksd_reply';";
+        $delete_ticket_info_sql[]  = "DELETE FROM `{$wpdb->prefix}posts` WHERE `post_type` = 'ksd_private_note';";
+        $delete_ticket_info_sql[]  = "DELETE FROM `{$wpdb->prefix}posts` WHERE `post_type` = 'ksd_ticket_activity';";
+        $delete_ticket_info_sql[]  = "DELETE FROM `{$wpdb->prefix}postmeta` WHERE `meta_key` like '_ksd_tkt%';";      
+        
+        foreach ( $delete_ticket_info_sql as $delete_ticket_query ){
+            $wpdb->query( $delete_ticket_query );
+        }
     }
 
 }

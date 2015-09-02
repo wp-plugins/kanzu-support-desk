@@ -30,6 +30,9 @@
         <span class="author"><?php  _e('Loading...','kanzu-support-desk');?></span>
         <span class="date"></span>
     </div>
+    <div class="ticket_cc">
+     <span class="ksd_cc"></span>
+    </div>
     <div class="description pending">
         <?php  _e('Loading...','kanzu-support-desk');?>
     </div>
@@ -41,19 +44,16 @@
         
         <div id="edit-ticket-tabs"> 
             <ul class="edit-ticket-options">
-                <li><a href="#reply_ticket"><?php _e('Reply','kanzu-support-desk'); ?></a></li>                
+                <li><a href="#reply_ticket"><?php _e('Reply','kanzu-support-desk'); ?></a></li>
                 <li><a href="#update_private_note"><?php _e('Private Note','kanzu-support-desk'); ?></a></li>
-            </ul> 
-            
-            
-            
+            </ul>
+ 
             <div class="edit-ticket-description" id="reply_ticket">
-                <!--<input type="text" value="CC" maxlength="255" name="ksd_tkt_cc" label="CC" class="ksd-cc" minlength="2" label="CC" style="display:block" />--@TODO Can validation be done by adding the rule here?-->
+                <input type="text" value="<?php _e( 'CC','kanzu-support-desk' ); ?>" maxlength="255" name="ksd_tkt_cc" label="<?php _e( 'CC','kanzu-support-desk' ); ?>" class="ksd-cc" minlength="2" style="display:none;" data-rule-ccRule /> 
                 
                 <?php wp_editor(  '' , 'ksd_ticket_reply', array( "media_buttons" => true, "textarea_rows" => 5 ) ); ?> 
                 
             </div>
-            
            <div id="update_private_note" class="single-ticket-textarea">
                 <textarea name="tkt_private_note" rows="5" cols="100"></textarea> 
             </div>
@@ -62,12 +62,14 @@
         
         
         <input name="action" type="hidden" value="ksd_reply_ticket" />
-        <input name="tkt_id" type="hidden" value="<?php echo $_GET['ticket'];?>" />  
+        <input name="tkt_id" type="hidden" value="<?php echo $_GET['ksd_ticket'];?>" />  
         <input name="ksd_rep_created_by" type="hidden" value="<?php echo get_current_user_id();?>" />  
-        <ul id="ksd-attachments-single-ticket" class="ksd-single-ticket">
+        <ul id="ksd_attachments-single-ticket" class="ksd-single-ticket">
         </ul>
         <?php wp_nonce_field( 'ksd-edit-ticket', 'edit-ticket-nonce' ); ?>
-        <input type="submit" value="<?php  _e('Reply','kanzu-support-desk');?>" name="edit-ticket" id="edit-ticket-submit" class="button button-primary button-large ksd-submit"/>        
+
+        <input type="submit" value="<?php  _e('Send','kanzu-support-desk');?>" name="edit-ticket" id="ksd-reply-ticket-submit" class="button button-primary button-large ksd-submit"/>        
+        <span hascc="0" id="reply_toall_button" style="display: none; margin-left: 5px;" class=" button button-large" data=""><?php _e( 'Reply to all','kanzu-support-desk' ); ?></span>
     </form>
   </div>
 </div>

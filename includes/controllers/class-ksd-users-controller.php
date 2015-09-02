@@ -55,5 +55,3 @@ class KSD_Users_Controller extends KSD_Controller
            return $this->_model->get_users_with_roles( $roles ); 
         }
 }
-
-?>

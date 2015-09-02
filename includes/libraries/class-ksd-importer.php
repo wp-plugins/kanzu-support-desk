@@ -1,4 +1,4 @@
- <?php
+<?php
  /**
   * Imports tickets into KSD
   *
@@ -108,7 +108,7 @@
                  if ( isset( $row[4] ) ){
                     $new_ticket->tkt_channel    = $row[4];
                  }
-                 if( isset( $row[4] ) && !empty ( $row[4] ) && ! preg_match('/STAFF|FACEBOOK|TWITTER|SUPPORT_TAB|EMAIL|CONTACT_FORM/',$row[4]) ){
+                 if( isset( $row[4] ) && !empty ( $row[4] ) && ! preg_match('/admin-form|FACEBOOK|TWITTER|SUPPORT_TAB|EMAIL|CONTACT_FORM/',$row[4]) ){
                      $this->import_response[$line_number] = sprintf( __( 'Invalid channel %s', 'kanzu-support-desk'), $row[4] );   
                      continue;
                  }

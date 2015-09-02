@@ -116,7 +116,16 @@ class KSD_Tickets_Controller extends KSD_Controller {
         public function get_dashboard_statistics_summary(){
             return $this->_model->get_dashboard_statistics_summary();
         }
+        
         /**
+         * Get ticket count by status
+         * @return Array of Objects
+         */
+        public function get_ticket_count_by_status() {
+            return $this->_model->get_ticket_count_by_status();
+        }
+
+    /**
          * Run a custom query
          * @param type $query The query to run
          */

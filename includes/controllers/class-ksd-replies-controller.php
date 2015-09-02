@@ -70,4 +70,3 @@ class KSD_Replies_Controller extends KSD_Controller
 		return $this->_model->get_all( $query, $value_parameters);
 	}
 }
-?>

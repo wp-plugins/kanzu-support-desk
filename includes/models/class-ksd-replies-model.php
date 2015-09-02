@@ -22,15 +22,14 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 		$this->_id = "rep_id";
 			
 		$this->_formats = array(
-		'rep_id' 			 	=> '%d', 
+		'rep_id' 			=> '%d', 
 		'rep_tkt_id'	 		=> '%d',
-		'rep_type'	 			=> '%d' , 
-		'rep_is_cc' 			=> '%s',
-		'rep_is_bcc' 	 		=> '%s',
+		'rep_type'                      => '%d' , 
 		'rep_date_created' 		=> '%s',
 		'rep_created_by' 	 	=> '%s',
-		'rep_date_modified' 	=> '%s',
-                'rep_message'    => '%s'
+		'rep_date_modified'             => '%s',
+                'rep_message'                   => '%s',
+                'rep_cc'                        => '%s'
 		);
 	}
 	
@@ -69,6 +68,3 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
 	}
 
  }
- 
- 
- ?>

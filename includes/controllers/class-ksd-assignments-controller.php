@@ -49,4 +49,3 @@ class KSD_Assignments_Controller extends KSD_Controller
 	}
 
 }
-?>

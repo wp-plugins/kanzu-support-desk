@@ -27,4 +27,3 @@ class KSD_Controller
 		}
 	}
 }
-?>

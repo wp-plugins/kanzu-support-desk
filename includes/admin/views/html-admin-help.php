@@ -53,4 +53,4 @@
     </div>
 <!--End mc_embed_signup-->
 <!--Display help messages from add-ons-->
-<?php do_action('ksd_display_help')?>
+<?php do_action('ksd_display_help');

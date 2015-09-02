@@ -34,7 +34,8 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
                     'tkt_private_note'   => '%s',
                     'tkt_tags' 		 => '%s',
                     'tkt_is_read'        => '%d',
-                    'tkt_customer_rating'=> '%d'
+                    'tkt_customer_rating'=> '%d',
+                    'tkt_cc'             => '%s'
                 );
 	}
 	
@@ -54,13 +55,14 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
         *@param Array $value_parameters The values to replace the placeholders
 	*/
 	public  function get_all( $filter = "", $value_parameters=array() ){
+                global $wpdb;
+                $this->_tablename =  "{$wpdb->prefix}posts";
 		return parent::get_all( $filter,$value_parameters );
 	}
  
 	/*
-	*Add Ticket to 
-	*
-	*
+	*Add Ticket 
+	*@param object Ticket object
 	*/
 	public function add_ticket( &$ticket ){
 		return parent::add_row( $ticket );
@@ -120,7 +122,9 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
 	}
         
         public function get_dashboard_graph_statistics(){
-            $query = 'SELECT COUNT(tkt_id) AS "ticket_volume",DATE(tkt_time_logged) AS "date_logged" FROM '.$this->_tablename.' GROUP BY date_logged;';
+            global $wpdb;
+            $query = " SELECT COUNT(ID) AS ticket_volume, DATE(post_date) AS  date_logged "
+                    . " FROM {$wpdb->prefix}posts WHERE post_type = 'ksd_ticket'  GROUP BY date_logged ";
             return parent::exec_query( $query );
         }
         
@@ -135,21 +139,54 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
             //They are used by the JS that iterates through the AJAX response
             //and displays the output in the view. 
             //Change the query but keep the alias; or moodify the output JS too
-             $response_time_query="SELECT TIMESTAMPDIFF(
-                        SECOND , TICKETS.tkt_time_logged, REPLIES.rep_date_created ) AS time_difference
-                        FROM {$wpdb->prefix}kanzusupport_tickets AS TICKETS
-                        JOIN `{$wpdb->prefix}kanzusupport_replies` AS REPLIES ON TICKETS.tkt_id = REPLIES.rep_tkt_id
-                        WHERE TICKETS.tkt_status = 'OPEN'
-                        GROUP BY rep_tkt_id";
-             $summary_statistics["response_times"] = parent::exec_query( $response_time_query );
+             $response_time_query=" 
+                SELECT TIMESTAMPDIFF(SECOND, post_date, reply_date) AS time_difference 
+                FROM (
+                SELECT  t1.post_date AS post_date, 
+                CASE WHEN t2.post_date is NULL THEN now() ELSE t2.post_date END AS reply_date 
+                FROM {$wpdb->prefix}posts t1
+                LEFT JOIN {$wpdb->prefix}posts t2 ON t1.ID = t2.post_parent
+                WHERE 
+                t1.post_type = 'ksd_ticket' AND t2.post_type = 'ksd_reply'
+                ) T
+            "
+            ;
+                        
+            $summary_statistics["response_times"] = parent::exec_query( $response_time_query );
              
-             $open_tickets_query = 'SELECT COUNT(tkt_id) AS open_tickets FROM '.$this->_tablename.' WHERE tkt_status != "RESOLVED" ';
-             $summary_statistics["open_tickets"] = parent::exec_query( $open_tickets_query );
+            $open_tickets_args = array(
+                'post_type' 	=> 'ksd_ticket',
+                'post_status' 	=> 'open'
+             );
+            
+             $wp_open_tickets_query = new WP_Query( $open_tickets_args );
+             $summary_statistics["open_tickets"] = $wp_open_tickets_query->found_posts;              
+   
+             $unassigned_tickets_args['post_status'] = array( 'new', 'open', 'draft', 'pending' );//Don't show resolved tickets
+             $unassigned_tickets_args['post_type'] = 'ksd_ticket';
+             $unassigned_tickets_args = array(
+                'post_type'         => 'ksd_ticket',
+                'post_status'       => array( 'open','pending','new', 'draft' ),
+                'meta_key'          => '_ksd_tkt_info_assigned_to',
+                'meta_value'        => 0,
+                'meta_compare'      => '<='//This works yet = doesn't
+                ); 
+               
+            $wp_unassigned_tickets_query = new WP_Query( $unassigned_tickets_args );
 
-             $unassigned_tickets_query = 'SELECT COUNT(tkt_id) AS unassigned_tickets FROM '.$this->_tablename.' WHERE tkt_assigned_to IS NULL ';
-             $summary_statistics["unassigned_tickets"]  = parent::exec_query( $unassigned_tickets_query );
-              
+            $summary_statistics["unassigned_tickets"] =  $wp_unassigned_tickets_query->found_posts; 
+             
              return $summary_statistics;
+         }
+         
+         /**
+          * Get ticket count by status
+          * @since 1.7.0
+          */
+         public function get_ticket_count_by_status(){     
+             global $wpdb;
+             $query = "SELECT count(tkt_id) AS `count`,`tkt_status` FROM `{$wpdb->prefix}kanzusupport_tickets` group by `tkt_status`";
+             return parent::exec_query( $query );
          }
  
          
@@ -198,41 +235,21 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
         * 
         * My unresolved, All,Unassigned,Recently updated,Recently resolved,Resolved
         * @param int user_id
+        * As of v2.0.0, only returns 'mine' and 'unassigned' views
+        * NB: Assign the returned column the same name as the view;the JS will put the right count against a view by the same name
         */ 
-       public function get_filter_totals( $user_id, $recency){
+       public function get_filter_totals( $user_id, $recency ){
            global $wpdb;
            $query = "
-                SELECT * FROM (
-                SELECT COUNT(*) AS tab1 FROM {$wpdb->prefix}kanzusupport_tickets A
-                WHERE A.tkt_assigned_to = %d AND tkt_status != 'RESOLVED'
-                ) T1,
-                (SELECT COUNT(*) AS tab2 FROM {$wpdb->prefix}kanzusupport_tickets B
-                WHERE B.tkt_status != 'RESOLVED'
-                ) T2,
-                (
-                SELECT COUNT(*) AS tab3 FROM {$wpdb->prefix}kanzusupport_tickets C
-                WHERE C.tkt_assigned_to IS NULL 
-                ) T3,
-                (
-                SELECT COUNT(*) AS tab4 FROM {$wpdb->prefix}kanzusupport_tickets D
-                WHERE  D.tkt_time_updated < DATE_SUB(NOW(), INTERVAL %d HOUR)
-                ) T4,
-                (
-                SELECT COUNT(*) AS tab5 FROM {$wpdb->prefix}kanzusupport_tickets E
-                WHERE  E.tkt_time_updated < DATE_SUB(NOW(), INTERVAL %d HOUR) AND tkt_status = 'RESOLVED'
-                ) T5,
-                (
-                SELECT COUNT(*) AS tab6 FROM {$wpdb->prefix}kanzusupport_tickets F
-                WHERE  F.tkt_status = 'RESOLVED'
-                ) T6
+                    SELECT * FROM ( 
+                        SELECT COUNT({$wpdb->prefix}posts.ID) as mine FROM {$wpdb->prefix}posts INNER JOIN {$wpdb->prefix}postmeta ON ( {$wpdb->prefix}posts.ID = {$wpdb->prefix}postmeta.post_id ) WHERE 1=1 AND ( ( {$wpdb->prefix}postmeta.meta_key = '_ksd_tkt_info_assigned_to' AND CAST({$wpdb->prefix}postmeta.meta_value AS SIGNED) = '{$user_id}' ) ) AND {$wpdb->prefix}posts.post_type = 'ksd_ticket' AND (({$wpdb->prefix}posts.post_status = 'draft' OR {$wpdb->prefix}posts.post_status = 'pending' OR {$wpdb->prefix}posts.post_status = 'open' OR {$wpdb->prefix}posts.post_status = 'new') ) 
+                    ) T1,
+                    (	
+                    SELECT COUNT({$wpdb->prefix}posts.ID) as unassigned  FROM {$wpdb->prefix}posts INNER JOIN {$wpdb->prefix}postmeta ON ( {$wpdb->prefix}posts.ID = {$wpdb->prefix}postmeta.post_id ) WHERE 1=1 AND ( ( {$wpdb->prefix}postmeta.meta_key = '_ksd_tkt_info_assigned_to' AND CAST({$wpdb->prefix}postmeta.meta_value AS SIGNED) = '0' ) ) AND {$wpdb->prefix}posts.post_type = 'ksd_ticket' AND (({$wpdb->prefix}posts.post_status = 'draft' OR {$wpdb->prefix}posts.post_status = 'pending' OR {$wpdb->prefix}posts.post_status = 'open' OR {$wpdb->prefix}posts.post_status = 'new') ) 
+                    ) T2
                     ";
            
-           $value_parameters = array();
-           $value_parameters[] = $user_id;
-           $value_parameters[] = $recency;
-           $value_parameters[] = $recency;
-           
-           return $this->exec_prepare_query( $query, $value_parameters );
+           return $this->exec_query( $query);           
        }
          
          

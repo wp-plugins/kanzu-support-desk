@@ -80,6 +80,3 @@ include_once( KSD_PLUGIN_DIR. "includes/libraries/class-ksd-model.php");
         }
 
  }
- 
- 
- ?>

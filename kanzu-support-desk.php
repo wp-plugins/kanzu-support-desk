@@ -2,8 +2,8 @@
 /**
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
- * Description:       All-in-one WordPress customer service ( support ticket ) solution for your site
- * Version:           1.6.8
+ * Description:       Simple, powerful, personal customer service ( support ticket ) solution for your small business
+ * Version:           2.0.0
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '1.6.8';
+	public $version = '2.0.0';
 	
 	
 	/**
@@ -138,11 +138,11 @@ final class Kanzu_Support_Desk {
 			require_once( KSD_PLUGIN_DIR .  'includes/admin/class-ksd-admin.php' );
 		}
                 //The front-end
-                require_once( KSD_PLUGIN_DIR .  'includes/frontend/class-ksd-frontend.php' );
+                require_once( KSD_PLUGIN_DIR .  'includes/public/class-ksd-public.php' );
                 
                //Deliver plugin updates like pizza
                 if ( !class_exists('KSD_Plugin_Updater') ) {
-                    include_once( KSD_PLUGIN_DIR . '/includes/extras/class-ksd-plugin-updater.php' );
+                    include_once( KSD_PLUGIN_DIR . '/includes/libraries/class-ksd-plugin-updater.php' );
                 }
         }
 		
@@ -223,6 +223,33 @@ final class Kanzu_Support_Desk {
             require_once( KSD_PLUGIN_DIR .  'includes/admin/class-ksd-admin.php' );
             $ksd_admin =  KSD_Admin::get_instance();
             $ksd_admin->do_log_new_ticket( $new_ticket );
+        }
+        
+        /**
+          * Generate the signature added to ticket notifications
+          * @param int $tkt_id
+          * @param boolean $append_logo Whether to append a logo or not
+          * @since 1.7.0
+          */
+         public static function output_ksd_signature( $tkt_id, $append_logo = true ){
+            $suffix = '';
+            $no_logo_style = ( $append_logo ? '' : 'text-align:right;width:100%;' ); 
+            $permalink = '<a href="'.  get_permalink( $tkt_id ).'">'.__( 'View this ticket', 'kanzu-support-desk' )."</a>";
+            $suffix .='<table style="width:100%;border-collapse:collapse;border-top:1px solid #CCC;">
+                        <tbody>
+                            <tr>
+                                <td style="padding:0;'.$no_logo_style.'">'.$permalink.'</td>';
+            if  ( $append_logo ):  
+                    $suffix .=' <td style="text-align:right;width:100px;padding:0;">
+                                    <a href="https://kanzucode.com/kanzu-support-desk" style="color:#3572b0;text-decoration:none" target="_blank">
+                                        <img width="200" height="80" src="http://kanzucode.com/logos/kanzu_support_desk.png" alt="Kanzu Support Desk">
+                                    </a>
+                                </td>';
+            endif;
+                   $suffix .='</tr>
+                        </tbody>
+                       </table>';
+            return $suffix;
         }
         
 

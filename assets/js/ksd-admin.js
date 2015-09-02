@@ -1,5 +1,5 @@
 /*Load google chart first. */
-if ('undefined' !== typeof (google)) {
+if ( 'undefined' !== typeof (google) ) {
     google.load("visualization", "1", {packages: ["corechart"]});
 }
 
@@ -25,18 +25,16 @@ jQuery(document).ready(function () {
     
     
     /*
-     * Jquery plugin enhancements //@TODO Brilliant logic
+     * Jquery plugin enhancements 
      * //@TODO Are we sure this rule isn't called whenever we use the validator
-     * on any form?
+     * on any form? - Yes, it's only appended to specifiy forms.
      * //@TODO cc appears also on Ticket reply forms. Check how it performs on all forms
      */
     //Validation Rule for CC field
     jQuery.validator.addMethod("ccRule", function(value, element, options){
-        var targetEl = jQuery('input[name="'+options.data+'"]');
+        if( jQuery(element).val() ==ksd_admin.ksd_labels.lbl_CC ) return true;
 
-        if( targetEl.val() == "CC" ) return true;
-
-        emails = targetEl.val().split(",");
+        emails = jQuery(element).val().split(",");
         cnt    = emails.length;
         for( i = 0; i < cnt; i++){
             _status = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@(?:\S{1,63})$/.test(  emails[i] );
@@ -46,7 +44,36 @@ jQuery(document).ready(function () {
         }
         return true;
 
-    },"Wrong email format for CC");//@TODO This text needs to be internationalized
+    },ksd_admin.ksd_labels.validator_cc );
+    
+    //jQuery validator messages internationalization
+    jQuery.validator.messages.required  = ksd_admin.ksd_labels.validator_required;
+    jQuery.validator.messages.email     = ksd_admin.ksd_labels.validator_email;
+    jQuery.validator.messages.minlength = jQuery.validator.format( ksd_admin.ksd_labels.validator_minlength );
+
+    //Change default error placement ( errorPlacement ) for jquery form validator
+    //TODO: jQuery error " TypeError: e[d].call is not a function" during validation.
+    jQuery.validator.setDefaults({
+      errorPlacement: function(error, element){
+        jQuery(element).css(  "border-color", "red" );
+        
+         jQuery(element).attr('title', jQuery(error).html());
+        var tooltips = jQuery(element).tooltip({
+          position: {
+            my: "top bottom-10",
+            at: "left+120 top"
+          }
+        });
+        tooltips.tooltip( "open" );
+      },
+      success: function(label, element){
+          jQuery(element).css(  "border-color", "" );
+          jQuery(element).tooltip( "destroy" );
+      },
+      onfocusout: true,
+      ignoreTitle: true
+    });
+    
     
     /*---------------------------------------------------------------*/
     /***************************UTILITIES: Used by all the rest*******/
@@ -104,8 +131,9 @@ jQuery(document).ready(function () {
         _this = this;
     };
     KSDAnalytics.init = function () {
-        if( ksd_admin.admin_tab.substr(0, 4) !== "ksd-" ){//@since 1.6.4. Exclude non-KSD pages from stats
-          return;  
+        
+        if( ksd_admin.ksd_current_screen === "not_a_ksd_screen" ){//@since 1.6.4. Exclude non-KSD pages from stats
+          return;  //@TODO Update Analytics to send Tickets, Add New, Tags and Categories views
         }
         (function (i, s, o, g, r, a, m) {
             i['GoogleAnalyticsObject'] = r;
@@ -126,7 +154,7 @@ jQuery(document).ready(function () {
 
         //Send the page view for the current page. This is called the first time the page is loaded
         //so we get the current admin_tab from ksd_admin.admin_tab
-        this.sendPageView(ksd_admin.admin_tab);
+        this.sendPageView(ksd_admin.ksd_current_screen);
     };
     /**
      * Send a page view to Google Analytics
@@ -161,6 +189,8 @@ jQuery(document).ready(function () {
             this.modifyLicense();
             this.handleAddons();
             this.enableUsageStats();
+            this.doMigrationV2();
+            
         };
 
         /*
@@ -277,7 +307,6 @@ jQuery(document).ready(function () {
                         });
             });
 
-
             //Add Tooltips for the settings panel
             jQuery(".help_tip").tooltip();
             jQuery("span.ksd-tkt-status a").tooltip();
@@ -289,7 +318,7 @@ jQuery(document).ready(function () {
          * setting changes
          */
         this.toggleViewsToHide = function () {
-            var parentFieldsToToggle = ['show_support_tab', 'enable_new_tkt_notifxns', 'enable_recaptcha'];
+            var parentFieldsToToggle = ['show_support_tab', 'enable_new_tkt_notifxns', 'enable_recaptcha','enable_customer_signup'];
             jQuery.each(parentFieldsToToggle, function (i, field) {
                 //Toggle the view on click    
                 jQuery('input[name=' + field + ']').click(function () {
@@ -366,7 +395,50 @@ jQuery(document).ready(function () {
                 );
             });
         };
+        
+        /**
+         * Migrate tickets, private notes, etc to v2.0.0
+         * @returns {undefined}
+         */
+        this.doMigrationV2 = function () {
+                    //Expand migration tab
+                    if( null !== jQuery(location).attr("href").match(/active_tab=migration/)){
+                        var ind = jQuery("#ksd-migration-status").parent().parent().index();
+                        var idx = ((ind+1)/2)- 1;
+                        jQuery("div.ksd-settings-accordion").accordion( "option", "active", idx );
+                    }
 
+                    jQuery("#ksd-migration-tickets").click(function(){
+                        jQuery('.ksd-migration-spinner').addClass('is-active');
+                        jQuery("#ksd-migration-tickets").remove();
+                        jQuery("#ksd-migration-status").html( ksd_admin.ksd_labels.msg_migrationv2_started );
+                        var data = {
+                            action: "ksd_migrate_to_v2",
+                            ksd_admin_nonce: ksd_admin.ksd_admin_nonce
+                        };
+
+                        jQuery.post(ksd_admin.ajax_url, data, function (response) {
+                                jQuery('.ksd-migration-spinner').removeClass('is-active');
+                               jQuery("#ksd-migration-status").html(response);
+                        });
+                    });   
+                    
+                    jQuery("#ksd-migration-deletetickets").click(function(){
+                        jQuery('.ksd-migration-spinner').addClass('is-active');
+                        jQuery("#ksd-migration-deletetickets").remove();
+                        jQuery("#ksd-migration-status").html( ksd_admin.ksd_labels.msg_migrationv2_deleting );
+                        var data = {
+                            action: "ksd_deletetables_v2",
+                            ksd_admin_nonce: ksd_admin.ksd_admin_nonce
+                        };
+                        
+                        jQuery.post(ksd_admin.ajax_url, data, function (response) {
+                                jQuery('.ksd-migration-spinner').removeClass('is-active');
+                               jQuery("#ksd-migration-status").html(response);
+                        });
+                    });           
+        };
+        
     };//eof:KSDSettings
 
     /*---------------------------------------------------------------*/
@@ -375,7 +447,7 @@ jQuery(document).ready(function () {
     KSDDashboard = function () {
         _this = this;
 
-        this.init = function () {
+            this.init = function () {
             this.statistics();
             this.charts();
             this.notifications();
@@ -389,39 +461,15 @@ jQuery(document).ready(function () {
         _addClickEventToSummaries = function () {
 
             //Total Open Tickets
-            jQuery("#admin-kanzu-support-desk ul.dashboard-statistics-summary li:eq(0)").click(function () {
-                jQuery("#tabs").tabs("option", "active", 1);
-                jQuery("#ticket-tabs").tabs("option", "active", 0);
-
-                var tab_id = 1;
-                var currentTabID = "#tickets-tab-1";
-                var limit = jQuery(currentTabID + " .ksd-pagination-limit").val();
-                var search_text = jQuery(currentTabID + " .ksd_tkt_search_input").val();//Get val from the class on the input field, no need for ID
-                jQuery(currentTabID).addClass("pending");
-                var curPage = _getCurrentPage(tab_id);
-                _this.getTickets(currentTabID, search_text, limit, curPage - 1);
-
-                jQuery('.admin-ksd-title h2').html('Tickets'); //@TODO Internationalize this
+            jQuery("#admin-kanzu-support-desk ul.dashboard-statistics-summary li.open").click(function () {
+                window.location.href = "?post_status=all&post_type=ksd_ticket&ksd_statuses_filter=open";                
             });
 
             //Unassigned Tickets
-            jQuery("#admin-kanzu-support-desk ul.dashboard-statistics-summary li:eq(1)").click(function () {
-                jQuery("#tabs").tabs("option", "active", 1);
-                jQuery("#ticket-tabs").tabs("option", "active", 2);
-
-                var tab_id = 3;
-                var currentTabID = "#tickets-tab-3";
-                var limit = jQuery(currentTabID + " .ksd-pagination-limit").val();
-                var search_text = jQuery(currentTabID + " .ksd_tkt_search_input").val();//Get val from the class on the input field, no need for ID
-                jQuery(currentTabID).addClass("pending");
-                var curPage = _getCurrentPage(tab_id);
-                _this.getTickets(currentTabID, search_text, limit, curPage - 1);
-
-                jQuery('.admin-ksd-title h2').html('Tickets');//@TODO Internationalize this
+            jQuery("#admin-kanzu-support-desk ul.dashboard-statistics-summary li.unassigned").click(function () {
+                window.location.href = "?post_type=ksd_ticket&ksd_view=unassigned"; 
             });
-
-
-
+            
         }
         /*
          * Show statistics summary.
@@ -430,7 +478,7 @@ jQuery(document).ready(function () {
             /**AJAX: Retrieve summary statistics for the dashboard**/
             if (jQuery("ul.dashboard-statistics-summary").hasClass("pending")) {
                 jQuery.post(ksd_admin.ajax_url,
-                        {action: 'ksd_get_dashboard_summary_stats',
+                        {   action: 'ksd_get_dashboard_summary_stats',
                             ksd_admin_nonce: ksd_admin.ksd_admin_nonce
                         },
                 function (response) {
@@ -445,12 +493,12 @@ jQuery(document).ready(function () {
                         jQuery('ul.dashboard-statistics-summary').html(raw_response.error.message);
                         return;
                     }
-                    var unassignedTickets = ('undefined' !== typeof raw_response.unassigned_tickets[0] ? raw_response.unassigned_tickets[0].unassigned_tickets : 0);
-                    var openTickets = ('undefined' !== typeof raw_response.open_tickets[0] ? raw_response.open_tickets[0].open_tickets : 0)
-                    var averageResponseTime = ('undefined' !== typeof raw_response.average_response_time ? raw_response.average_response_time : '00:00');
+                    var unassignedTickets = ('undefined' !== typeof raw_response.unassigned_tickets ? raw_response.unassigned_tickets : 0);
+                    var openTickets = ('undefined' !== typeof raw_response.open_tickets ? raw_response.open_tickets : 0)
+                    var averageResponseTime = ('undefined' !== typeof raw_response.average_response_time ? raw_response.average_response_time : '00:00:00');
                     var the_summary_stats = "";
-                    the_summary_stats += "<li class='ksd-dash-click'><span>" + ksd_admin.ksd_labels.dashboard_open_tickets + "</span>" + openTickets + "</li>";
-                    the_summary_stats += "<li class='ksd-dash-click'><span>" + ksd_admin.ksd_labels.dashboard_unassigned_tickets + "</span>" + unassignedTickets + "</li>";
+                    the_summary_stats += "<li class='open ksd-dash-click'><span>" + ksd_admin.ksd_labels.dashboard_open_tickets + "</span>" + openTickets + "</li>";
+                    the_summary_stats += "<li class='unassigned ksd-dash-click'><span>" + ksd_admin.ksd_labels.dashboard_unassigned_tickets + "</span>" + unassignedTickets + "</li>";
                     the_summary_stats += "<li><span>" + ksd_admin.ksd_labels.dashboard_avg_response_time + "</span>" + averageResponseTime + "</li>";
                     jQuery("ul.dashboard-statistics-summary").html(the_summary_stats);
 
@@ -465,23 +513,19 @@ jQuery(document).ready(function () {
             try {
                 /**The dashboard charts. These have their own onLoad method so they can't be run inside jQuery( document ).ready({});**/
                 function ksdDrawDashboardGraph() {
+                    if ( 'ksd-dashboard' !== ksd_admin.ksd_current_screen ){
+                        return;
+                    }
                     jQuery.post(ksd_admin.ajax_url,
-                            {action: 'ksd_dashboard_ticket_volume',
+                            {   action: 'ksd_dashboard_ticket_volume',
                                 ksd_admin_nonce: ksd_admin.ksd_admin_nonce
                             },
-                    function (response) {
-                        //IMPORTANT! Google Charts, without width & height explicitly specified, are drawn
-                        //to fill the parent element. This doesn't work so well if the parent element is hidden
-                        //while the drawing is happening. In such cases, the final chart will have default dimensions (400px x 200px)
-                        //To work-around this, we first unhide our parent div just before drawing the chart
-                        var ksdChartContainer = document.getElementById('dashboard');
+                    function ( response ) {
                         var respObj = JSON.parse(response);
                         if ('undefined' !== typeof (respObj.error)) {
                             jQuery('#ksd_dashboard_chart').html(respObj.error.message);
                             return;
                         }
-                        if ('undefined' !== typeof google.visualization && null !== ksdChartContainer) //First check if we can draw a Google Chart
-                            ksdChartContainer.style.display = 'block';//Unhide the parent element
                         var ksdData = google.visualization.arrayToDataTable(respObj);
                         var ksdOptions = {
                             title: ksd_admin.ksd_labels.dashboard_chart_title
@@ -490,7 +534,7 @@ jQuery(document).ready(function () {
                         //Add a listener to know when drawing the chart is complete.                     
                         google.visualization.events.addListener(ksdDashboardChart, 'ready', function () {
                             if (!jQuery('ul.ksd-main-nav li:first').hasClass("ui-tabs-active")) {
-                                ksdChartContainer.style.display = 'none'; //If our dashboard tab isn't the selected one, we hide it. 
+                                //ksdChartContainer.style.display = 'none'; //If our dashboard tab isn't the selected one, we hide it. 
                             }
                         });
                         ksdDashboardChart.draw(ksdData, ksdOptions);
@@ -510,8 +554,11 @@ jQuery(document).ready(function () {
             });
             //Retrieve the notifications
             try {
+                if ( 'ksd-dashboard' !== ksd_admin.ksd_current_screen && 'ksd-addons' !== ksd_admin.ksd_current_screen && 'ksd-settings' !== ksd_admin.ksd_current_screen ){
+                    return;
+                }
                 jQuery.post(ksd_admin.ajax_url,
-                        {action: 'ksd_get_notifications',
+                        {   action: 'ksd_get_notifications',
                             ksd_admin_nonce: ksd_admin.ksd_admin_nonce
                         },
                 function (response) {
@@ -657,11 +704,11 @@ jQuery(document).ready(function () {
         _this = this;
         this.init = function () {
 
-            this.uiTabs();
+            //this.uiTabs();
             this.uiListTickets();
-            this.bulkTicketActions();
+            //this.bulkTicketActions();
             this.newTicket();
-            this.editTicketForm();
+            this.replyTicketForm();
 
             this.attachDeleteTicketEvent();
             this.attachChangeTicketStatusEvents();
@@ -669,7 +716,10 @@ jQuery(document).ready(function () {
             this.attachChangeSeverityEvents();
             this.attachMarkReadUnreadEvents();
             this.uiSingleTicketView();
-          //  this.attachCCFieldEvents();
+            this.attachCCFieldEvents();
+            
+            //Ticket info
+            this.ticketInfo();
             
             //Search
             this.TicketSearch();
@@ -680,13 +730,15 @@ jQuery(document).ready(function () {
             //Page Refresh
             this.attachRefreshTicketsPage();
         };
-
-
+        
         /*
          * Total ticket indicator in ticket filters
          */
 
         _totalTicketsPerFilter = function () {
+            if( 'ksd-ticket-list' !== ksd_admin.ksd_current_screen ){
+                return;
+            }
             var data = {
                 action: 'ksd_filter_totals',
                 ksd_admin_nonce: ksd_admin.ksd_admin_nonce
@@ -704,17 +756,27 @@ jQuery(document).ready(function () {
                     return;
                 }
 
-                if (jQuery.isArray(respObj)) {
-                    jQuery("#ticket-tabs ul li:eq(0) span").html("(" + respObj[0].tab1 + ")");
-                    jQuery("#ticket-tabs ul li:eq(1) span").html("(" + respObj[0].tab2 + ")");
-                    jQuery("#ticket-tabs ul li:eq(2) span").html("(" + respObj[0].tab3 + ")");
-                    jQuery("#ticket-tabs ul li:eq(3) span").html("(" + respObj[0].tab4 + ")");
-                    jQuery("#ticket-tabs ul li:eq(4) span").html("(" + respObj[0].tab5 + ")");
-                    jQuery("#ticket-tabs ul li:eq(5) span").html("(" + respObj[0].tab6 + ")");
+                if ( jQuery.isArray(respObj) ) {
+                    jQuery.each(respObj[0], function ( key, value) {
+                        jQuery( 'ul.subsubsub li.'+key+' a' ).append( '<span class="count"> ('+value+') </span>' );
+                    });
                 }
 
             });
-        }
+        };
+        
+        /**
+         * To each row in the ticket grid, add a class
+         * showing the row's severity
+         * @returns {undefined}
+         */
+        _addSeverityClassToTicketGrid = function(){        
+            jQuery("tbody#the-list tr").each(function() {
+              $this = jQuery(this);
+              var severity = $this.find("td.column-severity").html();
+              $this.addClass( severity );
+            });
+        };
 
         /**
          * Get tickets. Show a loading dialog while the tickets are being retrieved
@@ -862,16 +924,56 @@ jQuery(document).ready(function () {
          * List all tickets
          */
         this.uiListTickets = function () {
-            /*
-             * 
-             *Return the ticket row to normal size when mouse leaves the ticket options(ie trash, change status, assign) when
-             */
-            jQuery("#ticket-tabs").on('mouseleave', '.ksd-row-data', function (event) {
-                event.preventDefault();//Important otherwise the page skips around
-                jQuery(this).parent().find(".ticket-actions ul").addClass("hidden");
+            //Add counts to custom views
+            if ( jQuery ( 'ul.subsubsub li.mine' ) ){//If we are on the ticket grid and the custom views are shown
+                _totalTicketsPerFilter();
+                _addSeverityClassToTicketGrid();
+            }
+            
+            //Set current active view for our custom views
+            if( jQuery.urlParam('ksd_view') ) {
+                var currentView = jQuery.urlParam('ksd_view');
+                if( 'mine' === currentView || 'unassigned' === currentView ) {
+                    jQuery( 'li.'+currentView+' a' ).addClass( 'current' );
+                }
+            }
+        };//eof:
+        
+        /**
+         * Update ticket information
+         * @returns {undefined}
+         */
+        this.ticketInfo = function(){
+            jQuery('input#ksd-update-ticket-info').click(function(){
+                jQuery('#ksd-ticket-info-action span.spinner').addClass('is-active');
+                var post_title = jQuery('input[name=post_title]').val();
+                if ( undefined === post_title ){
+                    post_title = jQuery( '#titlewrap h2.post_title' );
+                }
+                var data = {
+                    action: 'ksd_update_ticket_info',
+                    ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
+                    tkt_id: jQuery.urlParam('post'),
+                    ksd_reply_title: post_title, 
+                    ksd_tkt_info: jQuery("select[name^='_ksd_tkt_info_']").serialize()
+                };
+            jQuery.post( ksd_admin.ajax_url, data, function (response) {
+                var respObj = {};
+                 jQuery('#ksd-ticket-info-action span.spinner').removeClass('is-active');
+                //To catch cases when the ajax response is not json
+                try {
+                    //To reduce cost of recalling parse
+                    respObj = JSON.parse(response);
+                } catch (err) {
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
+                    return;
+                }
+                //Refresh the ticket activity
+               _this.getTicketActivity();
             });
-
-        }//eof:
+            });
+            
+        }
 
         /*
          * Make changes to tickets in bulk
@@ -1152,16 +1254,27 @@ jQuery(document).ready(function () {
         //--------------------------------------------------------------------------------------
         /**AJAX: Send a single ticket response when it's been typed and 'Reply' is hit**/
         //Also, update the private note when 'Update Note' is clicked  
-        this.replyTicketAndUpdateNote = function (form) {
-            var action = jQuery("input[name=action]").attr("value");
-            KSDUtils.showDialog("loading");//Show a dialog message
+        this.replyTicketAndUpdateNote = function () {
+            var action = jQuery("input#ksd-reply-ticket-submit").attr("name");//ksd_reply_ticket or ksd_update_private_note
+            jQuery('.ksd-reply-spinner').removeClass('hidden').addClass('is-active');
             tinyMCE.triggerSave();//Very important. Without this, the reply's text won't be 'seen' by the serialize below
-            jQuery.post(ksd_admin.ajax_url,
-                    jQuery(form).serialize(), //The action, nonce and TicketID are hidden fields in the form
+            var post_title = jQuery('input[name=post_title]').val();//Our JS replaces this field with an h2 field. We keep this here just as a fallbback
+            if ( 'undefined' === typeof ( post_title ) ){
+                post_title = jQuery( '#titlewrap h2.post_title' ).text();//This is the title we expect to get always
+            }
+            jQuery.post(    ksd_admin.ajax_url,
+                    {   action: action,
+                        ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
+                        ksd_ticket_reply: tinyMCE.activeEditor.getContent(),
+                        ksd_reply_title: post_title,
+                        tkt_private_note: jQuery('textarea[name=tkt_private_note]').val(),
+                        tkt_id: jQuery.urlParam('post')
+                    },
                     function (response) {
                         var respObj = {};
                         //To catch cases when the ajax response is not json
                         try {
+                            jQuery('.ksd-reply-spinner').removeClass('is-active').addClass('hidden');
                             //to reduce cost of recalling parse
                             respObj = JSON.parse(response);
                         } catch (err) {
@@ -1174,24 +1287,27 @@ jQuery(document).ready(function () {
                             KSDUtils.showDialog("error", respObj.error.message);
                             return;
                         }
+                        
+                        var d = new Date();
+                        replyData = "<li class='ticket-reply "+respObj.post_type+"'>";
+                        replyData += "<span class='reply_author'>"+respObj.post_author+"</span>";
+                        replyData += '<span class="reply_date">' + d.toLocaleString() + '</span>';
+                        replyData += "<div class='reply_message'>";
 
-                        switch (action) {
+                        switch ( action ) {
                             case "ksd_update_private_note":
                                 KSDUtils.showDialog("success", respObj);
+                                replyData += jQuery('textarea[name=tkt_private_note]').val();//Get the content                          
+                                jQuery('textarea[name=tkt_private_note]').val('');//Clear the field
                                 break;
                             default:
-                                KSDUtils.showDialog("success", ksd_admin.ksd_labels.msg_reply_sent);
-                                var d = new Date();
-                                replyData = "<div class='ticket-reply'>";
-                                replyData += "<span class='reply_author'></span>";
-                                replyData += '<span class="reply_date">' + d.toLocaleString() + '</span>';
-                                replyData += "<div class='reply_message'>";
-                                replyData += tinyMCE.activeEditor.getContent();
-                                replyData += "</div></div>";
-                                jQuery("#ticket-replies").append(replyData);
-                                //Clear the reply field
-                                tinyMCE.activeEditor.setContent('');
+                                KSDUtils.showDialog( "success", ksd_admin.ksd_labels.msg_reply_sent );
+                                replyData += tinyMCE.activeEditor.getContent();//Get the content                                 
+                                tinyMCE.activeEditor.setContent(''); //Clear the reply field
                         }
+                        replyData += "</div>";
+                        replyData += "</li>";
+                        jQuery("ul#ksd-ticket-replies").append( replyData );
                     });
         };
         
@@ -1239,17 +1355,16 @@ jQuery(document).ready(function () {
             jQuery('.ksd_extra').toggle();
         };
 
-        this.editTicketForm = function () {
-            //_toggleCCField();
-            
-            jQuery("form#edit-ticket").validate({
-              //  rules: {
-              //      "ksd_tkt_cc": { "ccRule": { data: "ksd_tkt_cc" } }
-             //   },
+        this.replyTicketForm = function () {
+            jQuery("form#edit-ticket").validate({//@TODO Might have to remove this validation altogether
                 submitHandler: function (form) {
                     _this.replyTicketAndUpdateNote(form);
                 }
             });
+            jQuery('input#ksd-reply-ticket-submit').click(function ( e ) {
+                e.preventDefault();
+                _this.replyTicketAndUpdateNote();
+            });    
 
             /*-------------------------------------------------------------------------------------------------
              * AJAX: Log New ticket
@@ -1282,11 +1397,19 @@ jQuery(document).ready(function () {
                                         ksd_admin_nonce: ksd_admin.ksd_admin_nonce
                                     },
                             function (response) {
-                                //@TODO We currently don't do anything with this response
-                            });
-
+                                //To catch cases when the ajax response is not json
+                            try {
+                                //to reduce cost of recalling parse
+                                respObj = JSON.parse(response);
+                            } catch (err) {
+                                KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
+                                return;
+                            }
+                            //Show notifications sent message
+                            KSDUtils.showDialog("success", respObj);
                             //Redirect to the Tickets page
                             window.location.replace(ksd_admin.ksd_tickets_url);
+                            });
                         });
                 ;
             };
@@ -1306,8 +1429,7 @@ jQuery(document).ready(function () {
                     default:
                         submitButtonText = ksd_admin.ksd_labels.tkt_reply;
                 }
-                jQuery("input[name=action]").attr("value", "ksd_" + action);
-                jQuery("input[name=edit-ticket]").attr("value", submitButtonText);
+                jQuery("input#ksd-reply-ticket-submit").attr("value", submitButtonText).attr("name",  "ksd_" + action );
             });
 
             /**For the Reply/Forward/Private Note tabs that appear when viewing a single ticket.*/
@@ -1323,28 +1445,22 @@ jQuery(document).ready(function () {
 
             /*On focus, Toggle customer name, email and subject */
             _toggleFieldValues();
-            //_toggleCCField();
             //This mousedown event is very important; without it, the wp_editor value isn't sent by AJAX
             jQuery('form.ksd-new-ticket-admin :submit').mousedown(function () {
                 tinyMCE.triggerSave();
             });
             
-
-            
             /**Validate New Tickets before submitting the form by AJAX**/
             jQuery("form.ksd-new-ticket-admin").validate({
-               // rules: {
-               //     "ksd_tkt_cc": { "ccRule": { data: "ksd_tkt_cc" } }
-              //  },
                 submitHandler: function (form) {
                     ksdLogNewTicketAdmin(form);
                 }
             });
             //Add Attachments
             jQuery('[id^="ksd-add-attachment-"]').click(function () {
-                var targetUL = 'ksd-attachments';
+                var targetUL = 'ksd_attachments';
                 if (jQuery(this).hasClass('ksd_ticket_reply')) {//This is an attachment in single ticket view
-                    targetUL = 'ksd-attachments-single-ticket';
+                    targetUL = 'ksd_attachments-single-ticket';
                 }
                 if (this.window === undefined) {
                     this.window = wp.media({
@@ -1358,9 +1474,9 @@ jQuery(document).ready(function () {
                         jQuery.each(files, function (key, attachmentRaw) {
                             attachment = attachmentRaw.toJSON();
                             attachmentLink = '<a href="' + attachment.url + '">' + attachment.filename + ' <span="ksd-attach-filesize"> ( ' + attachment.filesizeHumanReadable + ' )</span></a>';
-                            attachmentFormInputUrl = '<input type="hidden" name="ksd-attachments[url][]" value="' + attachment.url + '" />';
-                            attachmentFormInputTitle = '<input type="hidden" name="ksd-attachments[size][]" value="' + attachment.filesizeHumanReadable + '" />';
-                            attachmentFormInputSize = '<input type="hidden" name="ksd-attachments[filename][]" value="' + attachment.filename + '" />';
+                            attachmentFormInputUrl = '<input type="hidden" name="ksd_attachments[url][]" value="' + attachment.url + '" />';
+                            attachmentFormInputTitle = '<input type="hidden" name="ksd_attachments[size][]" value="' + attachment.filesizeHumanReadable + '" />';
+                            attachmentFormInputSize = '<input type="hidden" name="ksd_attachments[filename][]" value="' + attachment.filename + '" />';
                             attachmentFormInput = attachmentFormInputUrl + attachmentFormInputTitle + attachmentFormInputSize;
                             jQuery('ul#' + targetUL).append('<li>' + attachmentLink + '<span class="ksd-close-dialog"></span>' + attachmentFormInput + '</li>');
                         });
@@ -1379,87 +1495,20 @@ jQuery(document).ready(function () {
 
         this.uiTabs = function () {
 
-            /**For the tickets tabs**/
-            jQuery("#ticket-tabs").tabs();
-
             /*Switch the active tab depending on what page has been selected*/
             activeTab = 0;
-            switch (ksd_admin.admin_tab) {
-                case "ksd-tickets":
-                    activeTab = 1;
-                    break;
-                case "ksd-new-ticket":
-                    activeTab = 2;
-                    break;
-                case "ksd-settings":
-                    activeTab = 3;
-                    break;
-                case "ksd-addons":
-                    activeTab = 4;
-                    break;
-                case "ksd-help":
-                    activeTab = 5;
-                    break;
-            }
+             
             //If we are in tour mode, activate the dashboard
             if (ksd_admin.ksd_tour_pointers.ksd_intro_tour) {
                 activeTab = 0;
             }
-            jQuery("#tabs").tabs("option", "active", activeTab);
-            //Set the title
-            jQuery('.admin-ksd-title h2').html(ksd_admin.admin_tab.replace("ksd-", "").replace(/\-/g, " "));
-
-            /**AJAX: Send the AJAX request to change ticket owner on selecting new person to 'Assign to'**/
-            jQuery("#ticket-tabs").on('click', '.ticket-actions ul.assign_to li', function () {
-                KSDUtils.showDialog("loading");
-                var tkt_id = jQuery(this).parent().parent().attr("id").replace("tkt_", "");//Get the ticket ID
-                var assign_assigned_to = jQuery(this).attr("id");
-                jQuery.post(ksd_admin.ajax_url,
-                        {action: 'ksd_assign_to',
-                            ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
-                            tkt_id: tkt_id,
-                            ksd_current_user_id: ksd_admin.ksd_current_user_id,
-                            tkt_assign_assigned_to: assign_assigned_to
-                        },
-                function (response) {
-                    var respObj = {};
-                    //To catch cases when the ajax response is not json
-                    try {
-                        //to reduce cost of recalling parse
-                        respObj = JSON.parse(response);
-                    } catch (err) {
-                        KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
-                        return;
-                    }
-
-                    //Check for error in request.
-                    if ('undefined' !== typeof (respObj.error)) {
-                        KSDUtils.showDialog("error", respObj.error.message);
-                        return;
-                    }
-                    KSDUtils.showDialog( "success", respObj );
-                });
-            });
-
-
 
             /**Change the title onclick of a side navigation tab*/
             jQuery("#tabs .ksd-main-nav li a").click(function () {
                 jQuery('.admin-ksd-title h2').html(jQuery(this).attr('href').replace("#", "").replace("_", " "));//Remove the hashtag, replace _ with a space
-                if ("yes" === ksd_admin.enable_anonymous_tracking) {
+                if ("yes" === ksd_admin.enable_anonymous_tracking) { 
                     KSDAnalytics.sendPageView(jQuery(this).attr('href').replace("#", "ksd-").replace("_", "-"));//Make it match the admin_tab format e.g. ksd-dashboard, ksd-tickets, etc
                 }
-            });
-
-            /**Pre-populate the first tab in the tickets view*/
-            if (jQuery("#tickets-tab-1").hasClass("pending")) {
-                _this.getTickets("#tickets-tab-1");
-            }
-            /**Do AJAX calls for filtering tickets on click of any of the tabs**/
-            jQuery("#ticket-tabs li a").click(function () {
-                _this.getTickets(jQuery(this).attr('href'));
-                //Hide the bulk sub menu if it is displayed. addClass checks if a class exists before adding it
-                jQuery('.ticket-actions-top-menu').addClass('hidden');
             });
 
         };
@@ -1504,23 +1553,28 @@ jQuery(document).ready(function () {
          *  Attach event on send as email check box to show cc field
          */
          this.attachCCFieldEvents = function () {
-
+            jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"none"});
+            jQuery('a.ksd-new-ticket-cc').click( function(){
+                jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"block"});
+            });
             if ( jQuery( "form.ksd-new-ticket-admin input[name=ksd_send_email]" ).attr("checked") == "checked")
             {
-                jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"block"});
+                jQuery('a.ksd-new-ticket-cc').css({"display":"block"});
             }else{
-                jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"none"});
+                jQuery('a.ksd-new-ticket-cc').css({"display":"none"});
             }
-             
+            
             //Attach event
             jQuery( "form.ksd-new-ticket-admin input[name=ksd_send_email]" ).change(function() {
                 if( jQuery(this).attr("checked") == "checked"){
-                    jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"block"});
+                    jQuery('a.ksd-new-ticket-cc').css({"display":"block"});
                 }else{
+                    jQuery('a.ksd-new-ticket-cc').css({"display":"none"});
                     jQuery("form.ksd-new-ticket-admin input[name=ksd_tkt_cc]").css({"display":"none"});
                 }
             });
-         }
+            
+         };
 
         /**
          * Attach an event to the items that change ticket status
@@ -1661,54 +1715,22 @@ jQuery(document).ready(function () {
         };
 
         this.uiSingleTicketView = function () {
-            /**AJAX: In single ticket view mode, get the current ticket's description, sender and subject and any private notes*/
-            if (jQuery("#ksd-single-ticket .description").hasClass("pending")) {
-                jQuery.post(ksd_admin.ajax_url,
-                        {action: 'ksd_get_single_ticket',
-                            ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
-                            tkt_id: jQuery.urlParam('ticket')//We get the ticket ID from the URL
-                        },
-                function (response) {
-                    var respObj = {};
-                    //To catch cases when the ajax response is not json
-                    try {
-                        //to reduce cost of recalling parse
-                        respObj = JSON.parse(response);
-                    } catch (err) {
-                        KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh );
-                        return;
-                    }
-
-                    //Check for error in request.
-                    if ('undefined' !== typeof (respObj.error)) {
-                        KSDUtils.showDialog("error", respObj.error.message);
-                        return;
-                    }
-                    the_ticket = respObj;
-                    jQuery("#ksd-single-ticket h1.ksd-single-ticket-subject").html(the_ticket.tkt_subject);
-                    jQuery("#ksd-single-ticket span.author").text(the_ticket.tkt_cust_id);//We use text, not HTML because the <> in the email would be misinterpreted
-                    jQuery("#ksd-single-ticket span.date").html(the_ticket.tkt_time_logged);//@TODO Format this
-                    jQuery("#ksd-single-ticket .description").removeClass("pending").html(the_ticket.tkt_message).text();
-                    jQuery("#ksd-single-ticket textarea[name=tkt_private_note]").val(the_ticket.tkt_private_note);
-                    //The Attachments
-                    if (!jQuery.isEmptyObject(the_ticket.attachments)) {
-                        jQuery("#ksd-single-ticket .description").append('<ul id="ksd-attachments"></ul>');
-                        jQuery.each(the_ticket.attachments, function (key, attachment) {
-                            jQuery('ul#ksd-attachments').append('<li><a href="' + attachment.attach_url + '">' + attachment.attach_filename + ' ( ' + attachment.attach_size + ' )</a>');
-                        });
-                    }
-                    jQuery("#ticket-replies p.loading").html(ksd_admin.ksd_labels.msg_still_loading);
-                    //Make the 'Back' button visible
-                    jQuery(".top-nav li.back").removeClass("hidden");
-
-                    //Now get the responses. For cleaner code and to remove reptition in the returned results, we use multiple
-                    //queries instead of a JOIN. The impact on speed is negligible
+            //Add a class ksd-ticket to all ticket single views
+            if( jQuery.urlParam('post') > 0 && jQuery( '.ksd-misc-customer' ).length ){
+                jQuery( '#post-body' ).addClass( 'ksd-ticket-post-body' );
+                //Replace the ticket title with an h2 item
+                jQuery( '#titlewrap label#title-prompt-text' ).remove();
+                jQuery( '#titlewrap' ).html ( '<h2 class="post_title">'+jQuery( '#titlewrap input#title').val() +'</h2>' );
+            }
+            /**AJAX: In single ticket view mode, get the current ticket's replies*/
+            if ( jQuery( "#ksd-ticket-replies" ).hasClass( "pending" ) ) {
+                    //Now get the responses.  
                     jQuery.post(ksd_admin.ajax_url,
-                            {action: 'ksd_get_ticket_replies',
+                            {   action: 'ksd_get_ticket_replies',
                                 ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
-                                tkt_id: jQuery.urlParam('ticket')//We get the ticket ID from the URL
+                                tkt_id: jQuery.urlParam('post')//We get the ticket ID from the URL
                             },
-                    function (the_replies) {
+                    function ( the_replies ) {
                         var respObj = {};
                         //To catch cases when the ajax response is not json
                         try {
@@ -1726,34 +1748,166 @@ jQuery(document).ready(function () {
                         }
 
                         repliesData = "";
-                        jQuery.each(respObj, function (key, value) {
-                            repliesData += "<div class='ticket-reply'>";
-                            repliesData += "<span class='reply_author'>" + value.rep_created_by + "</span>";
-                            repliesData += "<span class='reply_date'>" + value.rep_date_created + "</span>";
-                            repliesData += "<div class='reply_message'>" + _this.formatSingleReplyMessage(value.rep_message) + "</div>";                            
-                            //The Reply's Attachments
+                        jQuery.each(respObj, function ( key, value) {
+                            repliesData += "<li class='ticket-reply " + value.post_type + "'>";
+                            repliesData += "<span class='reply_author'>" + value.post_author + "</span>";
+                            repliesData += "<span class='reply_date'>" + value.post_date + "</span>";
+                            
+                            //cc //@TODO Update this
+                            if( value.rep_cc != null && value.rep_cc.match(/@/)){
+                                repliesData += "<div><span class='ksd_cc'>" + ksd_admin.ksd_labels.lbl_CC + ": "+ value.rep_cc + "</span></div>";
+                                jQuery("#edit-ticket #reply_toall_button").attr("data", value.rep_cc);
+                                jQuery("#edit-ticket #reply_toall_button").attr("hascc", "1");
+                                jQuery("#edit-ticket #reply_toall_button").css({"display":"inline-block"});
+                            }
+                            
+                            repliesData += "<div class='reply_message'>" + _this.formatSingleReplyMessage(value.post_content) + "</div>";                            
+                            //The Reply's Attachments //@TODO Update this to retrieve attachments
                             if (!jQuery.isEmptyObject(value.attachments)) {
-                                repliesData += '<ul id="ksd-attachments">';
+                                repliesData += '<ul id="ksd_attachments">';
                                 jQuery.each(value.attachments, function (key, attachment) {
                                     repliesData += '<li><a href="' + attachment.attach_url + '">' + attachment.attach_filename + ' ( ' + attachment.attach_size + ' )</a></li>';
                                 });
                                 repliesData += '</ul>';
                             }
-                            repliesData += "</div>";
+                            repliesData += "</li>";
                         });
-                        jQuery("#ticket-replies").html(repliesData);
+                        
+                        jQuery("ul#ksd-ticket-replies").html(repliesData);
                         //Toggle the color of the reply background
                         // jQuery("#ticket-replies div.ticket-reply").filter(':even').addClass("alternate");
                         //Clean-up the replies to make them more user-friendly
                         _this.formatTicketReplies();
-                        //Scroll to the bottom
-                        jQuery('html, body').animate({scrollTop: jQuery(".edit-ticket").offset().top}, 1400, "swing");
+                        //Scroll to the bottom @TODO Scroll
+                        //jQuery('html, body').animate({scrollTop: jQuery(".edit-ticket").offset().top}, 1400, "swing");
                     });
-                });
+                    
+                    //Add click event to the reply to all button.   //@TODO Update this                     
+                    jQuery("#edit-ticket #reply_toall_button").click(function(){
+                        jQuery("form#edit-ticket input[name=ksd_tkt_cc]").css({"display":"block"});
+                        jQuery("form#edit-ticket input[name=ksd_tkt_cc]").val( jQuery(this).attr("data"));
+                    });
+                    
             }
+            
+            if ( jQuery("#ksd-activity-metabox").hasClass("pending")) {
+                _this.getTicketActivity();                
+            }; 
+            //Modify the submitdiv
+            _this.modifySubmitDiv();    
         };//eof:this.uiSingleTicketView
+        
+        /**
+         * Modify the submit div in reply ticket & new ticket modes
+         * @returns {undefined}
+         */
+        this.modifySubmitDiv = function () {
+            //Check if this is our (ticket) page
+            if( 'ksd_ticket' !== jQuery.urlParam('post_type') && !jQuery('#ksd-messages-metabox').length ) return;
+            //Manually move the submitdiv to ensure it is the first element
+            jQuery("#submitdiv.postbox").prependTo("#side-sortables.meta-box-sortables");
+            //Modify the post status options available
+            jQuery( 'select#post_status' ).html( ksd_admin.ksd_ticket_info.status_list );
+            //Show the current status. Get it from #hidden_ksd_post_status. We add a class to capitalize the text
+            var currentStatus = jQuery( '#hidden_ksd_post_status').val();
+            if ( 'auto-draft' === currentStatus ){
+                currentStatus = 'open';
+            }
+            jQuery('#post-status-display').text( currentStatus  ).addClass('ksd-post-status-display').addClass( currentStatus );
+            jQuery( 'a.save-post-status' ).click( function( event ) {//On change status, add the new status to the hidden hidden_ksd_post_status field
+                event.preventDefault();
+                var newStatus =  jQuery('option:selected', jQuery('#post_status') ).val();
+                jQuery( '#hidden_ksd_post_status' ).val( newStatus );
+                //Replace the classes wrapping the displayed status
+                jQuery('#post-status-display').removeClass().addClass('ksd-post-status-display').addClass( newStatus );                
+            });
+           //Change the 'Save Draft' button text to just 'Save'
+           jQuery( '#save-post' ).val( ksd_admin.ksd_labels.lbl_save );   
+           //Cancel a change 'assign to' or 'severity'
+           jQuery( 'a.cancel-severity,a.cancel-assign-to,a.cancel-customer' ).click( function( event ){
+               event.preventDefault();
+               jQuery(this).parent().addClass('hidden');
+           });
+           //Edit 'assign to' or 'severity'
+           jQuery( 'a.edit-assign-to,a.edit-severity,a.edit-customer' ).click( function( event ){
+               event.preventDefault();
+               jQuery(this).parent().find('div.ksd_tkt_info_wrapper').removeClass('hidden');
+           });
+           //Save 'Assign to' or 'severity'
+            jQuery( 'a.save-severity,a.save-assign-to,a.save-customer' ).click( function( event ){
+               event.preventDefault();
+               var theParent = jQuery(this).parent();
+               var newValue =  jQuery('option:selected', theParent.find('select') ).text();              
+               //Add class for severity.
+               if (  theParent.parent().hasClass( 'ksd-misc-severity') ){
+                    theParent.parent().find( '.ksd-misc-value' ).text( newValue ).removeClass().addClass('ksd-misc-value').addClass( newValue.toLowerCase() );
+               }//Add class for customer
+               if (  theParent.parent().hasClass( 'ksd-misc-customer') ){
+                    theParent.parent().find( '.ksd-misc-value' ).text( newValue ).removeClass().addClass('ksd-misc-value').addClass( newValue.toLowerCase() );
+                }else{
+                    theParent.parent().find( '.ksd-misc-value' ).text( newValue );   
+               }
+               theParent.addClass('hidden');
+           });
+           //Change the 'Publish' button to 'Update'. Ensure that we are on a KSD ticket page
+           if( jQuery.urlParam('post') > 0 && jQuery( '.ksd-misc-customer' ) ){
+               jQuery( '#publish' ).val( ksd_admin.ksd_labels.lbl_update );               
+           }
+           
+           //Hide Visibility for ksd_ticket post types
+           jQuery('#submitdiv #visibility').hide();
+           
+           //Hide Publish Date for ksd_ticket post types
+           jQuery('#submitdiv #timestamp').parent().hide();
+           //Add a 'Created on' element if we are replying a ticket
+           if( jQuery.urlParam('post') > 0 ){
+                var  createdOn = '<div class="misc-pub-section curtime misc-pub-curtime" style="">';
+                     createdOn+='<span id="timestamp">';
+                     createdOn+=ksd_admin.ksd_labels.lbl_created_on+': <b>'+jQuery('#submitdiv #timestamp b').text()+'</b></span>';	
+                     createdOn+='</div>';
+                jQuery('#misc-publishing-actions').append( createdOn );      
+            }
+        };
 
+        /**
+         * Get a ticket's activity
+         * @returns {undefined}
+         */
+        this.getTicketActivity = function () {
+            jQuery.post(ksd_admin.ajax_url,
+                    {   action: 'ksd_get_ticket_activity',
+                        ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
+                        ksd_reply_title: jQuery('input[name=post_title]').val(),
+                        tkt_id: jQuery.urlParam('post')//We get the ticket ID from the URL
+                    },
+            function (response) {
+                var respObj = {};
+                //To catch cases when the ajax response is not json
+                try {
+                    //to reduce cost of recalling parse
+                    respObj = JSON.parse(response);
+                } catch (err) {
+                    KSDUtils.showDialog("error", ksd_admin.ksd_labels.msg_error_refresh);
+                    return;
+                }
 
+                //Check for error in request.
+                if ('undefined' !== typeof (respObj.error)) {
+                    KSDUtils.showDialog("error", respObj.error.message);
+                    return;
+                }
+                if ( ! jQuery.isArray(respObj)) {
+                    jQuery("#ksd-activity-metabox").html(respObj);
+                    return;
+                }
+                var ticketActivityData = '<ul>';
+                jQuery.each( respObj, function ( key, ticketActivity ) {
+                    ticketActivityData+='<li>'+ticketActivity.post_date+' '+ticketActivity.post_author+' '+ticketActivity.post_content+'</li>';
+                });
+                ticketActivityData+='</ul>';
+                jQuery("#ksd-activity-metabox").html(ticketActivityData);
+            });
+        };
 
         /**Toggle the form field values for new tickets on click**/
         _toggle_form_field_input = function(event) {
@@ -1767,7 +1921,8 @@ jQuery(document).ready(function () {
             var new_form_fields = {
                 "ksd_tkt_subject": ksd_admin.ksd_labels.tkt_subject,
                 "ksd_cust_fullname": ksd_admin.ksd_labels.tkt_cust_fullname,
-                "ksd_cust_email": ksd_admin.ksd_labels.tkt_cust_email
+                "ksd_cust_email": ksd_admin.ksd_labels.tkt_cust_email,
+                "ksd_tkt_cc": ksd_admin.ksd_labels.lbl_CC
             };
             //Attach events to the fields  
             jQuery.each(new_form_fields, function (field_name, form_value) {
@@ -1781,23 +1936,8 @@ jQuery(document).ready(function () {
                 }, _toggle_form_field_input);
             });
         };
-        
-        
-        _toggleCCField = function(){//@TODO Move this to the function above (_toggleFieldValues)
-            jQuery('input[name=ksd_tkt_cc]').on('focus', {
-                    old_value: "CC",
-                    new_value: ""
-            }, _toggle_form_field_input);
-                
-            jQuery('input[name=ksd_tkt_cc]').on('blur', {
-                    old_value: "",
-                    new_value: "CC"
-            }, _toggle_form_field_input);
-        }
 
         this.TicketPagination = function () {
-
-
             //start:Limit
             //Removed mouseout. Was sending multiple AJAX calls at the same time. 
             jQuery(".ksd-pagination-limit").bind("mouseleave", function () {
