@@ -594,7 +594,8 @@ class KSD_Admin {
                 $tkt_info_old_value = get_post_meta( $tkt_id, $tkt_info_meta_key, true );  
                 
                 if ( '' ==  $tkt_info_old_value  ){//This is a new ticket. 
-                    add_post_meta( $tkt_id, $tkt_info_meta_key, $tkt_info_default_value, true ); 
+                    $tkt_info_meta_value = ( $tkt_info_default_value == $meta_array[$tkt_info_meta_key] ? $tkt_info_default_value : $meta_array[$tkt_info_meta_key] );
+                    add_post_meta( $tkt_id, $tkt_info_meta_key, $tkt_info_meta_value, true ); 
                     continue;
                 }
                 if(  $tkt_info_old_value == $meta_array[$tkt_info_meta_key] ){
@@ -686,7 +687,7 @@ class KSD_Admin {
 
 		return array_merge(
 			array(
-				'settings' => '<a href="' . admin_url( 'admin.php?page=ksd-settings' ) . '">' . __( 'Settings', 'kanzu-support-desk' ) . '</a>'
+				'settings' => '<a href="' . admin_url( 'edit.php?post_type=ksd_ticket&page=ksd-settings' ) . '">' . __( 'Settings', 'kanzu-support-desk' ) . '</a>'
 			),
 			$links
 		);
@@ -1286,6 +1287,11 @@ class KSD_Admin {
         public function do_log_new_ticket( $new_ticket ){      
             $this->do_admin_includes();
             $TC = new KSD_Tickets_Controller();
+            //Check if this was initiated from our notify_email, in which case it is a reply/new ticket from an agent  
+            $ksd_settings = Kanzu_Support_Desk::get_settings();
+            if( $ksd_settings['notify_email'] == $new_ticket->cust_email ){
+                $agent_initiated_ticket = true;
+            }
             //First check if the ticket initiator exists in our users table. 
             $customer_details = get_user_by ( 'email', $new_ticket['ksd_cust_email'] );
             if ( $customer_details ){//Customer's already in the Db, get their customer ID  
@@ -1311,6 +1317,9 @@ class KSD_Admin {
                }
 
             }
+            if ( $agent_initiated_ticket ){//This is a new ticket from an agent. We attribute it to the primary admin in the system
+                $new_ticket->tkt_cust_id = 1;
+            }
             //This is a new ticket
             $this->log_new_ticket( $new_ticket, true );                        
         }
@@ -1334,6 +1343,7 @@ class KSD_Admin {
             }
             return $_POST;
         }
+        
         
         /**
          * Change a new ticket object into a $_POST array. $POST arrays are 

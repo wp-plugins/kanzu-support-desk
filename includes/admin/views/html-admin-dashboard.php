@@ -9,3 +9,9 @@
 	
 
 <!--Top Agents-->
+
+<script type="text/javascript">
+    jQuery(function(){
+        jQuery('.admin-ksd-title h2').html('<?php _e('Dashboard','kanzu-support-desk');?>');
+    });
+</script>

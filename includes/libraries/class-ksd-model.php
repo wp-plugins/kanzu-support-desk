@@ -161,4 +161,12 @@
 		return (new stdClass());
 	}
         
+        /**
+         * Sets the model tablename
+         * 
+         * @param type $tablename
+         */
+        public function set_tablename( $tablename ){
+            $this->_tablename = $tablename;
+        }
  }

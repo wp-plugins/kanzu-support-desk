@@ -182,21 +182,7 @@ class KSD_Install {
             $wpdb->hide_errors();
             $dbChanges = array();//Holds all DB change queries
             $sanitized_version =  str_replace('.', '', $previous_version) ;
-            if( (int) $sanitized_version < 150 ){//@since 1.5.4 If the previous version is less than 1.5.0, make some changes. 1.5.0 marked a change in a no. of things
-                //Add 'NEW' to tkt_status ENUM, change the default tkt_status from 'OPEN' to 'NEW'
-                $dbChanges[]="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_status` `tkt_status` ENUM('NEW','OPEN','ASSIGNED','PENDING','RESOLVED') DEFAULT 'NEW';";
-
-                //Drop the foreign key constraint. With it, the KSD user won't be able to delete WP users
-                $dbChanges[]="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` DROP FOREIGN KEY `tkts_custid_fk`;";            
-
-                //Change tkt_cust_id's attributes to match those of WP_users.ID
-                $dbChanges[]="ALTER TABLE `{$wpdb->prefix}kanzusupport_tickets` CHANGE `tkt_cust_id` `tkt_cust_id` BIGINT(20) UNSIGNED NOT NULL;";
-
-                //Create new roles
-                self::create_roles();    
-                //Migrate customers from our customers table to WP_users. We do this  after deleting the foreign key
-                $this->move_customers_to_wp_users(); 
-            }
+ 
             if ( $sanitized_version < 160 ){//In 1.6.0, we added attachments. Consider changing these ifs to a switch case
                 //@since $this->ksd_db_version 110. Added attachments table
                 $dbChanges[]= KSD_Install::create_attachments_table();
@@ -351,51 +337,7 @@ class KSD_Install {
 				'delete_posts' 	=> false
 			) );
             }
-            
-            /**
-             * Migrate customers from {$wpdb->prefix}kanzusupport_customers to {$wpdb->prefix}users
-             * @since 1.5.0
-             */
-            private function move_customers_to_wp_users(){            
-               require_once( KSD_PLUGIN_DIR .  'includes/admin/class-ksd-admin.php' );
-               $ksd_admin =  KSD_Admin::get_instance();
-               $ksd_admin->do_admin_includes();
-               $CC = new KSD_Customers_Controller();
-               $filter = "%d";
-               $value_parameters[] = 1;
-               $all_customers = $CC->get_customers( $filter, $value_parameters );//Get all the customers
-               
-               foreach( $all_customers as $customer ){
-                    $username = sanitize_user( preg_replace('/@(.)+/','',$customer->cust_email ) );//Derive a username from the emailID
-                    //Ensure username is unique. Adapted from WooCommerce
-                    $append     = 1;
-                    $new_username = $username;
-                    
-                    while ( username_exists( $username ) ) { 
-			$username = $new_username . $append;
-			$append ++;
-                    }
-                    $password = wp_generate_password();//Generate a random password                   
-                    
-                    $userdata = array(
-                        'user_login'    => $username,
-                        'user_pass'     => $password,  
-                        'user_email'    => $customer->cust_email,
-                        'display_name'  => empty( $customer->cust_lastname ) ? $customer->cust_firstname : $customer->cust_firstname.' '.$customer->cust_lastname,
-                        'first_name'    => $customer->cust_firstname,
-                        'role'          => 'ksd_customer',
-                        'last_name'     => $customer->cust_lastname
-                    );
-                    $user_id = wp_insert_user( $userdata ) ;
-                    if( !is_wp_error($user_id) ) {
-                        //Get all tickets created by this customer and update the ID
-                        global $wpdb;
-                        $TC = new KSD_Tickets_Controller(); 
-                        $update_query = "UPDATE `{$wpdb->prefix}kanzusupport_tickets` SET `tkt_cust_id` = {$user_id} WHERE `tkt_cust_id` = {$customer->cust_id};";
-                        $TC->exec_query( $update_query );//Chose to use a custom query since this is just a one-off
-                    }
-               }
-            }
+           
 
             
             /**

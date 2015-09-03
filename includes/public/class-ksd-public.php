@@ -144,6 +144,17 @@ class KSD_Public {
         public function apply_templates( $content ){
             global $post;
             if ( $post && $post->post_type == 'ksd_ticket' && is_singular( 'ksd_ticket' ) && is_main_query() && !post_password_required() ) {
+                if( !is_user_logged_in() ) { //@TODO Send the current URL as the redirect URL for the 'login' and 'Register' action
+                    include_once( KSD_PLUGIN_DIR.  "includes/admin/class-ksd-admin.php");
+                    $form_position_class = 'ksd-form-short-code';
+                    include( KSD_PLUGIN_DIR .  'includes/public/views/html-public-register.php' ); 
+                    return;
+                } 
+                        global $current_user;   
+                        if( in_array( 'ksd_customer', $current_user->roles ) && $current_user->ID != $post->post_author ){//This is a customer
+                           return __( "Sorry, you do not have sufficient priviledges to view another customer's tickets", "kanzu-support-desk" );
+                        }
+
                         //Include the templating class
                         include_once( KSD_PLUGIN_DIR.  "includes/public/class-ksd-templates.php");
                         

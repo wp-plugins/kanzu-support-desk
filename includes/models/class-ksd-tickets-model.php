@@ -56,7 +56,6 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
 	*/
 	public  function get_all( $filter = "", $value_parameters=array() ){
                 global $wpdb;
-                $this->_tablename =  "{$wpdb->prefix}posts";
 		return parent::get_all( $filter,$value_parameters );
 	}
  

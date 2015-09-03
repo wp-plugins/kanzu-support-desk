@@ -155,6 +155,15 @@ class KSD_Tickets_Controller extends KSD_Controller {
         public function get_filter_totals( $user_id, $recency){
              return  $this->_model->get_filter_totals( $user_id,$recency );
         }
+        
+        /**
+         * Sets the table name to be used by the model class
+         * 
+         * @param type $tablename
+         */
+        public function set_tablename( $tablename ){
+            $this->_model->set_tablename( $tablename );
+        }
 
 
 }

@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.3
-Stable tag: 2.0.0
+Stable tag: 2.0.1
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,11 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 2.0.1, September 03, 2015 =
+ * Correct 'Settings' link in plugins screen
+ * Remove logic for KSD < 1.5.0
+ * Fix access permissions: Unauthenticated user shouldn't see ticket(s)
+
 = 2.0.0, August 29, 2015 =
  * Overhaul: Switched from custom tables to custom post types for all ticket info
  * Customers can reply and follow ticket progress from your website 
@@ -242,6 +247,10 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 2.0.1 =
+ * Correct 'Settings' link in plugins screen
+ * Remove logic for KSD < 1.5.0
+
 = 2.0.0 =
  * Customers can view and follow ticket progress from your website
 
