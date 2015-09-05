@@ -1158,15 +1158,20 @@ class KSD_Admin {
          */
         
         public function reply_ticket( $ticket_reply_array=null ){
-                //In add-on mode, this function was called by an add-on
+            //In add-on mode, this function was called by an add-on
             $add_on_mode = ( is_array( $ticket_reply_array ) ? true : false );
             
-             if ( ! $add_on_mode ){//Check for NONCE if not in add-on mode     
-                if ( ! wp_verify_nonce( $_POST['ksd_new_reply_nonce'], 'ksd-add-new-reply' ) ){
+            //Front end reply nonce check
+            if( isset( $_POST['ksd_new_reply_nonce'] ) ){
+                $_POST['ksd_admin_nonce'] = $_POST['ksd_new_reply_nonce'];
+            }
+            
+            if ( ! $add_on_mode ){//Check for NONCE if not in add-on mode     
+                if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
 	 		 die ( __('Busted!','kanzu-support-desk') );
                 }
-              }
-                $this->do_admin_includes();
+            }
+            $this->do_admin_includes();
                 
                 try{
                     $new_reply = array(); 
@@ -2544,6 +2549,7 @@ class KSD_Admin {
             $defaults['assigned_to']    = __( 'Assigned To', 'kanzu-support-desk' );
             $defaults['severity']       = __( 'Severity', 'kanzu-support-desk' );
             $defaults['customer']       = __( 'Customer', 'kanzu-support-desk' );
+            $defaults['replies']        = __( 'Replies', 'kanzu-support-desk' );
             return $defaults;
         }
         
@@ -2709,6 +2715,14 @@ class KSD_Admin {
             if ( $column_name == 'customer' ) {
                 global $post;
                 echo   get_userdata( $post->post_author )->display_name;
+            } 
+            if ( $column_name == 'replies' ) {
+                global $wpdb;
+                $reply_count 
+                        = $wpdb->get_var( " SELECT COUNT(ID) FROM {$wpdb->prefix}posts WHERE "
+                        . " post_type = 'ksd_reply' AND post_parent = '${post_id}' " 
+                        );
+                echo   $reply_count;
             } 
         }
         
