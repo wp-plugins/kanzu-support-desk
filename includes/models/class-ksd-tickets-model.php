@@ -184,7 +184,7 @@ include_once( KSD_PLUGIN_DIR .  'includes/libraries/class-ksd-model.php' );
           */
          public function get_ticket_count_by_status(){     
              global $wpdb;
-             $query = "SELECT count(tkt_id) AS `count`,`tkt_status` FROM `{$wpdb->prefix}kanzusupport_tickets` group by `tkt_status`";
+             $query = "SELECT count(ID) AS `count`,`post_status` FROM `{$wpdb->prefix}posts` where `post_type` = 'ksd_ticket' group by `post_status`";
              return parent::exec_query( $query );
          }
  

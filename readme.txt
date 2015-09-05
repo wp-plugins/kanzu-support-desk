@@ -4,7 +4,7 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.3
-Stable tag: 2.0.2
+Stable tag: 2.0.3
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -103,6 +103,9 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+= 2.0.3, September 05, 2015 =
+ * BUG FIX | Generate debug file correctly
+
 = 2.0.2, September 05, 2015 =
  * BUG FIX | Agent could not send a reply
  * Add reply count to ticket grid
@@ -251,6 +254,9 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 2.0.3 =
+ * BUG FIX | Generate debug file correctly
+
 = 2.0.2 =
  * BUG FIX | Agent could not send a reply
  * Add reply count to ticket grid
