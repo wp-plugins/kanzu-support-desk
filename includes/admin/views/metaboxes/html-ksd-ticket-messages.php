@@ -1,5 +1,8 @@
 <div id="ksd-messages-metabox">
-    <div id="ksd-ticket-message"><?php echo $the_ticket->post_content; ?></div>
+    <div id="ksd-ticket-message">
+        <?php $ksd_cc = get_post_meta ( $the_ticket->ID, '_ksd_tkt_info_cc', true ); 
+        if ( ! empty ( $ksd_cc ) ) : ?><div class="ksd-ticket-cc"><?php _e ( 'CC', 'ksd-support-desk' ) ; ?>:<span class="ksd-cc-emails"><?php echo $ksd_cc; ?></span></div><?php endif; ?>
+        <?php echo $the_ticket->post_content; ?></div>
     <ul id="ksd-ticket-replies" class="pending"><?php _e('Loading Replies...', 'kanzu-support-desk'); ?></ul>   
     <div id="edit-ticket-tabs"> 
         <ul class="edit-ticket-options">
@@ -17,6 +20,6 @@
     <?php wp_nonce_field( 'ksd-add-new-reply', 'ksd_new_reply_nonce' ); ?>
     <div class="ksd-reply-submit-wrapper">
         <span class="spinner ksd-reply-spinner hidden"></span>
-        <input type="submit" value="<?php _e('Send', 'kanzu-support-desk'); ?>" name="ksd_reply_ticket" id="ksd-reply-ticket-submit" class="button button-primary button-large ksd-submit"/> 
+        <input type="submit" value="<?php _e('Send', 'kanzu-support-desk'); ?>" name="ksd_reply_ticket" id="ksd-reply-ticket-submit" class="button button-primary button-large ksd-submit"/>         
     </div>
 </div>  

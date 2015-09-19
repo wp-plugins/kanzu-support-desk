@@ -33,12 +33,12 @@ class KSD_Admin {
 	 */
 	public function __construct() {
 
-		// Load admin style sheet and JavaScript.
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
+            // Load admin style sheet and JavaScript.
+            add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_styles' ) );
+            add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
-		// Add the options page and menu item.
-		add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
+            // Add the options page and menu item.
+            add_action( 'admin_menu', array( $this, 'add_menu_pages' ) );
                 
                 //Add the attachments button
                 add_action('media_buttons', array( $this, 'add_attachments_button' ), 15 );
@@ -225,7 +225,8 @@ class KSD_Admin {
                 $admin_labels_array['lbl_toggle_trimmed_content']   = __('Toggle Trimmed Content','kanzu-support-desk');
                 $admin_labels_array['lbl_tickets']                  = __( 'Tickets','kanzu-support-desk' );
                 $admin_labels_array['lbl_CC']                       = __( 'CC','kanzu-support-desk' );
-                $admin_labels_array['lbl_replytoall']               = __( 'Reply to all','kanzu-support-desk' );
+                $admin_labels_array['lbl_reply_to_all']             = __( 'Reply to all','kanzu-support-desk' );
+                $admin_labels_array['lbl_populate_cc']              = __( 'Populate CC field','kanzu-support-desk' );
                 $admin_labels_array['lbl_save']                     = __( 'Save','kanzu-support-desk' );
                 $admin_labels_array['lbl_update']                   = __( 'Update','kanzu-support-desk' );
                 $admin_labels_array['lbl_created_on']               = __( 'Created on','kanzu-support-desk' );
@@ -953,12 +954,15 @@ class KSD_Admin {
                 $reply->post_author = get_userdata( $reply->post_author )->display_name;
                 //@TODO Get the reply's attachments
                 
-                //Change the time to somoething more human-readable
+                //Change the time to something more human-readable
                 $reply->post_date = date_i18n( __( 'M j, Y @ H:i' ), strtotime( $reply->post_date ) ); 
                 
                 //Format the message for viewing
                 $reply->post_content = $this->format_message_content_for_viewing( $reply->post_content );
-            }    
+                
+                //Add reply's CC
+                $reply->ksd_cc = get_post_meta( $reply->ID, '_ksd_tkt_info_cc', true );
+            } 
             return $replies;
         }
         
@@ -1207,6 +1211,11 @@ class KSD_Admin {
                     }
                    //Add the reply to the replies table                         
                    $new_reply_id = wp_insert_post( $new_reply );
+                   
+                    if( null !== $cc ){
+                        add_post_meta( $new_reply_id , '_ksd_tkt_info_cc', $cc, true );
+                    }
+                    
                             
                     //Update the main ticket's tkt_time_updated field.  
                     $parent_ticket = get_post( $parent_ticket_ID );
@@ -2512,8 +2521,11 @@ class KSD_Admin {
          * @since 1.6.8
          */
         private function add_tinymce_cc_button(){
-            add_filter("mce_external_plugins", array ( $this, "add_tinymce_cc_plugin" ) );
-            add_filter('mce_buttons', array ( $this, 'register_tinymce_cc_button' ), 10, 2 );
+            if( 'edit' !== filter_input ( INPUT_GET, 'action') && 'ksd_ticket' !== filter_input ( INPUT_GET, 'post_type')  ){
+                return;
+            }
+            add_filter( "mce_external_plugins", array ( $this, "add_tinymce_cc_plugin" ) );
+            add_filter( 'mce_buttons', array ( $this, 'register_tinymce_cc_button' ), 10, 2 );
         }
         
         /**
@@ -2526,13 +2538,14 @@ class KSD_Admin {
             return $plugin_array;
         }
         
-		/**
+        /**
          * Register the CC button
          * @param type $buttons
          * @return type
          */
         public function register_tinymce_cc_button( $buttons,  $editor_id ) {
-            if ( strpos ( $editor_id , 'ksd_' ) !== false ){//Add the CC button only if it is a KSD editor (not a post, page, etc editor)
+            global $current_screen;
+            if ( 'ksd_ticket' === $current_screen->post_type ){//Add the CC button only if it is a KSD editor (not a post, page, etc editor)
                 array_push( $buttons, 'ksd_cc_button' );  
             }
             return $buttons;

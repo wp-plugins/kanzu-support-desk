@@ -3,7 +3,7 @@
  * Plugin Name:       Kanzu Support Desk
  * Plugin URI:        http://kanzucode.com/kanzu-support-desk
  * Description:       Simple, powerful, personal customer service ( support ticket ) solution for your small business
- * Version:           2.0.3
+ * Version:           2.0.4
  * Author:            Kanzu Code
  * Author URI:        http://kanzucode.com
  * Text Domain:       kanzu-support-desk
@@ -24,7 +24,7 @@ final class Kanzu_Support_Desk {
 	/**
 	 * @var string
 	 */
-	public $version = '2.0.3';
+	public $version = '2.0.4';
 	
 	
 	/**

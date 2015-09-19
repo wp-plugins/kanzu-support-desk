@@ -1,4 +1,4 @@
-	<?php
+<?php
 /**
  * Front-end of Kanzu Support Desk
  *
@@ -40,8 +40,46 @@ class KSD_Public {
         
         //Redirect customers on login                
         add_filter( 'login_redirect', array ( $this, 'do_login_redirect' ), 10, 3 );
+        
+        //Add CC button to tinyMCE editor
+        $this->add_tinymce_cc_button();
     }
     
+    /**
+     * Add cc button
+     * @since 2.0.3
+     */
+    private function add_tinymce_cc_button(){
+        if( is_admin() ){
+            return;
+        }
+        add_filter( "mce_external_plugins", array ( $this, "add_tinymce_cc_plugin" ) );
+        add_filter( 'mce_buttons', array ( $this, 'register_tinymce_cc_button' ), 10, 2 );
+    }
+
+    /**
+     * Register the CC tinymce button
+     * @param array $plugin_array
+     * @return string
+     * @since 2.0.3
+     */
+    public function add_tinymce_cc_plugin( $plugin_array ) {
+            $plugin_array['KSDCC'] = KSD_PLUGIN_URL. '/assets/js/ksd-wp-editor-cc.js';                    
+            return $plugin_array;
+    }
+
+    /**
+     * Register the CC button
+     * @param type $buttons
+     * @return type
+     * @since 2.0.3
+     */
+    public function register_tinymce_cc_button( $buttons,  $editor_id ) {
+            global $current_screen;
+            array_push( $buttons, 'ksd_cc_button' ); 
+            return $buttons;
+    }
+
     /**
      * Generate the ticket form that's displayed in the front-end
      * NB: We only show the form if you enabled the 'show_support_tab' option
@@ -108,7 +146,7 @@ class KSD_Public {
          * @since 1.0.0
          */
         public function enqueue_public_scripts() {	
-            wp_enqueue_script( KSD_SLUG . '-public-js', KSD_PLUGIN_URL .  'assets/js/ksd-public.js' , array( 'jquery', 'jquery-ui-core' ), KSD_VERSION );
+            wp_enqueue_script( KSD_SLUG . '-public-js', KSD_PLUGIN_URL .  'assets/js/ksd-public.js' , array( 'jquery', 'jquery-ui-core','jquery-ui-tooltip' ), KSD_VERSION );
             $ksd_public_labels =  array();
             $ksd_public_labels['msg_grecaptcha_error']  = sprintf( __( 'Please check the <em>%s</em> checkbox and wait for it to complete loading', 'kanzu-support-desk'), "I'm not a robot" );
             $ksd_public_labels['msg_error_refresh']     = __('Sorry, but it seems like something went wrong. Please try again or reload the page.','kanzu-support-desk');
@@ -119,6 +157,9 @@ class KSD_Public {
             $ksd_public_labels['lbl_first_name']        = __('First Name','kanzu-support-desk');
             $ksd_public_labels['lbl_last_name']         = __('Last Name','kanzu-support-desk');
             $ksd_public_labels['lbl_username']          = __('Username','kanzu-support-desk');
+            $ksd_public_labels['lbl_CC']                = __('CC','kanzu-support-desk');
+            $ksd_public_labels['lbl_reply_to_all']      = __( 'Reply to all','kanzu-support-desk' );
+            $ksd_public_labels['lbl_populate_cc']       = __( 'Populate CC field','kanzu-support-desk' );
             
             //@TODO Don't retrieve settings again. Use same set of settings
             $settings = Kanzu_Support_Desk::get_settings();
@@ -374,13 +415,13 @@ class KSD_Public {
                 'exclude_from_search'       => true,
                 'label_count'               => _n_noop( 'Resolved <span class="count">(%s)</span>', 'Resolved <span class="count">(%s)</span>' )
                 ) );
-            register_post_status( 'new', array(
-                'label'                     => _x( 'Resolved', 'status of a ticket', 'kanzu-support-desk' ),
+            register_post_status( 'new', array(  
+                'label'                     => _x( 'New', 'status of a ticket', 'kanzu-support-desk' ),
                 'public'                    => true,
                 'show_in_admin_all_list'    => true,
                 'show_in_admin_status_list' => true,
                 'exclude_from_search'       => true,
-                'label_count'               => _n_noop( 'Resolved <span class="count">(%s)</span>', 'Resolved <span class="count">(%s)</span>' )
+                'label_count'               => _n_noop( 'New <span class="count">(%s)</span>', 'New <span class="count">(%s)</span>' )
                 ) );
         }
         

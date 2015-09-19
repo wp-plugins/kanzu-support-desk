@@ -1,6 +1,8 @@
+<div>
 <?php
     wp_editor( '',  'ksd-public-new-reply', array( "textarea_rows" => 5 ) );
 ?>
+</div>
 <div id="ksd-public-reply-error" class="hidden"></div>
 <div id="ksd-public-reply-success" class="hidden"></div>
 <?php wp_nonce_field( 'ksd-add-new-reply', 'ksd_new_reply_nonce' ); ?>

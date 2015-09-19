@@ -367,6 +367,9 @@ a.ksd-new-ticket-cc {
 a.ksd-new-ticket-cc:visited {
     color: #2ea2cc;
 }
+.ksd-tkt-cc-wrapper{
+    clear: both;
+}
 /*New Tickets*/
 #new-ticket input{
     height: 35px;
@@ -405,14 +408,17 @@ ul#ksd_attachments li,ul#ksd_attachments-single-ticket li {
     margin-left: 30px;
     width: 32px;
 }
-.ksd-subject,.ksd-message,.ksd-tags,.ksd-cc{
+.ksd-subject,.ksd-message,.ksd-tags{
     width: 100%;
 }
 
-.ksd-cc{
-    display: none;
+.ksd-cc{ 
+    width: 80%;
 }
 
+.ksd-cc-field-error, .ksd-cc-field-error:focus{
+    border: 1px solid #F00 !important;
+}
 .edit-ticket-description .ksd-cc{ margin-bottom: 5px;}
 
 #post-body .ksd-misc-severity::before {
@@ -534,6 +540,10 @@ h1.ksd-single-ticket-subject {
     color: #999;
 }
 
+.ksd_cc{
+    display: inline-block;
+    color: #777;
+}
 #ksd-single-ticket .date {
     float: right;
     padding-right: 15px;
@@ -704,6 +714,13 @@ div.replies-more:hover{
 }
 .reply_date {
   float: right;
+}
+
+.ksd-reply-cc {
+    float: left;
+    clear: both;
+    color: #777;
+    font-size: 0.9em;
 }
 .reply_message {
   clear: both;

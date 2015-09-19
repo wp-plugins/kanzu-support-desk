@@ -1262,13 +1262,31 @@ jQuery(document).ready(function () {
             if ( 'undefined' === typeof ( post_title ) ){
                 post_title = jQuery( '#titlewrap h2.post_title' ).text();//This is the title we expect to get always
             }
+            
+            //Validate CC when action is ksd_reply_ticket and indicate that there is validation error
+            jQuery('#ksd-cc-field').attr('title','');
+            jQuery('#ksd-cc-field').removeClass('ksd-cc-field-error');
+            if( jQuery('#ksd-cc-field').val().length && 'none' !== jQuery('#ksd-cc-field').css("display") ){
+                var ccArr = jQuery('#ksd-cc-field').val().split(',');
+                var ccLen = ccArr.length;
+                for( i=0; i < ccLen; i++ ){
+                    if( ! ccArr[i].match(/@/) ){
+                        jQuery('#ksd-cc-field').attr('title', ksd_admin.ksd_labels.validator_cc ); 
+                        jQuery('#ksd-cc-field').addClass('ksd-cc-field-error');
+                        jQuery('.ksd-reply-spinner').removeClass('is-active').addClass('hidden');
+                        return false;
+                    }
+                }
+            }
+            
             jQuery.post(    ksd_admin.ajax_url,
                     {   action: action,
                         ksd_admin_nonce: ksd_admin.ksd_admin_nonce,
                         ksd_ticket_reply: tinyMCE.activeEditor.getContent(),
                         ksd_reply_title: post_title,
                         tkt_private_note: jQuery('textarea[name=tkt_private_note]').val(),
-                        tkt_id: jQuery.urlParam('post')
+                        tkt_id: jQuery.urlParam('post'),
+                        ksd_tkt_cc: jQuery("#ksd-cc-field").val()
                     },
                     function (response) {
                         var respObj = {};
@@ -1294,6 +1312,10 @@ jQuery(document).ready(function () {
                         replyData += '<span class="reply_date">' + d.toLocaleString() + '</span>';
                         replyData += "<div class='reply_message'>";
 
+                        if( respObj.rep_cc != null && respObj.rep_cc.match(/@/)){
+                            replyData += "<div class='ksd-tkt-cc-wrapper'><span class='ksd_cc'>" + ksd_admin.ksd_labels.lbl_CC + ": "+ respObj.rep_cc + "</span></div>";
+                        }
+							
                         switch ( action ) {
                             case "ksd_update_private_note":
                                 KSDUtils.showDialog("success", respObj);
@@ -1753,12 +1775,8 @@ jQuery(document).ready(function () {
                             repliesData += "<span class='reply_author'>" + value.post_author + "</span>";
                             repliesData += "<span class='reply_date'>" + value.post_date + "</span>";
                             
-                            //cc //@TODO Update this
-                            if( value.rep_cc != null && value.rep_cc.match(/@/)){
-                                repliesData += "<div><span class='ksd_cc'>" + ksd_admin.ksd_labels.lbl_CC + ": "+ value.rep_cc + "</span></div>";
-                                jQuery("#edit-ticket #reply_toall_button").attr("data", value.rep_cc);
-                                jQuery("#edit-ticket #reply_toall_button").attr("hascc", "1");
-                                jQuery("#edit-ticket #reply_toall_button").css({"display":"inline-block"});
+                            if( value.ksd_cc !== null && value.ksd_cc.match(/@/)){
+                                repliesData += "<div class='ksd-reply-cc'>" + ksd_admin.ksd_labels.lbl_CC + ": <span class='ksd-cc-emails'>"+ value.ksd_cc + "</span></div>";
                             }
                             
                             repliesData += "<div class='reply_message'>" + _this.formatSingleReplyMessage(value.post_content) + "</div>";                            
