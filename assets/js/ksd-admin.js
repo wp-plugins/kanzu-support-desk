@@ -286,16 +286,10 @@ jQuery(document).ready(function () {
             /**AJAX: Update settings**/
             jQuery('form#update-settings').submit(function (e) {
                 e.preventDefault();
-                var data;
-                if (jQuery(this).find("input[type=submit]:focus").hasClass("ksd-reset")) {//The  reset button has been clicked
-                    data = {action: 'ksd_reset_settings', ksd_admin_nonce: ksd_admin.ksd_admin_nonce}
-                }
-                else if (jQuery(this).find("input[type=submit]:focus").hasClass("ksd-submit")) {//The update button has been clicked
-                    data = jQuery(this).serialize();//The action and nonce are hidden fields in the form
-                }
-                else {//Another button has been clicked. Like 'Activate License' and 'De-activate License'
-                    return false;
-                }
+            });
+
+            jQuery('input[name=ksd-settings-reset]').click(function(e){ 
+                var data = {action: 'ksd_reset_settings', ksd_admin_nonce: ksd_admin.ksd_admin_nonce}
                 KSDUtils.showDialog("loading");
                 jQuery.post(ksd_admin.ajax_url,
                         data,
@@ -304,7 +298,23 @@ jQuery(document).ready(function () {
                                 return;
                             }
                             KSDUtils.showDialog("success", JSON.parse(response));
-                        });
+                });
+
+            });
+            
+            jQuery('input[name=ksd-settings-submit]').click(function(e){     
+                var data = jQuery('form#update-settings').serialize();//The action and nonce are hidden fields in the form
+                
+                KSDUtils.showDialog("loading");
+                jQuery.post(ksd_admin.ajax_url,
+                        data,
+                        function (response) {
+                            if (KSDUtils.ajaxResponseErrorCheck(response)) {
+                                return;
+                            }
+                            KSDUtils.showDialog("success", JSON.parse(response));
+                });
+
             });
 
             //Add Tooltips for the settings panel

@@ -43,6 +43,26 @@ class KSD_Public {
         
         //Add CC button to tinyMCE editor
         $this->add_tinymce_cc_button();
+        
+        //Add ticket cc
+        add_filter('the_content', array( $this, 'add_ticket_cc') );
+    }
+    
+    /**
+     * Preppends the CC to the ticket
+     * 
+     * @global WP_Post $post
+     * @param int $post_id
+     * @return string $content
+     * @since 2.0.4
+     */
+    public function add_ticket_cc( $content ){
+        global $post;
+        $cc = get_post_meta( $post->ID, '_ksd_tkt_info_cc', true);
+        if( "" !== trim($cc) ){
+            $content = '<div class="ksd-ticket-cc"><span class="ksd-cc-emails">' . __( 'CC', 'kanzu-support-desk' ) . $cc . '</span></div>' . $content;   
+        }
+        return $content;
     }
     
     /**

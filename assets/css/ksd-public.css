@@ -238,7 +238,7 @@ ul#ksd-ticket-replies li {
     width: 50%;
     font-weight: bold;
 }
-.wp-editor-container {
+#wp-ksd-public-new-reply-wrap .wp-editor-container {
   border: 1px solid #CCC;
   clear: both;
   margin-bottom: 15px;
@@ -248,10 +248,26 @@ ul#ksd-ticket-replies li {
     width: 80% !important;
     margin-bottom: 5px;
 }
+ul.ksd_attachments{
+    margin-top:1px;
+}
+ul.ksd_attachments li{
+    background-color: #fafafa;
+    background-image: url("../images/icons/attachment.png");
+    background-position: 10px center;
+    background-repeat: no-repeat;
+    border: 1px solid #dcdcdc;
+    line-height: 30px;
+    padding-left: 30px;
+    width: 90%;
+    margin: 5px auto;
+    position: relative;
+    list-style:none;
+    
+}
 
 @media screen and (max-width: 600px) {
  .ksd-form-short-code .ksd-submit,.ksd-form-widget .ksd-submit{
     width: 90%;
 }
 }
- 

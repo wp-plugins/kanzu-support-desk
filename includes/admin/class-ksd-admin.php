@@ -1165,16 +1165,21 @@ class KSD_Admin {
             //In add-on mode, this function was called by an add-on
             $add_on_mode = ( is_array( $ticket_reply_array ) ? true : false );
             
-            //Front end reply nonce check
-            if( isset( $_POST['ksd_new_reply_nonce'] ) ){
-                $_POST['ksd_admin_nonce'] = $_POST['ksd_new_reply_nonce'];
-            }
-            
-            if ( ! $add_on_mode ){//Check for NONCE if not in add-on mode     
-                if ( ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
-	 		 die ( __('Busted!','kanzu-support-desk') );
+
+            if ( ! $add_on_mode ){//Check for NONCE if not in add-on mode    
+                if( isset( $_POST['ksd_admin_nonce'] ) || isset( $_POST['ksd_new_reply_nonce'] ) ){
+                    if ( isset( $_POST['ksd_admin_nonce'] ) &&  ! wp_verify_nonce( $_POST['ksd_admin_nonce'], 'ksd-admin-nonce' ) ){
+                        die ( __('Busted!','kanzu-support-desk') );  
+                    }
+                    //Front end reply nonce check
+                    if ( isset( $_POST['ksd_new_reply_nonce'] ) &&  ! wp_verify_nonce( $_POST['ksd_new_reply_nonce'], 'ksd-add-new-reply' ) ){
+                        die ( __('Busted!','kanzu-support-desk') ); 
+                    } 
+                }else{
+                    die ( __('Busted!','kanzu-support-desk') );
                 }
             }
+            
             $this->do_admin_includes();
                 
                 try{
@@ -1318,6 +1323,8 @@ class KSD_Admin {
                 $value_parameters[] = 'resolved' ;
                 $value_parameters[] = $new_ticket['ksd_tkt_cust_id'] ;
                 
+                global $wpdb;
+                $TC->set_tablename( "{$wpdb->prefix}posts" );
                 $the_ticket = $TC->get_tickets( $filter, $value_parameters );
                 if ( count( $the_ticket ) > 0  ){//This is a reply
                     //Create the array the reply function expects
@@ -1457,7 +1464,6 @@ class KSD_Admin {
                 //Get the settings. We need them for tickets logged from the support tab
                 $settings = Kanzu_Support_Desk::get_settings();                
 
-
                 //Return a different message based on the channel the request came on
                 $output_messages_by_channel = array();
                 $output_messages_by_channel[ 'admin-form' ] = __( 'Ticket Logged. Sending notification...', 'kanzu-support-desk');
@@ -1532,9 +1538,9 @@ class KSD_Admin {
                 $new_ticket_status = (  $new_ticket_id > 0  ? $output_messages_by_channel[ $tkt_channel ] : __("Error", 'kanzu-support-desk') );
 
                 //@TODO Save the attachments
-                //if( isset( $new_ticket_raw['ksd_attachments'] ) ){
-                //    $this->add_ticket_attachments( $new_ticket_id, $new_ticket_raw['ksd_attachments'] );
-                //}
+                if( isset( $new_ticket_raw['ksd_attachments'] ) ){
+                    $this->add_ticket_attachments( $new_ticket_id, $new_ticket_raw['ksd_attachments'] );
+                }
                 
                 //If the ticket was logged by using the import feature, end the party here
                 if( isset( $new_ticket_raw['ksd_tkt_imported'] ) ){
@@ -1661,10 +1667,35 @@ class KSD_Admin {
          * @param Boolean $is_reply Whether this is a reply or a ticket
          */
         private function add_ticket_attachments( $ticket_id, $attachments_array, $is_reply=false ) {
+            $attachment_html = ''; 
             for ( $i = 0; $i < count( $attachments_array['url'] ); $i++ ) {
-                $AC = new KSD_Attachments_Controller();//We don't sanitize these values because they aren't supplied by the user. The system generates them
-                $AC->add_attachment( $ticket_id, $attachments_array['url'][$i], $attachments_array['size'][$i], $attachments_array['filename'][$i], $is_reply );
+                $filename = $attachments_array['url'][$i];
+                $filetype = wp_check_filetype( basename( $filename ), null );
+                
+                $attachment = array(
+                        'guid'           => $filename, 
+                        'post_mime_type' => $filetype,
+                        'post_title'     => preg_replace( '/\.[^.]+$/', '', basename( $filename ) ),
+                        'post_content'   => '',
+                        'post_status'    => 'inherit'
+                );
+                
+                // Insert the attachment.
+                $attach_id = wp_insert_attachment( $attachment, $filename, $ticket_id );
+                require_once( ABSPATH . 'wp-admin/includes/image.php' );
+                $attach_data = wp_generate_attachment_metadata( $attach_id, $filename );
+                wp_update_attachment_metadata( $attach_id, $attach_data );
+                $attachment_html .= '<li><a href="' . get_attachment_link($attach_id) . '">' . preg_replace( '/\.[^.]+$/', '', basename( $filename ) ) . '</a></li>';
             }
+            
+            if( count($attachments_array) > 0 ){
+                $attachment_html = '<div class="ksd-attachments-addon">'.__( 'Attachments', 'kanzu-support-desk' ).': <ul class="ksd_attachments">' .$attachment_html. '</ul></div>';
+            }
+            
+            //Update tickets message with the attachments in atachments
+            $wp_post = get_post ( (int)$ticket_id );
+            $wp_post->post_content = $wp_post->post_content . $attachment_html ;
+            wp_update_post($wp_post);
         }
         
         /**
@@ -2763,9 +2794,12 @@ class KSD_Admin {
          */
         public function display_ticket_statuses_next_to_title( $states ) {
             global $post;
-            if( $post->post_status == 'pending' || $post->post_status == 'draft' ){
-                return array ( );
+            if( 'ksd_ticket' === $post->post_type ){
+                if( $post->post_status == 'pending' || $post->post_status == 'draft' ){
+                    return array ( );
+                }
             }
+
             return $states;
         }       
 
@@ -2809,7 +2843,7 @@ class KSD_Admin {
                     $option    = 'ksd_v2migration_status';
                     $new_value =   $t->tkt_id - 1; //Last updated ticket
                     update_option( $option, $new_value );   
-                    _e( 'Error occured. Migration did not completed.', 'kanzu-support-desk');
+                    _e( 'Sorry, an error occured. The migration did not complete. Please re-try. If all fails, please get in touch with our support on support@kanzucode.com', 'kanzu-support-desk');
                     die();
                 }
                 

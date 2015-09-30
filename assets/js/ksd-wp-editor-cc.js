@@ -30,19 +30,18 @@
         }
         //Add CC filed
         var editorWrapperId = 'wp-'+editor.id + '-wrap'; 
-        var ccField         = '<input class="form-input ksd-cc" id="ksd-cc-field" type="text" ksd-cc-data="" placeholder="'+ lblCc +'" />';
+        var ccField         = '<input class="form-input ksd-cc" id="ksd-cc-field" type="text"  placeholder="'+ lblCc +'" name="ksd_tkt_cc" />';
         var ccReplyToAll    = '<span id="ksd-reply-to-all" class="button ksd-button">'+lblReplyToAll+'</span>';
         var html            = '<div id="ksd-cc-div" class="hidden">'+ccField+'</div>' ;
 
         $( "#" + editorWrapperId ).parent().prepend( html );
         $('#ksd-cc-field').tooltip();
         
-
         editor.addButton( 'ksd_cc_button', {
             text: lblCc,
             icon: false,
             onclick: function(){
-                if( $('#ksd-ticket-replies').length || $('#ksd-ticket-message').length ){ //Only show replytoall on reply page
+                if( $('#ksd-ticket-replies').length || $('#ksd-ticket-message').length ){ //Only show replytoall on reply page 
                     cc = $('.ksd-ticket-cc span.ksd-cc-emails').text();                    
                     if( $('.ksd-reply-cc:first').length ){
                         cc += $('.ksd-reply-cc:first span.ksd-cc-emails').text();

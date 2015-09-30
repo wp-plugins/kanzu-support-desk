@@ -4,11 +4,11 @@ Donate link: https://kanzucode.com/
 Tags: admin,administration,customer service,ticket,case,system,support,help,helpdesk,ticket system,support system,crm,contact
 Requires at least: 3.0.1
 Tested up to: 4.3
-Stable tag: 2.0.4
+Stable tag: 2.0.5
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Kanzu Support Desk (KSD) is a customer service ( support ticket ) solution that allows you to respond effectively to every customer query in under 5 minutes.
+Kanzu Support Desk (KSD) is a simple but powerful customer service (support ticket) solution that takes your support to the next level.
 
 == Description ==
 
@@ -103,6 +103,12 @@ Yes; KSD will work with any theme
 7. Private note support
 
 == Changelog ==
+
+= 2.0.5, September 30, 2015 =
+ * BUG FIX | Updating settings not working in Safari
+ * BUG FIX | "Draft" declaration removed only for ksd_ticket post type, not all types
+ * Add attachment support for tickets from add-ons
+
 = 2.0.4, September 19, 2015 =
  * Support CCs in tickets
  * BUG FIX | Do add-on updates seamlessly
@@ -258,6 +264,12 @@ Yes; KSD will work with any theme
 * Launched.
 
 == Upgrade Notice ==
+= 2.0.5 =
+ * BUG FIX | Update button fix for Safari browser
+
+= 2.0.4 =
+ * Support for cc's in tickets
+
 = 2.0.3 =
  * BUG FIX | Generate debug file correctly
 
